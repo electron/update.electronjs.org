@@ -1,12 +1,9 @@
 'use strict'
 
 const http = require('http')
+const fetch = require('node-fetch')
 
 class Updates {
-  constructor () {
-    this.cache = new Map()
-  }
-
   listen (port, cb) {
     const server = http.createServer((req, res) => {
       this.handle(req, res).catch(err => {
@@ -21,39 +18,48 @@ class Updates {
 
   async handle (req, res) {
     const segs = req.url.split('/').filter(Boolean)
-    const [account, repository, method, platform, version] = segs
+    const [account, repository, platform, version] = segs
+    if (!account || !repository || !platform || !version) return notFound(res)
 
-    if (account && repository && method === 'update' && platform && version) {
-      this.handleUpdate(res, account, repository, platform, version)
-    } else if (account && repository && method === 'download' && platform) {
-      this.handleDownload(res, account, repository, platform)
-    } else {
-      notFound(res)
-    }
+    await this.handleUpdate(res, account, repository, platform, version)
   }
 
-  handleUpdate (res, account, repository, platform, version) {
-    const key = `${account}/${repository}/${platform}`
-    if (this.cache.has(key)) {
-      const latest = this.cache.get(key)
-      if (latest.version === version) return noContent(res)
+  async handleUpdate (res, account, repository, platform, version) {
+    const latest = await this.getLatest(account, repository, platform)
+
+    if (!latest) {
+      notFound(res)
+    } else if (latest.version === version) {
+      noContent(res)
+    } else {
       json(res, {
         name: latest.version,
-        url: `/${account}/${repository}/download/${platform}`
+        url: latest.url
       })
-    } else {
-      if (this.cache.has(`${account / repository}`)) return notFound(res)
     }
   }
 
-  handleDownload (res, account, repository, platform) {
-    const key = `${account}/${repository}/${platform}`
-    if (this.cache.has(key)) {
-      const latest = this.cache.get(key)
-      redirect(res, latest.url)
-    } else {
+  async getLatest (account, repository, platform) {
+    const url = `https://api.github.com/repos/${account}/${repository}/releases?per_page=100`
+    const headers = { Accept: 'application/vnd.github.preview' }
+    const res = await fetch(url, { headers })
+    const releases = await res.json()
+    const latest = {}
+    for (const release of releases) {
+      for (const asset of release.assets) {
+        if (assetPlatform(asset.name) === platform) {
+          latest.version = release.name
+          latest.url = asset.browser_download_url
+          return latest
+        }
+      }
     }
   }
+}
+
+const assetPlatform = fileName => {
+  if (/.*mac.*\.zip/.test(fileName)) return 'darwin'
+  return false
 }
 
 const notFound = res => {
@@ -69,12 +75,6 @@ const noContent = res => {
 const json = (res, obj) => {
   res.setHeader('Content-Type', 'application/json')
   res.end(JSON.stringify(obj))
-}
-
-const redirect = (res, url) => {
-  res.statusCode = 302
-  res.setHeader('Location', url)
-  res.end(url)
 }
 
 module.exports = Updates

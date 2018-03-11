@@ -3,7 +3,9 @@
     "start": "nodemon bin/update-server.js",
     "test": "prettier-standard '**/*.js' && standard"
   },
-  "dependencies": {},
+  "dependencies": {
+    "node-fetch": "^2.1.1"
+  },
   "devDependencies": {
     "nodemon": "^1.17.1",
     "prettier-standard": "^8.0.0",
