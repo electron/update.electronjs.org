@@ -1,5 +1,12 @@
 {
-  "dependencies": {
-    "hazel-server": "^3.0.2"
+  "scripts": {
+    "start": "nodemon bin/update-server.js",
+    "test": "prettier-standard '**/*.js' && standard"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "nodemon": "^1.17.1",
+    "prettier-standard": "^8.0.0",
+    "standard": "^11.0.0"
   }
 }

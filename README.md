@@ -4,5 +4,18 @@ WIP public electron update server.
 
 ## Routes
 
-### `/:owner/:repo/:platform/:version`
-### `/:owner/:repo/win32/:version/RELEASES`
+### `/:owner/:repo/update/:platform/:version`
+
+Check for updates
+
+### `/:owner/:repo/update/win32/:version/RELEASES`
+### `/:owner/:repo/download/:platform`
+
+Download latest
+
+## Development
+
+```bash
+$ npm install
+$ npm start
+```
