@@ -5,6 +5,9 @@ const fetch = require('node-fetch')
 
 class Updates {
   listen (port, cb) {
+    if (typeof port === 'function') {
+      ;[port, cb] = [undefined, port]
+    }
     const server = http.createServer((req, res) => {
       this.handle(req, res).catch(err => {
         console.error(err.stack)
