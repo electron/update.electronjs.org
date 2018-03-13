@@ -46,6 +46,7 @@ class Updates {
     const url = `https://api.github.com/repos/${account}/${repository}/releases?per_page=100`
     const headers = { Accept: 'application/vnd.github.preview' }
     const res = await fetch(url, { headers })
+    if (res.status >= 400) return
     const releases = await res.json()
     const latest = {}
     for (const release of releases) {

@@ -27,7 +27,12 @@ test('Updates', async t => {
   t.ok(body.name)
   t.match(body.url, /-mac\.zip$/)
 
+  // exists but has no releases
   res = await fetch(`${address}/juliangruber/brace-expansion/darwin/0.0.0`)
+  t.equal(res.status, 404)
+
+  // doesn't exist
+  res = await fetch(`${address}/doesnot/exist-123123123/darwin/0.0.0`)
   t.equal(res.status, 404)
 
   server.close()
