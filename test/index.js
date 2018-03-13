@@ -21,11 +21,22 @@ test('Updates', async t => {
   let res = await fetch(`${address}/`)
   t.equal(res.status, 404)
 
+  // exists and has update
   res = await fetch(`${address}/dat-land/dat-desktop/darwin/1.0.0`)
   t.equal(res.status, 200)
   const body = await res.json()
   t.ok(body.name)
   t.match(body.url, /-mac\.zip$/)
+
+  // exists but no updates
+  res = await fetch(
+    `https://api.github.com/repos/dat-land/dat-desktop/releases?per_page=1`
+  )
+  const releases = await res.json()
+  res = await fetch(
+    `${address}/dat-land/dat-desktop/darwin/${releases[0].name}`
+  )
+  t.equal(res.status, 204)
 
   // exists but has no releases
   res = await fetch(`${address}/juliangruber/brace-expansion/darwin/0.0.0`)
