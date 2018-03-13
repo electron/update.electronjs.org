@@ -1,7 +1,7 @@
 {
   "scripts": {
     "start": "nodemon bin/update-server.js",
-    "test": "prettier-standard '**/*.js' && standard"
+    "test": "prettier-standard '**/*.js' && standard && tap test/*.js"
   },
   "dependencies": {
     "node-fetch": "^2.1.1"
@@ -9,6 +9,7 @@
   "devDependencies": {
     "nodemon": "^1.17.1",
     "prettier-standard": "^8.0.0",
-    "standard": "^11.0.0"
+    "standard": "^11.0.0",
+    "tap": "^11.1.2"
   }
 }
