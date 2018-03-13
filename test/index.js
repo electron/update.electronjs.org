@@ -17,7 +17,15 @@ const createServer = () =>
 
 test('Updates', async t => {
   const { server, address } = await createServer()
-  const res = await fetch(`${address}/`)
+
+  let res = await fetch(`${address}/`)
   t.equal(res.status, 404)
+
+  res = await fetch(`${address}/dat-land/dat-desktop/darwin/1.0.0`)
+  t.equal(res.status, 200)
+  const body = await res.json()
+  t.ok(body.name)
+  t.match(body.url, /-mac\.zip$/)
+
   server.close()
 })
