@@ -21,5 +21,5 @@ $ npm start &
 $ cd example
 $ npm install
 $ npm run build
-$ ./dist/mac/dat-desktop.app/Contents/MacOS/dat-desktop
+$ ./dist/mac/webtorrent-desktop.app/Contents/MacOS/webtorrent-desktop
 ```

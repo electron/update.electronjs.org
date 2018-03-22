@@ -1,11 +1,8 @@
 {
-  "name": "dat-desktop",
+  "name": "webtorrent-desktop",
   "version": "0.0.0",
   "scripts": {
     "build": "electron-builder --dir"
-  },
-  "build": {
-    "appId": "com.datproject.dat"
   },
   "dependencies": {},
   "devDependencies": {
