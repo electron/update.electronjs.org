@@ -1,0 +1,15 @@
+{
+  "name": "dat-desktop",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "electron-builder --dir"
+  },
+  "build": {
+    "appId": "com.datproject.dat"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^1.8.4",
+    "electron-builder": "^20.5.1"
+  }
+}

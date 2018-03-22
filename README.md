@@ -13,3 +13,13 @@ WIP public electron update server.
 $ npm install
 $ npm start
 ```
+
+To try with an actual electron app, run:
+
+```bash
+$ npm start &
+$ cd example
+$ npm install
+$ npm run build
+$ ./dist/mac/dat-desktop.app/Contents/MacOS/dat-desktop
+```
