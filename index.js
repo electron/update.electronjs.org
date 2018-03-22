@@ -28,14 +28,30 @@ class Updates {
 
   async handle (req, res) {
     this.log(req.method, req.url, '...')
-    const segs = req.url.split('/').filter(Boolean)
-    const [account, repository, platform, version] = segs
+    const segs = req.url.split(/[/?]/).filter(Boolean)
+    const [account, repository, platform, version, file] = segs
     if (!account || !repository || !platform || !version) {
       notFound(res)
+    } else if (file === 'RELEASES') {
+      await this.handleReleases(res, account, repository)
     } else {
       await this.handleUpdate(res, account, repository, platform, version)
     }
     this.log(req.method, req.url, res.statusCode)
+  }
+
+  async handleReleases (res, account, repository) {
+    const latest = await this.getLatest(account, repository, 'win32')
+    if (!latest) return notFound(res)
+
+    const url = `https://github.com/${account}/${repository}/releases/download/${
+      latest.version
+    }/RELEASES`
+    const rres = await fetch(url)
+    const body = await rres.text()
+    const matches = body.match(/[^ ]*\.nupkg/gim)
+    const nuPKG = url.replace('RELEASES', matches[0])
+    res.end(body.replace(matches[0], nuPKG))
   }
 
   async handleUpdate (res, account, repository, platform, version) {

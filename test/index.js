@@ -77,10 +77,22 @@ test('Updates', async t => {
     })
 
     await t.test('Win32', async t => {
-      let res = await fetch(`${address}/zeit/hyper/win32/0.0.0`)
+      const res = await fetch(`${address}/zeit/hyper/win32/0.0.0`)
       t.equal(res.status, 200)
-      let body = await res.json()
+      const body = await res.json()
       t.match(body.url, /\.exe$/)
+
+      await t.test('RELEASES', async t => {
+        const res = await fetch(
+          `${address}/zeit/hyper/win32/0.0.0/RELEASES?some-extra`
+        )
+        t.equal(res.status, 200)
+        const body = await res.text()
+        t.match(
+          body,
+          /^[^ ]+ https:\/\/github.com\/zeit\/hyper\/releases\/download\/[^/]+\/hyper-[^-]+-full.nupkg [^ ]+$/
+        )
+      })
     })
   })
 
