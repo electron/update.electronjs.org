@@ -74,6 +74,13 @@ test('Updates', async t => {
       let body = await res.json()
       t.match(body.url, /\.AppImage$/)
     })
+
+    await t.test('Win32', async t => {
+      let res = await fetch(`${address}/zeit/hyper/win32/0.0.0`)
+      t.equal(res.status, 200)
+      let body = await res.json()
+      t.match(body.url, /\.exe$/)
+    })
   })
 
   server.close()
