@@ -20,6 +20,19 @@ To try with an actual electron app, run:
 $ npm start &
 $ cd example
 $ npm install
+```
+
+On Darwin:
+
+```bash
 $ npm run build
 $ ./dist/mac/hyper.app/Contents/MacOS/hyper
+```
+
+On Windows:
+
+```bash
+$ npm install --save 7zip-bin-win app-builder-bin-win electron-builder-squirrel-windows
+$ npm run build
+$ "example\dist\squirrel-windows\hyper Setup 0.0.0.exe"
 ```

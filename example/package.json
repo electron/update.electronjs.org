@@ -1,11 +1,19 @@
 {
   "name": "hyper",
   "version": "0.0.0",
+  "author": "author",
+  "description": "description",
   "scripts": {
     "build": "electron-builder"
   },
   "build": {
-    "appId": "co.zeit.hyper"
+    "appId": "co.zeit.hyper",
+    "win": {
+      "target": ["squirrel"]
+    },
+    "squirrelWindows": {
+      "iconUrl": "http://example.com/"
+    }
   },
   "dependencies": {},
   "devDependencies": {
