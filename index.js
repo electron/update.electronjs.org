@@ -55,7 +55,16 @@ class Updates {
     const url = `https://api.github.com/repos/${account}/${repository}/releases?per_page=100`
     const headers = { Accept: 'application/vnd.github.preview' }
     const res = await fetch(url, { headers })
-    if (res.status >= 400) return
+
+    if (res.status === 403) {
+      console.error('Rate Limited!')
+      return
+    }
+
+    if (res.status >= 400) {
+      return
+    }
+
     const releases = await res.json()
     for (const release of releases) {
       for (const asset of release.assets) {
