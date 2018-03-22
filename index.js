@@ -45,6 +45,7 @@ class Updates {
     } else {
       json(res, {
         name: latest.version,
+        notes: latest.notes,
         url: latest.url
       })
     }
@@ -56,13 +57,14 @@ class Updates {
     const res = await fetch(url, { headers })
     if (res.status >= 400) return
     const releases = await res.json()
-    const latest = {}
     for (const release of releases) {
       for (const asset of release.assets) {
         if (assetPlatform(asset.name) === platform) {
-          latest.version = release.name
-          latest.url = asset.browser_download_url
-          return latest
+          return {
+            version: release.name,
+            url: asset.browser_download_url,
+            notes: release.body
+          }
         }
       }
     }

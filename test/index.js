@@ -27,6 +27,7 @@ test('Updates', async t => {
   const body = await res.json()
   t.ok(body.name)
   t.match(body.url, /-mac\.zip$/)
+  t.ok(body.notes)
 
   // exists but no updates
   res = await fetch(
