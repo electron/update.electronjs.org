@@ -4,9 +4,11 @@ const { test } = require('tap')
 const fetch = require('node-fetch')
 const Updates = require('..')
 
+const { TOKEN: token } = process.env
+
 const createServer = () =>
   new Promise(resolve => {
-    const updates = new Updates()
+    const updates = new Updates({ token })
     const server = updates.listen(() => {
       resolve({
         server,
@@ -16,6 +18,8 @@ const createServer = () =>
   })
 
 test('Updates', async t => {
+  t.ok(token, 'token required')
+
   const { server, address } = await createServer()
 
   await t.test('Routes', async t => {
@@ -33,11 +37,15 @@ test('Updates', async t => {
 
     await t.test('exists but no updates', async t => {
       let res = await fetch(
-        `https://api.github.com/repos/dat-land/dat-desktop/releases?per_page=1`
+        `https://api.github.com/repos/dat-land/dat-desktop/releases?per_page=100`,
+        { headers: { Authorization: `token ${token}` } }
       )
       const releases = await res.json()
+      const release = releases.find(
+        release => !release.draft && !release.prerelease
+      )
       res = await fetch(
-        `${address}/dat-land/dat-desktop/darwin/${releases[0].name}`
+        `${address}/dat-land/dat-desktop/darwin/${release.name}`
       )
       t.equal(res.status, 204)
     })

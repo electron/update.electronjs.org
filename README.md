@@ -11,7 +11,7 @@ WIP public electron update server.
 
 ```bash
 $ npm install
-$ npm start
+$ TOKEN=GHTOKEN npm start
 ```
 
 To try with an actual electron app, run:

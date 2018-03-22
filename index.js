@@ -4,6 +4,9 @@ const http = require('http')
 const fetch = require('node-fetch')
 
 class Updates {
+  constructor ({ token } = {}) {
+    this.token = token
+  }
   listen (port, cb) {
     if (typeof port === 'function') {
       ;[port, cb] = [undefined, port]
@@ -54,6 +57,7 @@ class Updates {
   async getLatest (account, repository, platform) {
     const url = `https://api.github.com/repos/${account}/${repository}/releases?per_page=100`
     const headers = { Accept: 'application/vnd.github.preview' }
+    if (this.token) headers.Authorization = `token ${this.token}`
     const res = await fetch(url, { headers })
 
     if (res.status === 403) {
@@ -67,6 +71,7 @@ class Updates {
 
     const releases = await res.json()
     for (const release of releases) {
+      if (release.draft || release.prerelease) continue
       for (const asset of release.assets) {
         if (assetPlatform(asset.name) === platform) {
           return {
