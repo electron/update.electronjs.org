@@ -81,6 +81,7 @@ test('Updates', async t => {
       t.equal(res.status, 200)
       const body = await res.json()
       t.match(body.url, /\.exe$/)
+      t.ok(body.name)
 
       await t.test('RELEASES', async t => {
         const res = await fetch(

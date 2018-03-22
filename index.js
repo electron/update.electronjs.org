@@ -91,7 +91,7 @@ class Updates {
       for (const asset of release.assets) {
         if (assetPlatform(asset.name) === platform) {
           return {
-            version: release.name,
+            version: release.name || release.tag_name,
             url: asset.browser_download_url,
             notes: release.body
           }
