@@ -19,12 +19,20 @@ class Updates {
     return server
   }
 
+  log (...args) {
+    if (process.env.NODE_ENV !== 'test') console.log(...args)
+  }
+
   async handle (req, res) {
+    this.log(req.method, req.url, '...')
     const segs = req.url.split('/').filter(Boolean)
     const [account, repository, platform, version] = segs
-    if (!account || !repository || !platform || !version) return notFound(res)
-
-    await this.handleUpdate(res, account, repository, platform, version)
+    if (!account || !repository || !platform || !version) {
+      notFound(res)
+    } else {
+      await this.handleUpdate(res, account, repository, platform, version)
+    }
+    this.log(req.method, req.url, res.statusCode)
   }
 
   async handleUpdate (res, account, repository, platform, version) {

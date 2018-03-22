@@ -1,7 +1,7 @@
 {
   "scripts": {
     "start": "nodemon bin/update-server.js",
-    "test": "prettier-standard '**/*.js' && standard && nyc tap test/*.js"
+    "test": "prettier-standard '**/*.js' && standard && NODE_ENV=test nyc tap test/*.js"
   },
   "dependencies": {
     "node-fetch": "^2.1.1"
