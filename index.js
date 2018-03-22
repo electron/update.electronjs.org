@@ -73,6 +73,7 @@ class Updates {
 
 const assetPlatform = fileName => {
   if (/.*(mac|darwin).*\.zip/.test(fileName)) return 'darwin'
+  if (/\.AppImage$/.test(fileName)) return 'appimage'
   return false
 }
 

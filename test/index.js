@@ -67,6 +67,13 @@ test('Updates', async t => {
       body = await res.json()
       t.match(body.url, /-darwin\.zip$/)
     })
+
+    await t.test('AppImage', async t => {
+      let res = await fetch(`${address}/zeit/hyper/appimage/0.0.0`)
+      t.equal(res.status, 200)
+      let body = await res.json()
+      t.match(body.url, /\.AppImage$/)
+    })
   })
 
   server.close()
