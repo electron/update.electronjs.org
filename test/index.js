@@ -84,7 +84,7 @@ test('Updates', async t => {
       t.ok(body.name)
 
       await t.test('RELEASES', async t => {
-        const res = await fetch(
+        let res = await fetch(
           `${address}/zeit/hyper/win32/0.0.0/RELEASES?some-extra`
         )
         t.equal(res.status, 200)
@@ -93,6 +93,11 @@ test('Updates', async t => {
           body,
           /^[^ ]+ https:\/\/github.com\/zeit\/hyper\/releases\/download\/[^/]+\/hyper-[^-]+-full.nupkg [^ ]+$/
         )
+
+        res = await fetch(
+          `${address}/juliangruber/brace-expansion/win32/0.0.0/RELEASES`
+        )
+        t.equal(res.status, 404)
       })
     })
   })
