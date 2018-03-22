@@ -3,7 +3,7 @@
 const { autoUpdater } = require('electron')
 
 const server = 'http://localhost:3000'
-const feed = `${server}/webtorrent/webtorrent-desktop/${process.platform}/0.0.0`
+const feed = `${server}/zeit/hyper/${process.platform}/0.0.0`
 
 autoUpdater.setFeedURL(feed)
 autoUpdater.checkForUpdates()
