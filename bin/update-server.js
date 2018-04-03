@@ -5,9 +5,45 @@
 process.title = 'update-server'
 
 const Updates = require('..')
-const { TOKEN: token } = process.env
+const redis = require('redis')
+const { promisify } = require('util')
+const ms = require('ms')
+const assert = require('assert')
 
-const updates = new Updates({ token })
+//
+// Args
+//
+
+const { TOKEN: token } = process.env
+assert(token, 'TOKEN required')
+
+//
+// Cache
+//
+
+const client = redis.createClient()
+const get = promisify(client.get).bind(client)
+const set = promisify(client.set).bind(client)
+
+const cache = {
+  async get (key) {
+    const json = await get(key)
+    return json && JSON.parse(json)
+  },
+  async set (key, value) {
+    const multi = client.multi()
+    multi.set(key, JSON.stringify(value))
+    multi.expire(key, ms('15m'))
+    const exec = promisify(multi.exec).bind(multi)
+    await exec()
+  }
+}
+
+//
+// Go!
+//
+
+const updates = new Updates({ token, cache })
 const server = updates.listen(3000, () => {
   console.log(`http://localhost:${server.address().port}`)
 })
