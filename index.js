@@ -4,9 +4,11 @@ const http = require('http')
 const fetch = require('node-fetch')
 
 class Updates {
-  constructor ({ token } = {}) {
+  constructor ({ token, cache = new MemoryCache() } = {}) {
     this.token = token
+    this.cache = cache
   }
+
   listen (port, cb) {
     if (typeof port === 'function') {
       ;[port, cb] = [undefined, port]
@@ -41,21 +43,13 @@ class Updates {
   }
 
   async handleReleases (res, account, repository) {
-    const latest = await this.getLatest(account, repository, 'win32')
-    if (!latest) return notFound(res)
-
-    const url = `https://github.com/${account}/${repository}/releases/download/${
-      latest.version
-    }/RELEASES`
-    const rres = await fetch(url)
-    const body = await rres.text()
-    const matches = body.match(/[^ ]*\.nupkg/gim)
-    const nuPKG = url.replace('RELEASES', matches[0])
-    res.end(body.replace(matches[0], nuPKG))
+    const latest = await this.cachedGetLatest(account, repository, 'win32')
+    if (!latest || !latest.RELEASES) return notFound(res)
+    res.end(latest.RELEASES)
   }
 
   async handleUpdate (res, account, repository, platform, version) {
-    const latest = await this.getLatest(account, repository, platform)
+    const latest = await this.cachedGetLatest(account, repository, platform)
 
     if (!latest) {
       notFound(res)
@@ -70,11 +64,30 @@ class Updates {
     }
   }
 
+  async cachedGetLatest (account, repository, platform) {
+    const key = `${account}/${repository}/${platform}`
+    let latest = await this.cache.get(key)
+    if (latest) {
+      this.log(`cache hit ${key}`)
+      return latest.version ? latest : null
+    }
+
+    latest = await this.getLatest(account, repository, platform)
+    if (latest) {
+      await this.cache.set(key, latest)
+      return latest
+    } else {
+      await this.cache.set(key, {})
+      return null
+    }
+  }
+
   async getLatest (account, repository, platform) {
     const url = `https://api.github.com/repos/${account}/${repository}/releases?per_page=100`
     const headers = { Accept: 'application/vnd.github.preview' }
     if (this.token) headers.Authorization = `token ${this.token}`
     const res = await fetch(url, { headers })
+    this.log(`API github releases status=${res.status}`)
 
     if (res.status === 403) {
       console.error('Rate Limited!')
@@ -85,19 +98,50 @@ class Updates {
       return
     }
 
+    let latest
+
     const releases = await res.json()
     for (const release of releases) {
       if (release.draft || release.prerelease) continue
       for (const asset of release.assets) {
         if (assetPlatform(asset.name) === platform) {
-          return {
+          latest = {
             version: release.name || release.tag_name,
             url: asset.browser_download_url,
             notes: release.body
           }
+          break
         }
       }
+      if (latest) break
     }
+
+    if (!latest) return
+
+    const rurl = `https://github.com/${account}/${repository}/releases/download/${
+      latest.version
+    }/RELEASES`
+    const rres = await fetch(rurl)
+    if (rres.status < 400) {
+      const body = await rres.text()
+      const matches = body.match(/[^ ]*\.nupkg/gim)
+      const nuPKG = rurl.replace('RELEASES', matches[0])
+      latest.RELEASES = body.replace(matches[0], nuPKG)
+    }
+
+    return latest
+  }
+}
+
+class MemoryCache {
+  constructor () {
+    this.data = new Map()
+  }
+  async get (key) {
+    return this.data.get(key)
+  }
+  async set (key, value) {
+    this.data.set(key, value)
   }
 }
 

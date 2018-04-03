@@ -6,6 +6,8 @@ const Updates = require('..')
 
 const { TOKEN: token } = process.env
 
+const cache = 100
+
 const createServer = () =>
   new Promise(resolve => {
     const updates = new Updates({ token })
@@ -27,12 +29,14 @@ test('Updates', async t => {
     t.equal(res.status, 404)
 
     await t.test('exists and has update', async t => {
-      const res = await fetch(`${address}/dat-land/dat-desktop/darwin/1.0.0`)
-      t.equal(res.status, 200)
-      const body = await res.json()
-      t.ok(body.name)
-      t.match(body.url, /-mac\.zip$/)
-      t.ok(body.notes)
+      for (let i = 0; i < cache; i++) {
+        const res = await fetch(`${address}/dat-land/dat-desktop/darwin/1.0.0`)
+        t.equal(res.status, 200)
+        const body = await res.json()
+        t.ok(body.name)
+        t.match(body.url, /-mac\.zip$/)
+        t.ok(body.notes)
+      }
     })
 
     await t.test('exists but no updates', async t => {
@@ -44,60 +48,77 @@ test('Updates', async t => {
       const release = releases.find(
         release => !release.draft && !release.prerelease
       )
-      res = await fetch(
-        `${address}/dat-land/dat-desktop/darwin/${release.name}`
-      )
-      t.equal(res.status, 204)
+
+      for (let i = 0; i < cache; i++) {
+        res = await fetch(
+          `${address}/dat-land/dat-desktop/darwin/${release.name}`
+        )
+        t.equal(res.status, 204)
+      }
     })
 
     await t.test('exists but has no releases', async t => {
-      const res = await fetch(
-        `${address}/juliangruber/brace-expansion/darwin/0.0.0`
-      )
-      t.equal(res.status, 404)
+      for (let i = 0; i < cache; i++) {
+        const res = await fetch(
+          `${address}/juliangruber/brace-expansion/darwin/0.0.0`
+        )
+        t.equal(res.status, 404)
+      }
     })
 
     await t.test("doesn't exist", async t => {
-      const res = await fetch(`${address}/doesnot/exist-123123123/darwin/0.0.0`)
-      t.equal(res.status, 404)
+      for (let i = 0; i < cache; i++) {
+        const res = await fetch(
+          `${address}/doesnot/exist-123123123/darwin/0.0.0`
+        )
+        t.equal(res.status, 404)
+      }
     })
   })
 
   await t.test('Platforms', async t => {
     await t.test('Darwin', async t => {
-      let res = await fetch(`${address}/dat-land/dat-desktop/darwin/1.0.0`)
-      t.equal(res.status, 200)
-      let body = await res.json()
-      t.match(body.url, /-mac\.zip$/)
+      for (let i = 0; i < cache; i++) {
+        let res = await fetch(`${address}/dat-land/dat-desktop/darwin/1.0.0`)
+        t.equal(res.status, 200)
+        let body = await res.json()
+        t.match(body.url, /-mac\.zip$/)
 
-      res = await fetch(`${address}/webtorrent/webtorrent-desktop/darwin/0.0.0`)
-      t.equal(res.status, 200)
-      body = await res.json()
-      t.match(body.url, /-darwin\.zip$/)
+        res = await fetch(
+          `${address}/webtorrent/webtorrent-desktop/darwin/0.0.0`
+        )
+        t.equal(res.status, 200)
+        body = await res.json()
+        t.match(body.url, /-darwin\.zip$/)
+      }
     })
 
     await t.test('Win32', async t => {
-      const res = await fetch(`${address}/zeit/hyper/win32/0.0.0`)
-      t.equal(res.status, 200)
-      const body = await res.json()
-      t.match(body.url, /\.exe$/)
-      t.ok(body.name)
+      for (let i = 0; i < cache; i++) {
+        const res = await fetch(`${address}/zeit/hyper/win32/0.0.0`)
+        t.equal(res.status, 200)
+        const body = await res.json()
+        t.match(body.url, /\.exe$/)
+        t.ok(body.name)
+      }
 
       await t.test('RELEASES', async t => {
-        let res = await fetch(
-          `${address}/zeit/hyper/win32/0.0.0/RELEASES?some-extra`
-        )
-        t.equal(res.status, 200)
-        const body = await res.text()
-        t.match(
-          body,
-          /^[^ ]+ https:\/\/github.com\/zeit\/hyper\/releases\/download\/[^/]+\/hyper-[^-]+-full.nupkg [^ ]+$/
-        )
+        for (let i = 0; i < cache; i++) {
+          let res = await fetch(
+            `${address}/zeit/hyper/win32/0.0.0/RELEASES?some-extra`
+          )
+          t.equal(res.status, 200)
+          const body = await res.text()
+          t.match(
+            body,
+            /^[^ ]+ https:\/\/github.com\/zeit\/hyper\/releases\/download\/[^/]+\/hyper-[^-]+-full.nupkg [^ ]+$/
+          )
 
-        res = await fetch(
-          `${address}/juliangruber/brace-expansion/win32/0.0.0/RELEASES`
-        )
-        t.equal(res.status, 404)
+          res = await fetch(
+            `${address}/juliangruber/brace-expansion/win32/0.0.0/RELEASES`
+          )
+          t.equal(res.status, 404)
+        }
       })
     })
   })
