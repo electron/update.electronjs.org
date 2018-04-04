@@ -14,14 +14,14 @@ const assert = require('assert')
 // Args
 //
 
-const { TOKEN: token } = process.env
+const { TOKEN: token, REDIS_URL: redisUrl } = process.env
 assert(token, 'TOKEN required')
 
 //
 // Cache
 //
 
-const client = redis.createClient()
+const client = redis.createClient(redisUrl)
 const get = promisify(client.get).bind(client)
 const set = promisify(client.set).bind(client)
 
