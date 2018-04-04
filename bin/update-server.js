@@ -23,7 +23,6 @@ assert(token, 'TOKEN required')
 
 const client = redis.createClient(redisUrl)
 const get = promisify(client.get).bind(client)
-const set = promisify(client.set).bind(client)
 
 const cache = {
   async get (key) {
