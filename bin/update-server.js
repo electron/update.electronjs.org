@@ -14,7 +14,7 @@ const assert = require('assert')
 // Args
 //
 
-const { TOKEN: token, REDIS_URL: redisUrl } = process.env
+const { TOKEN: token, REDIS_URL: redisUrl, PORT: port = 3000 } = process.env
 assert(token, 'TOKEN required')
 
 //
@@ -43,6 +43,6 @@ const cache = {
 //
 
 const updates = new Updates({ token, cache })
-const server = updates.listen(3000, () => {
-  console.log(`http://localhost:${server.address().port}`)
+updates.listen(port, () => {
+  console.log(`http://localhost:${port}`)
 })
