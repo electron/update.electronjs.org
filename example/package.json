@@ -1,5 +1,5 @@
 {
-  "name": "hyper",
+  "name": "test",
   "version": "0.0.0",
   "author": "author",
   "description": "description",
@@ -7,7 +7,7 @@
     "build": "electron-builder"
   },
   "build": {
-    "appId": "co.zeit.hyper",
+    "appId": "co.electron.test",
     "win": {
       "target": ["squirrel"]
     },

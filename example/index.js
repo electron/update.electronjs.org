@@ -1,9 +1,12 @@
 'use strict'
 
 const { autoUpdater } = require('electron')
+const { version } = require('./package')
 
-const server = 'http://localhost:3000'
-const feed = `${server}/zeit/hyper/${process.platform}/0.0.0`
+const server = 'https://electron-update-server.herokuapp.com'
+const feed = `${server}/electron/update-server/${process.platform}/${version}`
+
+console.log(`Current version: ${version}`)
 
 autoUpdater.setFeedURL(feed)
 autoUpdater.checkForUpdates()
