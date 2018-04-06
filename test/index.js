@@ -4,7 +4,7 @@ const { test } = require('tap')
 const fetch = require('node-fetch')
 const Updates = require('..')
 
-const { TOKEN: token } = process.env
+const { GH_TOKEN: token } = process.env
 
 const cache = 100
 
