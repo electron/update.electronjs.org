@@ -39,6 +39,19 @@ test('Updates', async t => {
       }
     })
 
+    await t.test('optional /update/ path prefix', async t => {
+      for (let i = 0; i < cache; i++) {
+        const res = await fetch(
+          `${address}/update/dat-land/dat-desktop/darwin/1.0.0`
+        )
+        t.equal(res.status, 200)
+        const body = await res.json()
+        t.ok(body.name)
+        t.match(body.url, /-mac\.zip$/)
+        t.ok(body.notes)
+      }
+    })
+
     await t.test('exists but no updates', async t => {
       let res = await fetch(
         `https://api.github.com/repos/dat-land/dat-desktop/releases?per_page=100`,

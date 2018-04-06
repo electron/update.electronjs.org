@@ -4,8 +4,8 @@ WIP public electron update server.
 
 ## Routes
 
-### `/:owner/:repo/:platform/:version`
-### `/:owner/:repo/win32/:version/RELEASES`
+### `/update?/:owner/:repo/:platform/:version`
+### `/update?/:owner/:repo/win32/:version/RELEASES`
 
 ## Development
 
