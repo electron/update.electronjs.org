@@ -4,6 +4,8 @@ WIP Public electron update server.
 
 ## Usage
 
+Use something like the following setup to add automatic updates to your application:
+
 **Important:** Please ensure that the code below will only be executed in
 your packaged app, and not in development. You can use
 [electron-is-dev](https://github.com/sindresorhus/electron-is-dev) to check for
