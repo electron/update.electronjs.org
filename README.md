@@ -20,7 +20,7 @@ Next, construct the URL of the update server and tell
 
 ```javascript
 const server = 'https://electron-update-server.herokuapp.com'
-const feed = `${server}/update/${process.platform}/${app.getVersion()}`
+const feed = `${server}/update/USER/REPOSITORY/${process.platform}/${app.getVersion()}`
 
 autoUpdater.setFeedURL(feed)
 ```
