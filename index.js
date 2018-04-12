@@ -87,6 +87,8 @@ class Updates {
   }
 
   async getLatest (account, repository, platform) {
+    account = encodeURIComponent(account)
+    repository = encodeURIComponent(repository)
     const url = `https://api.github.com/repos/${account}/${repository}/releases?per_page=100`
     const headers = { Accept: 'application/vnd.github.preview' }
     if (this.token) headers.Authorization = `token ${this.token}`
