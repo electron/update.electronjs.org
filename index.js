@@ -3,6 +3,8 @@
 const http = require('http')
 const fetch = require('node-fetch')
 
+const { NODE_ENV: env } = process.env
+
 class Updates {
   constructor ({ token, cache = new MemoryCache() } = {}) {
     this.token = token
@@ -17,7 +19,8 @@ class Updates {
       this.handle(req, res).catch(err => {
         console.error(err.stack)
         res.statusCode = err.statusCode || 500
-        res.end(err.stack)
+        const msg = env === 'production' ? 'Internal Server Error' : err.stack
+        res.end(msg)
       })
     })
     server.listen(port, cb)
