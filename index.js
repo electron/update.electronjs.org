@@ -28,7 +28,7 @@ class Updates {
   }
 
   log (...args) {
-    if (process.env.NODE_ENV !== 'test') console.log(...args)
+    if (env !== 'test') console.log(...args)
   }
 
   async handle (req, res) {
