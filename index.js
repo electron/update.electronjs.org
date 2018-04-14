@@ -59,8 +59,10 @@ class Updates {
     if (!latest) {
       notFound(res)
     } else if (semver.eq(latest.version, version)) {
+      this.log('up to date')
       noContent(res)
     } else {
+      this.log(`update available: ${latest.version}`)
       json(res, {
         name: latest.version,
         notes: latest.notes,
