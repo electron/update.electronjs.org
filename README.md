@@ -20,7 +20,7 @@ Next, construct the URL of the update server and tell
 
 ```javascript
 const server = 'https://electron-update-server.herokuapp.com'
-const feed = `${server}/update/USER/REPOSITORY/${process.platform}/${app.getVersion()}`
+const feed = `${server}/OWNER/REPO/${process.platform}/${app.getVersion()}`
 
 autoUpdater.setFeedURL(feed)
 ```
@@ -40,8 +40,8 @@ publish.
 
 ## Routes
 
-### `/update?/:owner/:repo/:platform/:version`
-### `/update?/:owner/:repo/win32/:version/RELEASES`
+### `/:owner/:repo/:platform/:version`
+### `/:owner/:repo/win32/:version/RELEASES`
 
 ## Development
 

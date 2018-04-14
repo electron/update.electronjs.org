@@ -35,7 +35,6 @@ class Updates {
   async handle (req, res) {
     this.log(req.method, req.url, '...')
     let segs = req.url.split(/[/?]/).filter(Boolean)
-    if (segs[0] === 'update') segs = segs.slice(1)
     const [account, repository, platform, version, file] = segs
     if (!account || !repository || !platform || !version) {
       notFound(res)
