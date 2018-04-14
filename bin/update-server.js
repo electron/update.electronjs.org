@@ -15,7 +15,7 @@ const assert = require('assert')
 //
 
 const { GH_TOKEN: token, REDIS_URL: redisUrl, PORT: port = 3000 } = process.env
-assert(token, 'TOKEN required')
+assert(token, 'GH_TOKEN required')
 
 //
 // Cache
