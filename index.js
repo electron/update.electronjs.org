@@ -63,7 +63,7 @@ class Updates {
     } else {
       this.log(`update available: ${latest.version}`)
       json(res, {
-        name: latest.version,
+        name: latest.name || latest.version,
         notes: latest.notes,
         url: latest.url
       })
@@ -114,7 +114,8 @@ class Updates {
       for (const asset of release.assets) {
         if (assetPlatform(asset.name) === platform) {
           latest = {
-            version: release.name || release.tag_name,
+            name: release.name,
+            version: release.tag_name,
             url: asset.browser_download_url,
             notes: release.body
           }
@@ -154,7 +155,7 @@ class MemoryCache {
 }
 
 const assetPlatform = fileName => {
-  if (/.*(mac|darwin).*\.zip/.test(fileName)) return 'darwin'
+  if (/.*(mac|darwin|osx).*\.zip/i.test(fileName)) return 'darwin'
   if (/\.exe$/.test(fileName)) return 'win32'
   return false
 }

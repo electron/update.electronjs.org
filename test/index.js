@@ -75,6 +75,19 @@ test('Updates', async t => {
       }
     })
 
+    await t.test('uses release.tag_name not release.name', async t => {
+      for (let i = 0; i < cache; i++) {
+        const res = await fetch(
+          `${address}/MarshallOfSound/Google-Play-Music-Desktop-Player-UNOFFICIAL-/darwin/4.0.0`
+        )
+        t.equal(res.status, 200)
+        const body = await res.json()
+        t.equal(body.name, 'Version 4.5.0')
+        t.match(body.url, /osx\.zip$/i)
+        t.ok(body.notes)
+      }
+    })
+
     await t.test('exists but has no releases', async t => {
       for (let i = 0; i < cache; i++) {
         const res = await fetch(
