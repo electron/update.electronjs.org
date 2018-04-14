@@ -3,8 +3,10 @@
 const { test } = require('tap')
 const fetch = require('node-fetch')
 const Updates = require('..')
+const assert = require('assert')
 
 const { GH_TOKEN: token } = process.env
+assert(token, 'GH_TOKEN required')
 
 const cache = 100
 
@@ -20,8 +22,6 @@ const createServer = () =>
   })
 
 test('Updates', async t => {
-  t.ok(token, 'token required')
-
   const { server, address } = await createServer()
 
   await t.test('Routes', async t => {
