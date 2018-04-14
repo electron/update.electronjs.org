@@ -2,6 +2,7 @@
 
 const http = require('http')
 const fetch = require('node-fetch')
+const semver = require('semver')
 
 const { NODE_ENV: env } = process.env
 
@@ -57,7 +58,7 @@ class Updates {
 
     if (!latest) {
       notFound(res)
-    } else if (latest.version === version) {
+    } else if (semver.eq(latest.version, version)) {
       noContent(res)
     } else {
       json(res, {

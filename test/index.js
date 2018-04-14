@@ -70,6 +70,24 @@ test('Updates', async t => {
       }
     })
 
+    await t.test('parses semver with optional leading v', async t => {
+      let res = await fetch(
+        `https://api.github.com/repos/dat-land/dat-desktop/releases?per_page=100`,
+        { headers: { Authorization: `token ${token}` } }
+      )
+      const releases = await res.json()
+      const release = releases.find(
+        release => !release.draft && !release.prerelease
+      )
+
+      for (let i = 0; i < cache; i++) {
+        res = await fetch(
+          `${address}/dat-land/dat-desktop/darwin/v${release.name}`
+        )
+        t.equal(res.status, 204)
+      }
+    })
+
     await t.test('exists but has no releases', async t => {
       for (let i = 0; i < cache; i++) {
         const res = await fetch(
