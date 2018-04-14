@@ -32,7 +32,7 @@ const cache = {
   async set (key, value) {
     const multi = client.multi()
     multi.set(key, JSON.stringify(value))
-    multi.expire(key, ms('15m'))
+    multi.expire(key, ms('15m') / 1000)
     const exec = promisify(multi.exec).bind(multi)
     await exec()
   }
