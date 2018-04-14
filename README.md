@@ -47,7 +47,8 @@ publish.
 
 ```bash
 $ npm install
-$ TOKEN=GHTOKEN npm start
+$ redis-server
+$ GH_TOKEN=TOKEN npm start
 ```
 
 To try with an actual electron app, run:
