@@ -125,13 +125,25 @@ test('Updates', async t => {
     })
 
     await t.test('Win32', async t => {
-      for (let i = 0; i < cache; i++) {
-        const res = await fetch(`${address}/zeit/hyper/win32/0.0.0`)
-        t.equal(res.status, 200)
-        const body = await res.json()
-        t.match(body.url, /\.exe$/)
-        t.ok(body.name)
-      }
+      await t.test('.exe', async t => {
+        for (let i = 0; i < cache; i++) {
+          const res = await fetch(`${address}/zeit/hyper/win32/0.0.0`)
+          t.equal(res.status, 200)
+          const body = await res.json()
+          t.match(body.url, /\.exe$/)
+          t.ok(body.name)
+        }
+      })
+
+      await t.test('win32-x64', async t => {
+        for (let i = 0; i < cache; i++) {
+          const res = await fetch(`${address}/Kilian/fromscratch/win32/0.0.0`)
+          t.equal(res.status, 200)
+          const body = await res.json()
+          t.match(body.url, /win32-x64/)
+          t.ok(body.name)
+        }
+      })
 
       await t.test('RELEASES', async t => {
         for (let i = 0; i < cache; i++) {

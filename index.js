@@ -156,7 +156,7 @@ class MemoryCache {
 
 const assetPlatform = fileName => {
   if (/.*(mac|darwin|osx).*\.zip/i.test(fileName)) return 'darwin'
-  if (/\.exe$/.test(fileName)) return 'win32'
+  if (/win32-x64|(\.exe$)/.test(fileName)) return 'win32'
   return false
 }
 
