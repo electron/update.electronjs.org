@@ -4,11 +4,10 @@ const { test } = require('tap')
 const fetch = require('node-fetch')
 const Updates = require('..')
 const assert = require('assert')
+const nock = require('nock')
 
 const { GH_TOKEN: token } = process.env
 assert(token, 'GH_TOKEN required')
-
-const cache = 100
 
 const createServer = () =>
   new Promise(resolve => {
@@ -21,6 +20,108 @@ const createServer = () =>
     })
   })
 
+nock.disableNetConnect()
+nock.enableNetConnect('localhost')
+
+nock('https://api.github.com')
+  .get('/repos/owner/repo/releases?per_page=100')
+  .reply(200, [
+    {
+      name: 'name',
+      tag_name: '1.0.0',
+      body: 'notes',
+      assets: [
+        {
+          name: 'mac.zip',
+          browser_download_url: 'mac.zip'
+        },
+        {
+          name: 'win.exe',
+          browser_download_url: 'win.exe'
+        }
+      ]
+    }
+  ])
+  .get('/repos/owner/repo-with-v/releases?per_page=100')
+  .reply(200, [
+    {
+      name: 'name',
+      tag_name: 'v1.0.0',
+      body: 'notes',
+      assets: [
+        {
+          name: 'mac.zip',
+          browser_download_url: 'mac.zip'
+        }
+      ]
+    }
+  ])
+  .get('/repos/owner/repo-without-releases/releases?per_page=100')
+  .reply(200, [])
+  .get('/repos/owner/not-exist/releases?per_page=100')
+  .reply(404)
+  .get('/repos/owner/repo-darwin/releases?per_page=100')
+  .reply(200, [
+    {
+      name: 'name',
+      tag_name: 'v1.0.0',
+      body: 'notes',
+      assets: [
+        {
+          name: 'darwin.zip',
+          browser_download_url: 'darwin.zip'
+        }
+      ]
+    }
+  ])
+  .get('/repos/owner/repo-win32-zip/releases?per_page=100')
+  .reply(200, [
+    {
+      name: 'name',
+      tag_name: 'v1.0.0',
+      body: 'notes',
+      assets: [
+        {
+          name: 'win32-ia32.zip',
+          browser_download_url: 'win32-ia32.zip'
+        },
+        {
+          name: 'win32-x64.zip',
+          browser_download_url: 'win32-x64.zip'
+        }
+      ]
+    }
+  ])
+  .get('/repos/owner/repo-no-releases/releases?per_page=100')
+  .reply(200, [
+    {
+      name: 'name',
+      tag_name: 'v1.0.0',
+      body: 'notes',
+      assets: [
+        {
+          name: 'win32-ia32.zip',
+          browser_download_url: 'win32-ia32.zip'
+        },
+        {
+          name: 'win32-x64.zip',
+          browser_download_url: 'win32-x64.zip'
+        }
+      ]
+    }
+  ])
+nock('https://github.com')
+  .get('/owner/repo/releases/download/1.0.0/RELEASES')
+  .reply(404)
+  .get('/owner/repo-with-v/releases/download/v1.0.0/RELEASES')
+  .reply(404)
+  .get('/owner/repo-darwin/releases/download/v1.0.0/RELEASES')
+  .reply(404)
+  .get('/owner/repo-win32-zip/releases/download/v1.0.0/RELEASES')
+  .reply(404)
+  .get('/owner/repo-no-releases/releases/download/v1.0.0/RELEASES')
+  .reply(404)
+
 test('Updates', async t => {
   const { server, address } = await createServer()
 
@@ -29,79 +130,52 @@ test('Updates', async t => {
     t.equal(res.status, 404)
 
     await t.test('exists and has update', async t => {
-      for (let i = 0; i < cache; i++) {
-        const res = await fetch(`${address}/dat-land/dat-desktop/darwin/1.0.0`)
+      for (let i = 0; i < 2; i++) {
+        const res = await fetch(`${address}/owner/repo/darwin/0.0.0`)
         t.equal(res.status, 200)
         const body = await res.json()
-        t.ok(body.name)
-        t.match(body.url, /-mac\.zip$/)
-        t.ok(body.notes)
+        t.deepEqual(body, {
+          name: 'name',
+          url: 'mac.zip',
+          notes: 'notes'
+        })
       }
     })
 
     await t.test('exists but no updates', async t => {
-      let res = await fetch(
-        `https://api.github.com/repos/dat-land/dat-desktop/releases?per_page=100`,
-        { headers: { Authorization: `token ${token}` } }
-      )
-      const releases = await res.json()
-      const release = releases.find(
-        release => !release.draft && !release.prerelease
-      )
-
-      for (let i = 0; i < cache; i++) {
-        res = await fetch(
-          `${address}/dat-land/dat-desktop/darwin/${release.name}`
-        )
+      for (let i = 0; i < 2; i++) {
+        const res = await fetch(`${address}/owner/repo/darwin/1.0.0`)
         t.equal(res.status, 204)
       }
     })
 
     await t.test('parses semver with optional leading v', async t => {
-      let res = await fetch(
-        `https://api.github.com/repos/dat-land/dat-desktop/releases?per_page=100`,
-        { headers: { Authorization: `token ${token}` } }
-      )
-      const releases = await res.json()
-      const release = releases.find(
-        release => !release.draft && !release.prerelease
-      )
-
-      for (let i = 0; i < cache; i++) {
-        res = await fetch(
-          `${address}/dat-land/dat-desktop/darwin/v${release.name}`
-        )
+      for (let i = 0; i < 2; i++) {
+        const res = await fetch(`${address}/owner/repo/darwin/v1.0.0`)
+        t.equal(res.status, 204)
+      }
+      for (let i = 0; i < 2; i++) {
+        const res = await fetch(`${address}/owner/repo-with-v/darwin/1.0.0`)
+        t.equal(res.status, 204)
+      }
+      for (let i = 0; i < 2; i++) {
+        const res = await fetch(`${address}/owner/repo-with-v/darwin/v1.0.0`)
         t.equal(res.status, 204)
       }
     })
 
-    await t.test('uses release.tag_name not release.name', async t => {
-      for (let i = 0; i < cache; i++) {
-        const res = await fetch(
-          `${address}/MarshallOfSound/Google-Play-Music-Desktop-Player-UNOFFICIAL-/darwin/4.0.0`
-        )
-        t.equal(res.status, 200)
-        const body = await res.json()
-        t.equal(body.name, 'Version 4.5.0')
-        t.match(body.url, /osx\.zip$/i)
-        t.ok(body.notes)
-      }
-    })
-
     await t.test('exists but has no releases', async t => {
-      for (let i = 0; i < cache; i++) {
+      for (let i = 0; i < 2; i++) {
         const res = await fetch(
-          `${address}/juliangruber/brace-expansion/darwin/0.0.0`
+          `${address}/owner/repo-without-releases/darwin/0.0.0`
         )
         t.equal(res.status, 404)
       }
     })
 
     await t.test("doesn't exist", async t => {
-      for (let i = 0; i < cache; i++) {
-        const res = await fetch(
-          `${address}/doesnot/exist-123123123/darwin/0.0.0`
-        )
+      for (let i = 0; i < 2; i++) {
+        const res = await fetch(`${address}/owner/not-exist/darwin/0.0.0`)
         t.equal(res.status, 404)
       }
     })
@@ -109,56 +183,79 @@ test('Updates', async t => {
 
   await t.test('Platforms', async t => {
     await t.test('Darwin', async t => {
-      for (let i = 0; i < cache; i++) {
-        let res = await fetch(`${address}/dat-land/dat-desktop/darwin/1.0.0`)
+      for (let i = 0; i < 2; i++) {
+        let res = await fetch(`${address}/owner/repo/darwin/0.0.0`)
         t.equal(res.status, 200)
         let body = await res.json()
-        t.match(body.url, /-mac\.zip$/)
+        t.equal(body.url, 'mac.zip')
 
-        res = await fetch(
-          `${address}/webtorrent/webtorrent-desktop/darwin/0.0.0`
-        )
+        res = await fetch(`${address}/owner/repo-darwin/darwin/0.0.0`)
         t.equal(res.status, 200)
         body = await res.json()
-        t.match(body.url, /-darwin\.zip$/)
+        t.match(body.url, 'darwin.zip')
       }
     })
 
     await t.test('Win32', async t => {
       await t.test('.exe', async t => {
-        for (let i = 0; i < cache; i++) {
-          const res = await fetch(`${address}/zeit/hyper/win32/0.0.0`)
+        // FIXME should hit cache
+        nock('https://api.github.com')
+          .get('/repos/owner/repo/releases?per_page=100')
+          .reply(200, [
+            {
+              name: 'name',
+              tag_name: '1.0.0',
+              body: 'notes',
+              assets: [
+                {
+                  name: 'mac.zip',
+                  browser_download_url: 'mac.zip'
+                },
+                {
+                  name: 'win.exe',
+                  browser_download_url: 'win.exe'
+                }
+              ]
+            }
+          ])
+        nock('https://github.com')
+          .get('/owner/repo/releases/download/1.0.0/RELEASES')
+          .reply(200, 'HASH name.nupkg NUMBER')
+        for (let i = 0; i < 2; i++) {
+          const res = await fetch(`${address}/owner/repo/win32/0.0.0`)
           t.equal(res.status, 200)
           const body = await res.json()
-          t.match(body.url, /\.exe$/)
+          t.equal(body.url, 'win.exe')
           t.ok(body.name)
         }
       })
 
       await t.test('win32-x64', async t => {
-        for (let i = 0; i < cache; i++) {
-          const res = await fetch(`${address}/Kilian/fromscratch/win32/0.0.0`)
+        for (let i = 0; i < 2; i++) {
+          const res = await fetch(`${address}/owner/repo-win32-zip/win32/0.0.0`)
           t.equal(res.status, 200)
           const body = await res.json()
-          t.match(body.url, /win32-x64/)
+          t.equal(body.url, 'win32-x64.zip')
           t.ok(body.name)
         }
       })
 
       await t.test('RELEASES', async t => {
-        for (let i = 0; i < cache; i++) {
-          let res = await fetch(
-            `${address}/zeit/hyper/win32/0.0.0/RELEASES?some-extra`
+        for (let i = 0; i < 2; i++) {
+          const res = await fetch(
+            `${address}/owner/repo/win32/0.0.0/RELEASES?some-extra`
           )
           t.equal(res.status, 200)
           const body = await res.text()
           t.match(
             body,
-            /^[^ ]+ https:\/\/github.com\/zeit\/hyper\/releases\/download\/[^/]+\/hyper-[^-]+-full.nupkg [^ ]+$/
+            /^[^ ]+ https:\/\/github.com\/owner\/repo\/releases\/download\/[^/]+\/name.nupkg [^ ]+$/
           )
+        }
 
-          res = await fetch(
-            `${address}/juliangruber/brace-expansion/win32/0.0.0/RELEASES`
+        for (let i = 0; i < 2; i++) {
+          const res = await fetch(
+            `${address}/owner/repo-no-releases/win32/0.0.0/RELEASES`
           )
           t.equal(res.status, 404)
         }

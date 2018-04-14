@@ -10,6 +10,7 @@
     "semver": "^5.5.0"
   },
   "devDependencies": {
+    "nock": "^9.2.5",
     "nodemon": "^1.17.1",
     "nyc": "^11.6.0",
     "prettier-standard": "^8.0.0",
