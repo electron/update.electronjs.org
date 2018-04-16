@@ -14,7 +14,12 @@ const assert = require('assert')
 // Args
 //
 
-const { GH_TOKEN: token, REDIS_URL: redisUrl, PORT: port = 3000 } = process.env
+const {
+  GH_TOKEN: token,
+  REDIS_URL: redisUrl,
+  PORT: port = 3000,
+  CACHE_TTL: cacheTTL = '15m'
+} = process.env
 assert(token, 'GH_TOKEN required')
 
 //
@@ -32,7 +37,7 @@ const cache = {
   async set (key, value) {
     const multi = client.multi()
     multi.set(key, JSON.stringify(value))
-    multi.expire(key, ms('15m') / 1000)
+    multi.expire(key, ms(cacheTTL) / 1000)
     const exec = promisify(multi.exec).bind(multi)
     await exec()
   }
