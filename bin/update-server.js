@@ -9,6 +9,7 @@ const redis = require('redis')
 const { promisify } = require('util')
 const ms = require('ms')
 const assert = require('assert')
+const Redlock = require('redlock')
 
 //
 // Args
@@ -28,6 +29,9 @@ assert(token, 'GH_TOKEN required')
 
 const client = redis.createClient(redisUrl)
 const get = promisify(client.get).bind(client)
+const redlock = new Redlock([client], {
+  retryDelay: ms('10s')
+})
 
 const cache = {
   async get (key) {
@@ -40,6 +44,9 @@ const cache = {
     multi.expire(key, ms(cacheTTL) / 1000)
     const exec = promisify(multi.exec).bind(multi)
     await exec()
+  },
+  async lock (resource) {
+    return await redlock.lock(`locks:${resource}`, ms('1m'))
   }
 }
 

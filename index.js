@@ -80,14 +80,33 @@ class Updates {
       return latest.version ? latest : null
     }
 
+    let lock
+    if (this.cache.lock) {
+      this.log(`aquiring lock ${key}`)
+      lock = await this.cache.lock(key)
+      this.log(`aquired lock ${key}`)
+      latest = await this.cache.get(key)
+      if (latest) {
+        this.log(`cache hit after lock ${key}`)
+        return latest.version ? latest : null
+      }
+    }
+
     latest = await this.getLatest(account, repository, platform)
+
     if (latest) {
       await this.cache.set(key, latest)
-      return latest
     } else {
       await this.cache.set(key, {})
-      return null
     }
+
+    if (lock) {
+      this.log(`releasing lock ${key}`)
+      await lock.unlock()
+      this.log(`released lock ${key}`)
+    }
+
+    return latest
   }
 
   async getLatest (account, repository, platform) {
