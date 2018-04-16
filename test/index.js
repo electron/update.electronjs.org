@@ -12,7 +12,6 @@ assert(token, 'GH_TOKEN required')
 class MemoryCache {
   constructor () {
     this.data = new Map()
-    this.locks = new Map()
   }
   async get (key) {
     return this.data.get(key)
