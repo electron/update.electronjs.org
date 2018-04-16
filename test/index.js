@@ -9,9 +9,22 @@ const nock = require('nock')
 const { GH_TOKEN: token } = process.env
 assert(token, 'GH_TOKEN required')
 
+class MemoryCache {
+  constructor () {
+    this.data = new Map()
+    this.locks = new Map()
+  }
+  async get (key) {
+    return this.data.get(key)
+  }
+  async set (key, value) {
+    this.data.set(key, value)
+  }
+}
+
 const createServer = () =>
   new Promise(resolve => {
-    const updates = new Updates({ token })
+    const updates = new Updates({ token, cache: new MemoryCache() })
     const server = updates.listen(() => {
       resolve({
         server,

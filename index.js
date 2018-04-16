@@ -3,11 +3,13 @@
 const http = require('http')
 const fetch = require('node-fetch')
 const semver = require('semver')
+const assert = require('assert')
 
 const { NODE_ENV: env } = process.env
 
 class Updates {
-  constructor ({ token, cache = new MemoryCache() } = {}) {
+  constructor ({ token, cache } = {}) {
+    assert(cache, '.cache required')
     this.token = token
     this.cache = cache
   }
@@ -139,18 +141,6 @@ class Updates {
     }
 
     return latest
-  }
-}
-
-class MemoryCache {
-  constructor () {
-    this.data = new Map()
-  }
-  async get (key) {
-    return this.data.get(key)
-  }
-  async set (key, value) {
-    this.data.set(key, value)
   }
 }
 
