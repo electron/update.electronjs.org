@@ -46,7 +46,7 @@ const cache = {
     await exec()
   },
   async lock (resource) {
-    return await redlock.lock(`locks:${resource}`, ms('1m'))
+    return redlock.lock(`locks:${resource}`, ms('1m'))
   }
 }
 
