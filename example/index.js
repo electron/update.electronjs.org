@@ -3,7 +3,7 @@
 const { autoUpdater } = require('electron')
 const { version } = require('./package')
 
-const server = 'https://electron-update-server.herokuapp.com'
+const server = 'https://update.electronjs.org'
 const feed = `${server}/electron/update-server/${process.platform}/${version}`
 
 console.log(`Current version: ${version}`)

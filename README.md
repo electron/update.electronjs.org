@@ -1,10 +1,16 @@
 # update-server
 
-Free for all electron update server that works with any public GitHub project.
+A free service that makes it easy for open-source Electron apps to update themselves.
 
 ## Quick Setup
 
-Add [update-electron-app], somewhere in you main file:
+Install [update-electron-app] as a runtime dependency (not a devDependency):
+
+```sh
+npm install update-electron-app --save
+```
+
+Call it from in you [main process] file:
 
 ```js
 require('update-electron-app')({
@@ -15,7 +21,7 @@ require('update-electron-app')({
 And that's all it takes!
 
 Once your application is [packaged](https://electronjs.org/docs/tutorial/application-distribution),
-it will receive an update for each new
+it will update itself for each new
 [GitHub Release](https://help.github.com/articles/creating-releases/) that you
 publish.
 
@@ -36,7 +42,7 @@ Next, construct the URL of the update server and tell
 [autoUpdater](https://electronjs.org/docs/api/auto-updater) about it:
 
 ```javascript
-const server = 'https://electron-update-server.herokuapp.com'
+const server = 'https://update.electronjs.org'
 const feed = `${server}/OWNER/REPO/${process.platform}/${app.getVersion()}`
 
 autoUpdater.setFeedURL(feed)
@@ -51,7 +57,7 @@ setInterval(() => {
 ```
 
 Once your application is [packaged](https://electronjs.org/docs/tutorial/application-distribution),
-it will receive an update for each new
+it will update itself for each new
 [GitHub Release](https://help.github.com/articles/creating-releases/) that you
 publish.
 
@@ -90,3 +96,6 @@ $ npm install --save 7zip-bin-win app-builder-bin-win electron-builder-squirrel-
 $ npm run build
 $ "example\dist\squirrel-windows\hyper Setup 0.0.0.exe"
 ```
+
+[update-electron-app]: https://ghub.io/update-electron-app
+[main process]: https://electronjs.org/docs/glossary#main-process
