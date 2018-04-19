@@ -35,6 +35,9 @@ const createServer = () =>
 nock.disableNetConnect()
 nock.enableNetConnect('localhost')
 
+nock('https://github.com')
+  .get('/electron/update.electronjs.org')
+  .reply(200)
 nock('https://api.github.com')
   .get('/repos/owner/repo/releases?per_page=100')
   .reply(200, [
@@ -139,7 +142,7 @@ test('Updates', async t => {
 
   await t.test('Routes', async t => {
     const res = await fetch(`${address}/`)
-    t.equal(res.status, 404)
+    t.equal(res.status, 200)
 
     await t.test('exists and has update', async t => {
       for (let i = 0; i < 2; i++) {

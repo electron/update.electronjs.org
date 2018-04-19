@@ -39,7 +39,7 @@ class Updates {
     let segs = req.url.split(/[/?]/).filter(Boolean)
     const [account, repository, platform, version, file] = segs
     if (!account || !repository || !platform || !version) {
-      notFound(res)
+      redirect(res, 'https://github.com/electron/update.electronjs.org')
     } else if (file === 'RELEASES') {
       await this.handleReleases(res, account, repository)
     } else {
@@ -182,6 +182,12 @@ const noContent = res => {
 const json = (res, obj) => {
   res.setHeader('Content-Type', 'application/json')
   res.end(JSON.stringify(obj))
+}
+
+const redirect = (res, url) => {
+  res.statusCode = 302
+  res.setHeader('Location', url)
+  res.end(url)
 }
 
 module.exports = Updates
