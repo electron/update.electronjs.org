@@ -1,8 +1,25 @@
 # update-server
 
-WIP Public electron update server.
+Free for all electron update server that works with any public GitHub project.
 
-## Usage
+## Quick Setup
+
+Add [update-electron-app], somewhere in you main file:
+
+```js
+require('update-electron-app')({
+  repo: 'ummoji/ummoji-desktop'
+})
+```
+
+And that's all it takes!
+
+Once your application is [packaged](https://electronjs.org/docs/tutorial/application-distribution),
+it will receive an update for each new
+[GitHub Release](https://help.github.com/articles/creating-releases/) that you
+publish.
+
+## Manual Setup
 
 Use something like the following setup to add automatic updates to your application:
 
