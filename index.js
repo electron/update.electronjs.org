@@ -73,11 +73,11 @@ class Updates {
   }
 
   async cachedGetLatest (account, repository, platform) {
-    const key = `${account}/${repository}/${platform}`
+    const key = `${account}/${repository}`
     let latest = await this.cache.get(key)
     if (latest) {
       this.log(`cache hit ${key}`)
-      return latest.version ? latest : null
+      return latest[platform] ? latest[platform] : null
     }
 
     let lock
@@ -88,11 +88,11 @@ class Updates {
       latest = await this.cache.get(key)
       if (latest) {
         this.log(`cache hit after lock ${key}`)
-        return latest.version ? latest : null
+        return latest[platform] ? latest[platform] : null
       }
     }
 
-    latest = await this.getLatest(account, repository, platform)
+    latest = await this.getLatest(account, repository)
 
     if (latest) {
       await this.cache.set(key, latest)
@@ -106,10 +106,10 @@ class Updates {
       this.log(`released lock ${key}`)
     }
 
-    return latest
+    return latest && latest[platform]
   }
 
-  async getLatest (account, repository, platform) {
+  async getLatest (account, repository) {
     account = encodeURIComponent(account)
     repository = encodeURIComponent(repository)
     const url = `https://api.github.com/repos/${account}/${repository}/releases?per_page=100`
@@ -127,39 +127,40 @@ class Updates {
       return
     }
 
-    let latest
+    const latest = {}
 
     const releases = await res.json()
     for (const release of releases) {
       if (release.draft || release.prerelease) continue
       for (const asset of release.assets) {
-        if (assetPlatform(asset.name) === platform) {
-          latest = {
+        const platform = assetPlatform(asset.name)
+        if (platform && !latest[platform]) {
+          latest[platform] = {
             name: release.name,
             version: release.tag_name,
             url: asset.browser_download_url,
             notes: release.body
           }
-          break
         }
+        if (latest.darwin && latest.win32) break
       }
-      if (latest) break
+      if (latest.darwin && latest.win32) break
     }
 
-    if (!latest) return
-
-    const rurl = `https://github.com/${account}/${repository}/releases/download/${
-      latest.version
-    }/RELEASES`
-    const rres = await fetch(rurl)
-    if (rres.status < 400) {
-      const body = await rres.text()
-      const matches = body.match(/[^ ]*\.nupkg/gim)
-      const nuPKG = rurl.replace('RELEASES', matches[0])
-      latest.RELEASES = body.replace(matches[0], nuPKG)
+    if (latest.win32) {
+      const rurl = `https://github.com/${account}/${repository}/releases/download/${
+        latest.win32.version
+      }/RELEASES`
+      const rres = await fetch(rurl)
+      if (rres.status < 400) {
+        const body = await rres.text()
+        const matches = body.match(/[^ ]*\.nupkg/gim)
+        const nuPKG = rurl.replace('RELEASES', matches[0])
+        latest.win32.RELEASES = body.replace(matches[0], nuPKG)
+      }
     }
 
-    return latest
+    return latest.darwin || latest.win32 ? latest : null
   }
 }
 

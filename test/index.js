@@ -127,7 +127,7 @@ nock('https://api.github.com')
   ])
 nock('https://github.com')
   .get('/owner/repo/releases/download/1.0.0/RELEASES')
-  .reply(404)
+  .reply(200, 'HASH name.nupkg NUMBER')
   .get('/owner/repo-with-v/releases/download/v1.0.0/RELEASES')
   .reply(404)
   .get('/owner/repo-darwin/releases/download/v1.0.0/RELEASES')
@@ -213,29 +213,6 @@ test('Updates', async t => {
 
     await t.test('Win32', async t => {
       await t.test('.exe', async t => {
-        // FIXME should hit cache
-        nock('https://api.github.com')
-          .get('/repos/owner/repo/releases?per_page=100')
-          .reply(200, [
-            {
-              name: 'name',
-              tag_name: '1.0.0',
-              body: 'notes',
-              assets: [
-                {
-                  name: 'mac.zip',
-                  browser_download_url: 'mac.zip'
-                },
-                {
-                  name: 'win.exe',
-                  browser_download_url: 'win.exe'
-                }
-              ]
-            }
-          ])
-        nock('https://github.com')
-          .get('/owner/repo/releases/download/1.0.0/RELEASES')
-          .reply(200, 'HASH name.nupkg NUMBER')
         for (let i = 0; i < 2; i++) {
           const res = await fetch(`${address}/owner/repo/win32/0.0.0`)
           t.equal(res.status, 200)
