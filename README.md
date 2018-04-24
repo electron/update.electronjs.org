@@ -1,4 +1,4 @@
-# update-server
+# 📡 update.electronjs.org
 
 > A free service that makes it easy for open-source Electron apps to update themselves.
 
