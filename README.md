@@ -1,6 +1,15 @@
 # update-server
 
-A free service that makes it easy for open-source Electron apps to update themselves.
+> A free service that makes it easy for open-source Electron apps to update themselves.
+
+## Prerequisites
+
+Before using this service, make sure your Electron app meets all these criteria:
+
+- Your app is in a public GitHub repository
+- Your builds are published to GitHub Releases
+- Your builds are code signed
+- Your app is for macOS or Windows (no Linux support yet)
 
 ## Quick Setup
 
