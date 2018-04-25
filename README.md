@@ -2,14 +2,14 @@
 
 > A free service that makes it easy for open-source Electron apps to update themselves.
 
-## Prerequisites
+## Requirements
 
-Before using this service, make sure your Electron app meets all these criteria:
+Before using this service, make sure your Electron app meets these criteria:
 
-- Your app is in a public GitHub repository
+- Your app runs on macOS or Windows
+- Your app has a public GitHub repository
 - Your builds are published to GitHub Releases
-- Your builds are code signed
-- Your app is for macOS or Windows (no Linux support yet)
+- Your builds are code-signed
 
 ## Quick Setup
 
