@@ -1,6 +1,6 @@
 'use strict'
 
-require('dotenv-safe').load()
+if (!process.env.CI) require('dotenv-safe').load()
 
 const { test } = require('tap')
 const fetch = require('node-fetch')
