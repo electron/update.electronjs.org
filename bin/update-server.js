@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-require('dotenv-safe').load()
-
 'use strict'
+
+require('dotenv-safe').load()
 
 process.title = 'update-server'
 
