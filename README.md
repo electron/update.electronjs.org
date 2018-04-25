@@ -57,10 +57,10 @@ const feed = `${server}/OWNER/REPO/${process.platform}/${app.getVersion()}`
 autoUpdater.setFeedURL(feed)
 ```
 
-As the final step, check for updates. The example below will check every minute:
+As the final step, check for updates. The example below will check every 10 
+minutes:
 
 ```javascript
-// check every ten minutes
 setInterval(() => {
   autoUpdater.checkForUpdates()
 }, 10 * 60 * 1000)
