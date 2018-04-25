@@ -2,6 +2,8 @@
 
 > A free service that makes it easy for open-source Electron apps to update themselves.
 
+[![Build Status](https://travis-ci.org/electron/update.electronjs.org.svg?branch=master)](https://travis-ci.org/electron/update.electronjs.org)
+
 ## Requirements
 
 Before using this service, make sure your Electron app meets these criteria:
