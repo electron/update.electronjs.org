@@ -2,6 +2,8 @@
 
 'use strict'
 
+require('dotenv-safe').load()
+
 process.title = 'update-server'
 
 const Updates = require('..')
@@ -17,7 +19,7 @@ const Redlock = require('redlock')
 
 const {
   GH_TOKEN: token,
-  REDIS_URL: redisUrl,
+  REDIS_URL: redisUrl = 'redis://localhost:6379',
   PORT: port = 3000,
   CACHE_TTL: cacheTTL = '15m'
 } = process.env

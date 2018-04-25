@@ -1,3 +1,5 @@
+.env
+.npmrc
 node_modules
 .nyc_output
 example/dist
