@@ -47,7 +47,7 @@ class Updates {
     } else {
       await this.handleUpdate(res, account, repository, platform, version)
     }
-    this.log(req.method, req.url, res.statusCode)
+    this.log(req.method, req.url, `status=${res.statusCode}`)
   }
 
   async handleReleases (res, account, repository) {
