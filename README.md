@@ -1,6 +1,15 @@
-# update-server
+# 📡 update.electronjs.org
 
-A free service that makes it easy for open-source Electron apps to update themselves.
+> A free service that makes it easy for open-source Electron apps to update themselves.
+
+## Requirements
+
+Before using this service, make sure your Electron app meets these criteria:
+
+- Your app runs on macOS or Windows
+- Your app has a public GitHub repository
+- Your builds are published to GitHub Releases
+- Your builds are code-signed
 
 ## Quick Setup
 
@@ -13,12 +22,10 @@ npm install update-electron-app --save
 Call it from in you [main process] file:
 
 ```js
-require('update-electron-app')({
-  repo: 'ummoji/ummoji-desktop'
-})
+require('update-electron-app')()
 ```
 
-And that's all it takes!
+And that's all it takes! To customize, see the [update-electron-app API].
 
 Once your application is [packaged](https://electronjs.org/docs/tutorial/application-distribution),
 it will update itself for each new
@@ -51,9 +58,10 @@ autoUpdater.setFeedURL(feed)
 As the final step, check for updates. The example below will check every minute:
 
 ```javascript
+// check every ten minutes
 setInterval(() => {
   autoUpdater.checkForUpdates()
-}, 60000)
+}, 10 * 60 * 1000)
 ```
 
 Once your application is [packaged](https://electronjs.org/docs/tutorial/application-distribution),
@@ -97,5 +105,6 @@ $ npm run build
 $ "example\dist\squirrel-windows\hyper Setup 0.0.0.exe"
 ```
 
-[update-electron-app]: https://ghub.io/update-electron-app
+[update-electron-app API]: https://github.com/electron/update-electron-app#api
+[update-electron-app]: https://github.com/electron/update-electron-app
 [main process]: https://electronjs.org/docs/glossary#main-process
