@@ -1,5 +1,7 @@
 'use strict'
 
+require('dotenv-safe').load()
+
 const { test } = require('tap')
 const fetch = require('node-fetch')
 const Updates = require('..')
