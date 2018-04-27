@@ -6,8 +6,12 @@ const http = require('http')
 const fetch = require('node-fetch')
 const semver = require('semver')
 const assert = require('assert')
+const log = require('pino')()
+const crypto = require('crypto')
+const requestIp = require('request-ip')
 
 const { NODE_ENV: env } = process.env
+if (env === 'test') log.level = 'error'
 
 class Updates {
   constructor ({ token, cache } = {}) {
@@ -21,23 +25,32 @@ class Updates {
       ;[port, cb] = [undefined, port]
     }
     const server = http.createServer((req, res) => {
-      this.handle(req, res).catch(err => {
-        console.error(err.stack)
-        res.statusCode = err.statusCode || 500
-        const msg = env === 'production' ? 'Internal Server Error' : err.stack
-        res.end(msg)
-      })
+      const start = new Date()
+      this.handle(req, res)
+        .catch(err => {
+          log.error(err)
+          res.statusCode = err.statusCode || 500
+          const msg = env === 'production' ? 'Internal Server Error' : err.stack
+          res.end(msg)
+        })
+        .then(() => {
+          log.info(
+            {
+              method: req.method,
+              url: req.url,
+              status: res.statusCode,
+              ipHash: this.hashIp(requestIp.getClientIp(req)),
+              duration: new Date() - start
+            },
+            'request'
+          )
+        })
     })
     server.listen(port, cb)
     return server
   }
 
-  log (...args) {
-    if (env !== 'test') console.log(...args)
-  }
-
   async handle (req, res) {
-    this.log(req.method, req.url, '...')
     let segs = req.url.split(/[/?]/).filter(Boolean)
     const [account, repository, platform, version, file] = segs
     if (!account || !repository || !platform || !version) {
@@ -47,7 +60,6 @@ class Updates {
     } else {
       await this.handleUpdate(res, account, repository, platform, version)
     }
-    this.log(req.method, req.url, `status=${res.statusCode}`)
   }
 
   async handleReleases (res, account, repository) {
@@ -62,10 +74,13 @@ class Updates {
     if (!latest) {
       notFound(res)
     } else if (semver.eq(latest.version, version)) {
-      this.log('up to date')
+      log.info({ account, repository, platform, version }, 'up to date')
       noContent(res)
     } else {
-      this.log(`update available: ${latest.version}`)
+      log.info(
+        { account, repository, platform, version, latest },
+        'update available'
+      )
       json(res, {
         name: latest.name || latest.version,
         notes: latest.notes,
@@ -78,18 +93,18 @@ class Updates {
     const key = `${account}/${repository}`
     let latest = await this.cache.get(key)
     if (latest) {
-      this.log(`cache hit ${key}`)
+      log.info({ key }, 'cache hit')
       return latest[platform] ? latest[platform] : null
     }
 
     let lock
     if (this.cache.lock) {
-      this.log(`aquiring lock ${key}`)
+      log.info({ key }, 'lock aquiring')
       lock = await this.cache.lock(key)
-      this.log(`aquired lock ${key}`)
+      log.info({ key }, 'lock aquired')
       latest = await this.cache.get(key)
       if (latest) {
-        this.log(`cache hit after lock ${key}`)
+        log.info({ key }, 'cache hit after lock')
         return latest[platform] ? latest[platform] : null
       }
     }
@@ -103,9 +118,9 @@ class Updates {
     }
 
     if (lock) {
-      this.log(`releasing lock ${key}`)
+      log.info({ key }, 'lock releasing')
       await lock.unlock()
-      this.log(`released lock ${key}`)
+      log.info({ key }, 'lock released')
     }
 
     return latest && latest[platform]
@@ -118,7 +133,7 @@ class Updates {
     const headers = { Accept: 'application/vnd.github.preview' }
     if (this.token) headers.Authorization = `token ${this.token}`
     const res = await fetch(url, { headers })
-    this.log(`API github releases status=${res.status}`)
+    log.info({ account, repository, status: res.status }, 'github releases api')
 
     if (res.status === 403) {
       console.error('Rate Limited!')
@@ -163,6 +178,12 @@ class Updates {
     }
 
     return latest.darwin || latest.win32 ? latest : null
+  }
+  hashIp (ip) {
+    return crypto
+      .createHash('sha256')
+      .update(ip)
+      .digest('hex')
   }
 }
 
