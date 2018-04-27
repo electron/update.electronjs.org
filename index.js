@@ -180,6 +180,7 @@ class Updates {
     return latest.darwin || latest.win32 ? latest : null
   }
   hashIp (ip) {
+    if (!ip) return
     return crypto
       .createHash('sha256')
       .update(ip)
