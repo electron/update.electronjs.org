@@ -96,15 +96,14 @@ On Darwin:
 
 ```bash
 $ npm run build
-$ ./dist/mac/hyper.app/Contents/MacOS/hyper
+$ ./out/test-darwin-x64/test.app/Contents/MacOS/test
 ```
 
 On Windows:
 
 ```bash
-$ npm install --save 7zip-bin-win app-builder-bin-win electron-builder-squirrel-windows
 $ npm run build
-$ "example\dist\squirrel-windows\hyper Setup 0.0.0.exe"
+$ "example\out\make\squirrel.windows\x64\test-0.0.0 Setup.exe"
 ```
 
 [update-electron-app API]: https://github.com/electron/update-electron-app#api

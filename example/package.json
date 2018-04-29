@@ -2,22 +2,30 @@
   "name": "test",
   "version": "0.0.0",
   "author": "author",
+  "main": "src/index.js",
   "description": "description",
   "scripts": {
-    "build": "electron-builder"
+    "build": "electron-forge make"
   },
-  "build": {
-    "appId": "co.electron.test",
-    "win": {
-      "target": ["squirrel"]
-    },
-    "squirrelWindows": {
-      "iconUrl": "http://example.com/"
+  "config": {
+    "forge": {
+      "electronPackagerConfig": {
+        "appBundleId": "com.electron.test"
+      },
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "iconUrl": "http://example.com"
+          }
+        }
+      ]
     }
   },
   "dependencies": {},
   "devDependencies": {
-    "electron": "^1.8.4",
-    "electron-builder": "^20.5.1"
+    "@electron-forge/cli": "^6.0.0-beta.3",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.3",
+    "electron": "1.8.4"
   }
 }
