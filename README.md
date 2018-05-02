@@ -11,7 +11,7 @@ Before using this service, make sure your Electron app meets these criteria:
 - Your app runs on macOS or Windows
 - Your app has a public GitHub repository
 - Your builds are published to GitHub Releases
-- Your builds are code-signed
+- Your builds are [code signed]
 
 ## Quick Setup
 
@@ -109,3 +109,4 @@ $ "example\out\make\squirrel.windows\x64\test-0.0.0 Setup.exe"
 [update-electron-app API]: https://github.com/electron/update-electron-app#api
 [update-electron-app]: https://github.com/electron/update-electron-app
 [main process]: https://electronjs.org/docs/glossary#main-process
+[code signed]: https://github.com/electron/electron/blob/master/docs/tutorial/code-signing.md
