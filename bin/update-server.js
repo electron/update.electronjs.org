@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-
+console.log('node version', process.versions)
+/*
 'use strict'
 
 require('dotenv-safe').load()
@@ -60,3 +61,4 @@ const updates = new Updates({ token, cache })
 updates.listen(port, () => {
   console.log(`http://localhost:${port}`)
 })
+*/
