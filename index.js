@@ -78,7 +78,11 @@ class Updates {
     const latest = await this.cachedGetLatest(account, repository, platform)
 
     if (!latest) {
-      notFound(res)
+      const message =
+        platform === 'darwin'
+          ? 'No updates found (needs asset matching *{mac,darwin,osx}*.zip)'
+          : 'No updates found (needs asset containing win32-x64 or .exe)'
+      notFound(res, message)
     } else if (semver.eq(latest.version, version)) {
       log.info({ account, repository, platform, version }, 'up to date')
       noContent(res)

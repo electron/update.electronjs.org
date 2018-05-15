@@ -207,17 +207,29 @@ test('Updates', async t => {
 
   await t.test('Platforms', async t => {
     await t.test('Darwin', async t => {
-      for (let i = 0; i < 2; i++) {
-        let res = await fetch(`${address}/owner/repo/darwin/0.0.0`)
-        t.equal(res.status, 200)
-        let body = await res.json()
-        t.equal(body.url, 'mac.zip')
+      await t.test('.zip', async t => {
+        for (let i = 0; i < 2; i++) {
+          let res = await fetch(`${address}/owner/repo/darwin/0.0.0`)
+          t.equal(res.status, 200)
+          let body = await res.json()
+          t.equal(body.url, 'mac.zip')
 
-        res = await fetch(`${address}/owner/repo-darwin/darwin/0.0.0`)
-        t.equal(res.status, 200)
-        body = await res.json()
-        t.match(body.url, 'darwin.zip')
-      }
+          res = await fetch(`${address}/owner/repo-darwin/darwin/0.0.0`)
+          t.equal(res.status, 200)
+          body = await res.json()
+          t.match(body.url, 'darwin.zip')
+        }
+      })
+
+      await t.test('missing asset', async t => {
+        const res = await fetch(`${address}/owner/repo-win32-zip/darwin/0.0.0`)
+        t.equal(res.status, 404)
+        const body = await res.text()
+        t.equal(
+          body,
+          'No updates found (needs asset matching *{mac,darwin,osx}*.zip)'
+        )
+      })
     })
 
     await t.test('Win32', async t => {
@@ -260,6 +272,16 @@ test('Updates', async t => {
           )
           t.equal(res.status, 404)
         }
+      })
+
+      await t.test('missing asset', async t => {
+        const res = await fetch(`${address}/owner/repo-darwin/win32/0.0.0`)
+        t.equal(res.status, 404)
+        const body = await res.text()
+        t.equal(
+          body,
+          'No updates found (needs asset containing win32-x64 or .exe)'
+        )
       })
     })
 
