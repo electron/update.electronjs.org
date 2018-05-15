@@ -262,6 +262,27 @@ test('Updates', async t => {
         }
       })
     })
+
+    await t.test('Linux', async t => {
+      await t.test('not supported', async t => {
+        const res = await fetch(`${address}/owner/repo/linux/0.0.0`)
+        t.equal(res.status, 404)
+        const body = await res.text()
+        t.equal(
+          body,
+          'Unsupported platform: "linux". Supported: darwin, win32.'
+        )
+      })
+    })
+
+    await t.test('Others', async t => {
+      await t.test('not supported', async t => {
+        const res = await fetch(`${address}/owner/repo/os/0.0.0`)
+        t.equal(res.status, 404)
+        const body = await res.text()
+        t.equal(body, 'Unsupported platform: "os". Supported: darwin, win32.')
+      })
+    })
   })
 
   server.close()
