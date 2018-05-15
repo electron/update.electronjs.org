@@ -181,6 +181,13 @@ test('Updates', async t => {
       }
     })
 
+    await t.test('invalid semver', async t => {
+      const res = await fetch(`${address}/owner/repo/darwin/latest`)
+      t.equal(res.status, 400)
+      const body = await res.text()
+      t.equal(body, 'Invalid SemVer: "latest"')
+    })
+
     await t.test('exists but has no releases', async t => {
       for (let i = 0; i < 2; i++) {
         const res = await fetch(

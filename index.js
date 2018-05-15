@@ -55,6 +55,8 @@ class Updates {
     const [account, repository, platform, version, file] = segs
     if (!account || !repository || !platform || !version) {
       redirect(res, 'https://github.com/electron/update.electronjs.org')
+    } else if (version && !semver.valid(version)) {
+      badRequest(res, `Invalid SemVer: "${version}"`)
     } else if (file === 'RELEASES') {
       await this.handleReleases(res, account, repository)
     } else {
@@ -197,6 +199,11 @@ const assetPlatform = fileName => {
 const notFound = res => {
   res.statusCode = 404
   res.end('Not found')
+}
+
+const badRequest = (res, message) => {
+  res.statusCode = 400
+  res.end(message)
 }
 
 const noContent = res => {
