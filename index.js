@@ -53,8 +53,12 @@ class Updates {
   async handle (req, res) {
     let segs = req.url.split(/[/?]/).filter(Boolean)
     const [account, repository, platform, version, file] = segs
+
     if (!account || !repository || !platform || !version) {
       redirect(res, 'https://github.com/electron/update.electronjs.org')
+    } else if (platform !== 'darwin' && platform !== 'win32') {
+      const message = `Unsupported platform: "${platform}". Supported: darwin, win32.`
+      notFound(res, message)
     } else if (file === 'RELEASES') {
       await this.handleReleases(res, account, repository)
     } else {
@@ -194,9 +198,9 @@ const assetPlatform = fileName => {
   return false
 }
 
-const notFound = res => {
+const notFound = (res, message = 'Not found') => {
   res.statusCode = 404
-  res.end('Not found')
+  res.end(message)
 }
 
 const noContent = res => {
