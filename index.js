@@ -59,6 +59,8 @@ class Updates {
     } else if (platform !== 'darwin' && platform !== 'win32') {
       const message = `Unsupported platform: "${platform}". Supported: darwin, win32.`
       notFound(res, message)
+    } else if (version && !semver.valid(version)) {
+      badRequest(res, `Invalid SemVer: "${version}"`)
     } else if (file === 'RELEASES') {
       await this.handleReleases(res, account, repository)
     } else {
@@ -200,6 +202,11 @@ const assetPlatform = fileName => {
 
 const notFound = (res, message = 'Not found') => {
   res.statusCode = 404
+  res.end(message)
+}
+
+const badRequest = (res, message) => {
+  res.statusCode = 400
   res.end(message)
 }
 
