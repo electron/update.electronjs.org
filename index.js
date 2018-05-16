@@ -86,7 +86,13 @@ class Updates {
       noContent(res)
     } else {
       log.info(
-        { account, repository, platform, version, latest },
+        {
+          account,
+          repository,
+          platform,
+          version,
+          latest: latest.name || latest.version
+        },
         'update available'
       )
       json(res, {
