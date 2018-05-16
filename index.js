@@ -1,7 +1,5 @@
 'use strict'
 
-require('dotenv-safe').load()
-
 const http = require('http')
 const fetch = require('node-fetch')
 const semver = require('semver')

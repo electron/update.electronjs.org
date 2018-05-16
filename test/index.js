@@ -1,15 +1,9 @@
 'use strict'
 
-require('dotenv-safe').load()
-
 const { test } = require('tap')
 const fetch = require('node-fetch')
 const Updates = require('..')
-const assert = require('assert')
 const nock = require('nock')
-
-const { GH_TOKEN: token } = process.env
-assert(token, 'GH_TOKEN required')
 
 class MemoryCache {
   constructor () {
@@ -25,7 +19,7 @@ class MemoryCache {
 
 const createServer = () =>
   new Promise(resolve => {
-    const updates = new Updates({ token, cache: new MemoryCache() })
+    const updates = new Updates({ cache: new MemoryCache() })
     const server = updates.listen(() => {
       resolve({
         server,
