@@ -1,7 +1,7 @@
 {
   "scripts": {
     "start": "nodemon bin/update-server.js",
-    "test": "prettier-standard '**/*.js' && standard && NODE_ENV=test nyc tap test/*.js"
+    "test": "prettier-standard '**/*.js' && standard && cross-env NODE_ENV=test nyc tap test/*.js"
   },
   "dependencies": {
     "dotenv-safe": "^5.0.1",
@@ -14,6 +14,7 @@
     "semver": "^5.5.0"
   },
   "devDependencies": {
+    "cross-env": "^5.1.5",
     "nock": "^9.2.5",
     "nodemon": "^1.17.1",
     "nyc": "^11.6.0",
