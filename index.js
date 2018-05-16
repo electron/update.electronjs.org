@@ -109,9 +109,9 @@ class Updates {
 
     let lock
     if (this.cache.lock) {
-      log.info({ key }, 'lock aquiring')
+      log.debug({ key }, 'lock acquiring')
       lock = await this.cache.lock(key)
-      log.info({ key }, 'lock aquired')
+      log.debug({ key }, 'lock acquired')
       latest = await this.cache.get(key)
       if (latest) {
         log.info({ key }, 'cache hit after lock')
@@ -128,9 +128,9 @@ class Updates {
     }
 
     if (lock) {
-      log.info({ key }, 'lock releasing')
+      log.debug({ key }, 'lock releasing')
       await lock.unlock()
-      log.info({ key }, 'lock released')
+      log.debug({ key }, 'lock released')
     }
 
     return latest && latest[platform]
