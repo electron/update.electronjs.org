@@ -221,7 +221,7 @@ test('Updates', async t => {
         const body = await res.text()
         t.equal(
           body,
-          'No updates found (needs asset matching *{mac,darwin,osx}*.zip)'
+          'No updates found (needs asset matching *{mac,darwin,osx}*.zip in public repository)'
         )
       })
     })
@@ -274,7 +274,7 @@ test('Updates', async t => {
         const body = await res.text()
         t.equal(
           body,
-          'No updates found (needs asset containing win32-x64 or .exe)'
+          'No updates found (needs asset containing win32-x64 or .exe in public repository)'
         )
       })
     })
