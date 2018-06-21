@@ -121,6 +121,24 @@ nock('https://api.github.com')
       ]
     }
   ])
+  .get('/repos/owner/repo-invalid-semver/releases?per_page=100')
+  .reply(200, [
+    {
+      name: 'name',
+      tag_name: 'invalid-semver',
+      body: 'notes',
+      assets: [
+        {
+          name: 'win32-ia32.zip',
+          browser_download_url: 'win32-ia32.zip'
+        },
+        {
+          name: 'win32-x64.zip',
+          browser_download_url: 'win32-x64.zip'
+        }
+      ]
+    }
+  ])
 nock('https://github.com')
   .get('/owner/repo/releases/download/1.0.0/RELEASES')
   .reply(200, 'HASH name.nupkg NUMBER')
@@ -175,11 +193,18 @@ test('Updates', async t => {
       }
     })
 
-    await t.test('invalid semver', async t => {
+    await t.test('invalid semver in request', async t => {
       const res = await fetch(`${address}/owner/repo/darwin/latest`)
       t.equal(res.status, 400)
       const body = await res.text()
       t.equal(body, 'Invalid SemVer: "latest"')
+    })
+
+    await t.test('invalid semver in release', async t => {
+      const res = await fetch(
+        `${address}/owner/repo-invalid-semver/darwin/0.0.0`
+      )
+      t.equal(res.status, 404)
     })
 
     await t.test('exists but has no releases', async t => {

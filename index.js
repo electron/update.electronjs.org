@@ -162,7 +162,13 @@ class Updates {
 
     const releases = await res.json()
     for (const release of releases) {
-      if (release.draft || release.prerelease) continue
+      if (
+        !semver.valid(release.tag_name) ||
+        release.draft ||
+        release.prerelease
+      ) {
+        continue
+      }
       for (const asset of release.assets) {
         const platform = assetPlatform(asset.name)
         if (platform && !latest[platform]) {
