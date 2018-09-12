@@ -234,6 +234,8 @@ const json = (res, obj) => {
   res.end(JSON.stringify(obj))
 }
 
+// DO NOT PASS USER-SUPPLIED CONTENT TO THIS FUNCTION
+// AS IT WILL REDIRECT A USER ANYWHERE
 const redirect = (res, url) => {
   res.statusCode = 302
   res.setHeader('Location', url)
