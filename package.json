@@ -1,4 +1,5 @@
 {
+  "name": "update.electronjs.org",
   "scripts": {
     "start": "nodemon bin/update-server.js",
     "test": "prettier-standard '**/*.js' && standard && cross-env NODE_ENV=test nyc tap test/*.js"
