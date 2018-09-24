@@ -113,16 +113,14 @@ class Updates {
   async cachedGetLatest (account, repository, platform) {
     const key = `${account}/${repository}`
     let latest = await this.cache.get(key)
+
     if (latest) {
-      log.info({ key }, 'cache hit')
       // reuse cache entries using the old non-arch-aware format
-      if (platform === 'darwin-x64' && latest.darwin) {
-        return latest.darwin
-      } else if (platform === 'win32-x64' && latest.win32) {
-        return latest.win32
-      } else {
-        return latest[platform] || null
-      }
+      if (latest.darwin) latest['darwin-x64'] = latest.darwin
+      if (latest.win32) latest['win32-x64'] = latest.win32
+
+      log.info({ key }, 'cache hit')
+      return latest[platform] || null
     }
 
     let lock
