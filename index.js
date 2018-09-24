@@ -115,7 +115,14 @@ class Updates {
     let latest = await this.cache.get(key)
     if (latest) {
       log.info({ key }, 'cache hit')
-      return latest[platform] ? latest[platform] : null
+      // reuse cache entries using the old non-arch-aware format
+      if (platform === 'darwin-x64' && latest.darwin) {
+        return latest.darwin
+      } else if (platform === 'win32-x64' && latest.win32) {
+        return latest.win32
+      } else {
+        return latest[platform] || null
+      }
     }
 
     let lock
@@ -186,9 +193,17 @@ class Updates {
             notes: release.body
           }
         }
-        if (latest['darwin-x64'] && latest['win32-x64'] && latest['win32-ia32']) { break }
+        if (
+          latest['darwin-x64'] &&
+          latest['win32-x64'] &&
+          latest['win32-ia32']
+        ) {
+          break
+        }
       }
-      if (latest['darwin-x64'] && latest['win32-x64'] && latest['win32-ia32']) { break }
+      if (latest['darwin-x64'] && latest['win32-x64'] && latest['win32-ia32']) {
+        break
+      }
     }
 
     for (const key of ['win32-x64', 'win32-ia32']) {
