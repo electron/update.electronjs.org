@@ -147,8 +147,10 @@ nock('https://github.com')
   .get('/owner/repo-darwin/releases/download/v1.0.0/RELEASES')
   .reply(404)
   .get('/owner/repo-win32-zip/releases/download/v1.0.0/RELEASES')
+  .times(2)
   .reply(404)
   .get('/owner/repo-no-releases/releases/download/v1.0.0/RELEASES')
+  .times(2)
   .reply(404)
 
 test('Updates', async t => {
@@ -299,7 +301,7 @@ test('Updates', async t => {
         const body = await res.text()
         t.equal(
           body,
-          'No updates found (needs asset containing win32-x64 or .exe in public repository)'
+          'No updates found (needs asset containing win32-{x64,ia32} or .exe in public repository)'
         )
       })
     })
@@ -311,7 +313,7 @@ test('Updates', async t => {
         const body = await res.text()
         t.equal(
           body,
-          'Unsupported platform: "linux". Supported: darwin, win32.'
+          'Unsupported platform: "linux". Supported: darwin-x64, win32-x64, win32-ia32.'
         )
       })
     })
@@ -321,7 +323,10 @@ test('Updates', async t => {
         const res = await fetch(`${address}/owner/repo/os/0.0.0`)
         t.equal(res.status, 404)
         const body = await res.text()
-        t.equal(body, 'Unsupported platform: "os". Supported: darwin, win32.')
+        t.equal(
+          body,
+          'Unsupported platform: "os". Supported: darwin-x64, win32-x64, win32-ia32.'
+        )
       })
     })
   })

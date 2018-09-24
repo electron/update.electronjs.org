@@ -50,24 +50,31 @@ class Updates {
 
   async handle (req, res) {
     let segs = req.url.split(/[/?]/).filter(Boolean)
-    const [account, repository, platform, version, file] = segs
+    const [account, repository, , version, file] = segs
+    let platform = segs[2]
+    if (platform === 'win32') platform = 'win32-x64'
+    if (platform === 'darwin') platform = 'darwin-x64'
 
     if (!account || !repository || !platform || !version) {
       redirect(res, 'https://github.com/electron/update.electronjs.org')
-    } else if (platform !== 'darwin' && platform !== 'win32') {
-      const message = `Unsupported platform: "${platform}". Supported: darwin, win32.`
+    } else if (
+      platform !== 'darwin-x64' &&
+      platform !== 'win32-x64' &&
+      platform !== 'win32-ia32'
+    ) {
+      const message = `Unsupported platform: "${platform}". Supported: darwin-x64, win32-x64, win32-ia32.`
       notFound(res, message)
     } else if (version && !semver.valid(version)) {
       badRequest(res, `Invalid SemVer: "${version}"`)
     } else if (file === 'RELEASES') {
-      await this.handleReleases(res, account, repository)
+      await this.handleReleases(res, account, repository, platform)
     } else {
       await this.handleUpdate(res, account, repository, platform, version)
     }
   }
 
-  async handleReleases (res, account, repository) {
-    const latest = await this.cachedGetLatest(account, repository, 'win32')
+  async handleReleases (res, account, repository, platform) {
+    const latest = await this.cachedGetLatest(account, repository, platform)
     if (!latest || !latest.RELEASES) return notFound(res)
     res.end(latest.RELEASES)
   }
@@ -77,9 +84,9 @@ class Updates {
 
     if (!latest) {
       const message =
-        platform === 'darwin'
+        platform === 'darwin-x64'
           ? 'No updates found (needs asset matching *{mac,darwin,osx}*.zip in public repository)'
-          : 'No updates found (needs asset containing win32-x64 or .exe in public repository)'
+          : 'No updates found (needs asset containing win32-{x64,ia32} or .exe in public repository)'
       notFound(res, message)
     } else if (semver.eq(latest.version, version)) {
       log.info({ account, repository, platform, version }, 'up to date')
@@ -179,25 +186,29 @@ class Updates {
             notes: release.body
           }
         }
-        if (latest.darwin && latest.win32) break
+        if (latest['darwin-x64'] && latest['win32-x64'] && latest['win32-ia32']) { break }
       }
-      if (latest.darwin && latest.win32) break
+      if (latest['darwin-x64'] && latest['win32-x64'] && latest['win32-ia32']) { break }
     }
 
-    if (latest.win32) {
-      const rurl = `https://github.com/${account}/${repository}/releases/download/${
-        latest.win32.version
-      }/RELEASES`
-      const rres = await fetch(rurl)
-      if (rres.status < 400) {
-        const body = await rres.text()
-        const matches = body.match(/[^ ]*\.nupkg/gim)
-        const nuPKG = rurl.replace('RELEASES', matches[0])
-        latest.win32.RELEASES = body.replace(matches[0], nuPKG)
+    for (const key of ['win32-x64', 'win32-ia32']) {
+      if (latest[key]) {
+        const rurl = `https://github.com/${account}/${repository}/releases/download/${
+          latest[key].version
+        }/RELEASES`
+        const rres = await fetch(rurl)
+        if (rres.status < 400) {
+          const body = await rres.text()
+          const matches = body.match(/[^ ]*\.nupkg/gim)
+          const nuPKG = rurl.replace('RELEASES', matches[0])
+          latest[key].RELEASES = body.replace(matches[0], nuPKG)
+        }
       }
     }
 
-    return latest.darwin || latest.win32 ? latest : null
+    return latest['darwin-x64'] || latest['win32-x64'] || latest['win32-ia32']
+      ? latest
+      : null
   }
   hashIp (ip) {
     if (!ip) return
@@ -209,8 +220,9 @@ class Updates {
 }
 
 const assetPlatform = fileName => {
-  if (/.*(mac|darwin|osx).*\.zip/i.test(fileName)) return 'darwin'
-  if (/win32-x64|(\.exe$)/.test(fileName)) return 'win32'
+  if (/.*(mac|darwin|osx).*\.zip/i.test(fileName)) return 'darwin-x64'
+  if (/win32-ia32/.test(fileName)) return 'win32-ia32'
+  if (/win32-x64|(\.exe$)/.test(fileName)) return 'win32-x64'
   return false
 }
 
