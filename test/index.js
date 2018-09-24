@@ -49,6 +49,10 @@ nock('https://api.github.com')
         {
           name: 'win.exe',
           browser_download_url: 'win.exe'
+        },
+        {
+          name: 'win32-ia32.zip',
+          browser_download_url: 'win32-ia32.zip'
         }
       ]
     }
@@ -141,6 +145,7 @@ nock('https://api.github.com')
   ])
 nock('https://github.com')
   .get('/owner/repo/releases/download/1.0.0/RELEASES')
+  .times(2)
   .reply(200, 'HASH name.nupkg NUMBER')
   .get('/owner/repo-with-v/releases/download/v1.0.0/RELEASES')
   .reply(404)
@@ -230,10 +235,20 @@ test('Updates', async t => {
     await t.test('Darwin', async t => {
       await t.test('.zip', async t => {
         for (let i = 0; i < 2; i++) {
-          let res = await fetch(`${address}/owner/repo/darwin/0.0.0`)
+          let res = await fetch(`${address}/owner/repo/darwin-x64/0.0.0`)
           t.equal(res.status, 200)
           let body = await res.json()
           t.equal(body.url, 'mac.zip')
+
+          res = await fetch(`${address}/owner/repo/darwin/0.0.0`)
+          t.equal(res.status, 200)
+          body = await res.json()
+          t.equal(body.url, 'mac.zip')
+
+          res = await fetch(`${address}/owner/repo-darwin/darwin-x64/0.0.0`)
+          t.equal(res.status, 200)
+          body = await res.json()
+          t.match(body.url, 'darwin.zip')
 
           res = await fetch(`${address}/owner/repo-darwin/darwin/0.0.0`)
           t.equal(res.status, 200)
@@ -243,9 +258,19 @@ test('Updates', async t => {
       })
 
       await t.test('missing asset', async t => {
-        const res = await fetch(`${address}/owner/repo-win32-zip/darwin/0.0.0`)
+        let res = await fetch(
+          `${address}/owner/repo-win32-zip/darwin-x64/0.0.0`
+        )
         t.equal(res.status, 404)
-        const body = await res.text()
+        let body = await res.text()
+        t.equal(
+          body,
+          'No updates found (needs asset matching *{mac,darwin,osx}*.zip in public repository)'
+        )
+
+        res = await fetch(`${address}/owner/repo-win32-zip/darwin/0.0.0`)
+        t.equal(res.status, 404)
+        body = await res.text()
         t.equal(
           body,
           'No updates found (needs asset matching *{mac,darwin,osx}*.zip in public repository)'
@@ -266,6 +291,15 @@ test('Updates', async t => {
 
       await t.test('win32-x64', async t => {
         for (let i = 0; i < 2; i++) {
+          const res = await fetch(
+            `${address}/owner/repo-win32-zip/win32-x64/0.0.0`
+          )
+          t.equal(res.status, 200)
+          const body = await res.json()
+          t.equal(body.url, 'win32-x64.zip')
+          t.ok(body.name)
+        }
+        for (let i = 0; i < 2; i++) {
           const res = await fetch(`${address}/owner/repo-win32-zip/win32/0.0.0`)
           t.equal(res.status, 200)
           const body = await res.json()
@@ -274,17 +308,64 @@ test('Updates', async t => {
         }
       })
 
-      await t.test('RELEASES', async t => {
+      await t.test('win32-ia32', async t => {
         for (let i = 0; i < 2; i++) {
           const res = await fetch(
-            `${address}/owner/repo/win32/0.0.0/RELEASES?some-extra`
+            `${address}/owner/repo-win32-zip/win32-ia32/0.0.0`
           )
           t.equal(res.status, 200)
-          const body = await res.text()
-          t.match(
-            body,
-            /^[^ ]+ https:\/\/github.com\/owner\/repo\/releases\/download\/[^/]+\/name.nupkg [^ ]+$/
+          const body = await res.json()
+          t.equal(body.url, 'win32-ia32.zip')
+          t.ok(body.name)
+        }
+      })
+
+      await t.test('RELEASES', async t => {
+        await t.test('win32-x64', async t => {
+          for (let i = 0; i < 2; i++) {
+            const res = await fetch(
+              `${address}/owner/repo/win32-x64/0.0.0/RELEASES?some-extra`
+            )
+            t.equal(res.status, 200)
+            const body = await res.text()
+            t.match(
+              body,
+              /^[^ ]+ https:\/\/github.com\/owner\/repo\/releases\/download\/[^/]+\/name.nupkg [^ ]+$/
+            )
+          }
+
+          for (let i = 0; i < 2; i++) {
+            const res = await fetch(
+              `${address}/owner/repo/win32/0.0.0/RELEASES?some-extra`
+            )
+            t.equal(res.status, 200)
+            const body = await res.text()
+            t.match(
+              body,
+              /^[^ ]+ https:\/\/github.com\/owner\/repo\/releases\/download\/[^/]+\/name.nupkg [^ ]+$/
+            )
+          }
+        })
+
+        await t.test('win32-ia32', async t => {
+          for (let i = 0; i < 2; i++) {
+            const res = await fetch(
+              `${address}/owner/repo/win32-ia32/0.0.0/RELEASES?some-extra`
+            )
+            t.equal(res.status, 200)
+            const body = await res.text()
+            t.match(
+              body,
+              /^[^ ]+ https:\/\/github.com\/owner\/repo\/releases\/download\/[^/]+\/name.nupkg [^ ]+$/
+            )
+          }
+        })
+
+        for (let i = 0; i < 2; i++) {
+          const res = await fetch(
+            `${address}/owner/repo-no-releases/win32-x64/0.0.0/RELEASES`
           )
+          t.equal(res.status, 404)
         }
 
         for (let i = 0; i < 2; i++) {
