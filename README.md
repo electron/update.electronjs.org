@@ -52,12 +52,12 @@ Next, construct the URL of the update server and tell
 
 ```javascript
 const server = 'https://update.electronjs.org'
-const feed = `${server}/OWNER/REPO/${process.platform}/${app.getVersion()}`
+const feed = `${server}/OWNER/REPO/${process.platform}-${process.arch}/${app.getVersion()}`
 
 autoUpdater.setFeedURL(feed)
 ```
 
-As the final step, check for updates. The example below will check every 10 
+As the final step, check for updates. The example below will check every 10
 minutes:
 
 ```javascript
