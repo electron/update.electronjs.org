@@ -73,6 +73,12 @@ class Updates {
     }
   }
 
+  async handleDownload (res, account, repository, platform) {
+    const latest = await this.cachedGetLatest(account, repository, platform)
+    if (!latest || !latest.install_url) return notFound(res)
+    redirect(res, latest.install_url)
+  }
+
   async handleReleases (res, account, repository, platform) {
     const latest = await this.cachedGetLatest(account, repository, platform)
     if (!latest || !latest.RELEASES) return notFound(res)
@@ -105,7 +111,8 @@ class Updates {
       json(res, {
         name: latest.name || latest.version,
         notes: latest.notes,
-        url: latest.url
+        url: latest.url,
+        install_url: latest.install_url,
       })
     }
   }
@@ -199,6 +206,14 @@ class Updates {
           break
         }
       }
+
+      for (const asset of release.assets) {
+        const platform = assetInstallPlatform(asset.name)
+        if (platform && latest[platform]) {
+          latest[platform].install_url = asset.browser_download_url
+        }
+      }
+
       if (latest['darwin-x64'] && latest['win32-x64'] && latest['win32-ia32']) {
         break
       }
@@ -236,6 +251,11 @@ const assetPlatform = fileName => {
   if (/.*(mac|darwin|osx).*\.zip/i.test(fileName)) return 'darwin-x64'
   if (/win32-ia32/.test(fileName)) return 'win32-ia32'
   if (/win32-x64|(\.exe$)/.test(fileName)) return 'win32-x64'
+  return false
+}
+
+const assetInstallPlatform = fileName => {
+  if (/.*(mac|darwin|osx).*\.dmg$/i.test(fileName)) return 'darwin-x64'
   return false
 }
 
