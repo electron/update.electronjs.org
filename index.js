@@ -1,3 +1,4 @@
+// @ts-check
 'use strict'
 
 const http = require('http')
@@ -73,7 +74,9 @@ class Updates {
     if (!account || !repository || !platform || !version) {
       redirect(res, 'https://github.com/electron/update.electronjs.org')
     } else if (!PLATFORM_ARCHS.includes(platform)) {
-      const message = `Unsupported platform: "${platform}". Supported: ${PLATFORM_ARCHS.join(', ')}`
+      const message = `Unsupported platform: "${platform}". Supported: ${PLATFORM_ARCHS.join(
+        ', '
+      )}.`
       notFound(res, message)
     } else if (version && !semver.valid(version)) {
       badRequest(res, `Invalid SemVer: "${version}"`)
@@ -94,10 +97,9 @@ class Updates {
     const latest = await this.cachedGetLatest(account, repository, platform)
 
     if (!latest) {
-      const message =
-        platform.includes(PLATFORM.DARWIN)
-          ? 'No updates found (needs asset matching *{mac,darwin,osx}*.zip in public repository)'
-          : 'No updates found (needs asset containing win32-{x64,ia32,arm} or .exe in public repository)'
+      const message = platform.includes(PLATFORM.DARWIN)
+        ? 'No updates found (needs asset matching *{mac,darwin,osx}*.zip in public repository)'
+        : 'No updates found (needs asset containing win32-{x64,ia32,arm} or .exe in public repository)'
       notFound(res, message)
     } else if (semver.eq(latest.version, version)) {
       log.info({ account, repository, platform, version }, 'up to date')
@@ -127,8 +129,8 @@ class Updates {
 
     if (latest) {
       // reuse cache entries using the old non-arch-aware format
-      if (latest.darwin) latest[PLATFORM_ARCHS.DARWIN_X64] = latest.darwin
-      if (latest.win32) latest[PLATFORM_ARCHS.WIN_X64] = latest.win32
+      if (latest.darwin) latest[PLATFORM_ARCH.DARWIN_X64] = latest.darwin
+      if (latest.win32) latest[PLATFORM_ARCH.WIN_X64] = latest.win32
 
       log.info({ key }, 'cache hit')
       return latest[platform] || null
@@ -184,6 +186,7 @@ class Updates {
     const latest = {}
 
     const releases = await res.json()
+    console.log(releases)
     for (const release of releases) {
       if (
         !semver.valid(release.tag_name) ||
@@ -213,11 +216,9 @@ class Updates {
       }
     }
 
-    for (const key of [PLATFORM_ARCHS.WIN_X64, PLATFORM_ARCHS.WIN_IA32]) {
+    for (const key of [PLATFORM_ARCH.WIN_X64, PLATFORM_ARCH.WIN_IA32]) {
       if (latest[key]) {
-        const rurl = `https://github.com/${account}/${repository}/releases/download/${
-          latest[key].version
-        }/RELEASES`
+        const rurl = `https://github.com/${account}/${repository}/releases/download/${latest[key].version}/RELEASES`
         const rres = await fetch(rurl)
         if (rres.status < 400) {
           const body = await rres.text()
@@ -228,9 +229,9 @@ class Updates {
       }
     }
 
-    return hasAnyAsset(latest)
-      ? latest
-      : null
+    console.log(latest)
+
+    return hasAnyAsset(latest) ? latest : null
   }
 
   hashIp (ip) {
@@ -244,28 +245,34 @@ class Updates {
 
 const hasAllAssets = latest => {
   return !!(
-    latest[PLATFORM_ARCHS.DARWIN_X64] &&
-    latest[PLATFORM_ARCHS.DARWIN_ARM] &&
-    latest[PLATFORM_ARCHS.WIN_X64] &&
-    latest[PLATFORM_ARCHS.WIN_IA32]
+    latest[PLATFORM_ARCH.DARWIN_X64] &&
+    latest[PLATFORM_ARCH.DARWIN_ARM] &&
+    latest[PLATFORM_ARCH.WIN_X64] &&
+    latest[PLATFORM_ARCH.WIN_IA32]
   )
 }
 
 const hasAnyAsset = latest => {
   return !!(
-    latest[PLATFORM_ARCHS.DARWIN_X64] ||
-    latest[PLATFORM_ARCHS.DARWIN_ARM] ||
-    latest[PLATFORM_ARCHS.WIN_X64] ||
-    latest[PLATFORM_ARCHS.WIN_IA32]
+    latest[PLATFORM_ARCH.DARWIN_X64] ||
+    latest[PLATFORM_ARCH.DARWIN_ARM] ||
+    latest[PLATFORM_ARCH.WIN_X64] ||
+    latest[PLATFORM_ARCH.WIN_IA32]
   )
 }
 
 const assetPlatform = fileName => {
-  if (/.*(mac|darwin|osx).*(arm).*\.zip/i.test(fileName)) return PLATFORM_ARCHS.DARWIN_ARM
-  if (/.*(mac|darwin|osx).*\.zip/i.test(fileName)) return PLATFORM_ARCHS.DARWIN_X64
-  if (/win32-ia32/.test(fileName)) return PLATFORM_ARCHS.WIN_IA32
-  if (/win32-arm/.test(fileName)) return PLATFORM_ARCHS.WIN_ARM
-  if (/win32-x64|(\.exe$)/.test(fileName)) return PLATFORM_ARCHS.WIN_X64
+  if (/.*(mac|darwin|osx).*(-arm).*\.zip/i.test(fileName)) {
+    return PLATFORM_ARCH.DARWIN_ARM
+  }
+
+  if (/.*(mac|darwin|osx).*\.zip/i.test(fileName)) {
+    return PLATFORM_ARCH.DARWIN_X64
+  }
+
+  if (/win32-ia32/.test(fileName)) return PLATFORM_ARCH.WIN_IA32
+  if (/win32-arm/.test(fileName)) return PLATFORM_ARCH.WIN_ARM
+  if (/win32-x64|(\.exe$)/.test(fileName)) return PLATFORM_ARCH.WIN_X64
   return false
 }
 
