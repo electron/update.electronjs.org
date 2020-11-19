@@ -20,7 +20,8 @@ const PLATFORM_ARCH = {
   DARWIN_X64: 'darwin-x64',
   DARWIN_ARM: 'darwin-arm',
   WIN_X64: 'win32-x64',
-  WIN_IA32: 'win32-ia32'
+  WIN_IA32: 'win32-ia32',
+  WIN_ARM: 'win32-arm'
 }
 const PLATFORM_ARCHS = Object.values(PLATFORM_ARCH)
 
@@ -96,7 +97,7 @@ class Updates {
       const message =
         platform.includes(PLATFORM.DARWIN)
           ? 'No updates found (needs asset matching *{mac,darwin,osx}*.zip in public repository)'
-          : 'No updates found (needs asset containing win32-{x64,ia32} or .exe in public repository)'
+          : 'No updates found (needs asset containing win32-{x64,ia32,arm} or .exe in public repository)'
       notFound(res, message)
     } else if (semver.eq(latest.version, version)) {
       log.info({ account, repository, platform, version }, 'up to date')
@@ -126,8 +127,8 @@ class Updates {
 
     if (latest) {
       // reuse cache entries using the old non-arch-aware format
-      if (latest.darwin) latest['darwin-x64'] = latest.darwin
-      if (latest.win32) latest['win32-x64'] = latest.win32
+      if (latest.darwin) latest[PLATFORM_ARCHS.DARWIN_X64] = latest.darwin
+      if (latest.win32) latest[PLATFORM_ARCHS.WIN_X64] = latest.win32
 
       log.info({ key }, 'cache hit')
       return latest[platform] || null
@@ -263,6 +264,7 @@ const assetPlatform = fileName => {
   if (/.*(mac|darwin|osx).*(arm).*\.zip/i.test(fileName)) return PLATFORM_ARCHS.DARWIN_ARM
   if (/.*(mac|darwin|osx).*\.zip/i.test(fileName)) return PLATFORM_ARCHS.DARWIN_X64
   if (/win32-ia32/.test(fileName)) return PLATFORM_ARCHS.WIN_IA32
+  if (/win32-arm/.test(fileName)) return PLATFORM_ARCHS.WIN_ARM
   if (/win32-x64|(\.exe$)/.test(fileName)) return PLATFORM_ARCHS.WIN_X64
   return false
 }
