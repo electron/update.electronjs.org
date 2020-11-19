@@ -16,8 +16,8 @@
   },
   "devDependencies": {
     "cross-env": "^7.0.2",
-    "nock": "^9.2.5",
-    "nodemon": "^1.18.7",
+    "nock": "^13.0.5",
+    "nodemon": "^2.0.6",
     "nyc": "^15.1.0",
     "prettier-standard": "^16.4.1",
     "standard": "^16.0.3",
