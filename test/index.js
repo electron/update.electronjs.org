@@ -49,8 +49,8 @@ nock('https://api.github.com')
           browser_download_url: 'mac.zip'
         },
         {
-          name: 'mac-arm.zip',
-          browser_download_url: 'mac-arm.zip'
+          name: 'mac-arm64.zip',
+          browser_download_url: 'mac-arm64.zip'
         },
         {
           name: 'win.exe',
@@ -61,8 +61,8 @@ nock('https://api.github.com')
           browser_download_url: 'win32-ia32.zip'
         },
         {
-          name: 'win32-arm.zip',
-          browser_download_url: 'win32-arm.zip'
+          name: 'win32-arm64.zip',
+          browser_download_url: 'win32-arm64.zip'
         }
       ]
     }
@@ -79,8 +79,8 @@ nock('https://api.github.com')
           browser_download_url: 'mac.zip'
         },
         {
-          name: 'mac-arm.zip',
-          browser_download_url: 'mac-arm.zip'
+          name: 'mac-arm64.zip',
+          browser_download_url: 'mac-arm64.zip'
         }
       ]
     }
@@ -101,8 +101,8 @@ nock('https://api.github.com')
           browser_download_url: 'darwin.zip'
         },
         {
-          name: 'darwin-arm.zip',
-          browser_download_url: 'darwin-arm.zip'
+          name: 'darwin-arm64.zip',
+          browser_download_url: 'darwin-arm64.zip'
         }
       ]
     }
@@ -123,8 +123,8 @@ nock('https://api.github.com')
           browser_download_url: 'win32-x64.zip'
         },
         {
-          name: 'win32-arm.zip',
-          browser_download_url: 'win32-arm.zip'
+          name: 'win32-arm64.zip',
+          browser_download_url: 'win32-arm64.zip'
         }
       ]
     }
@@ -145,8 +145,8 @@ nock('https://api.github.com')
           browser_download_url: 'win32-x64.zip'
         },
         {
-          name: 'win32-arm.zip',
-          browser_download_url: 'win32-arm.zip'
+          name: 'win32-arm64.zip',
+          browser_download_url: 'win32-arm64.zip'
         }
       ]
     }
@@ -167,8 +167,8 @@ nock('https://api.github.com')
           browser_download_url: 'win32-x64.zip'
         },
         {
-          name: 'win32-arm.zip',
-          browser_download_url: 'win32-arm.zip'
+          name: 'win32-arm64.zip',
+          browser_download_url: 'win32-arm64.zip'
         }
       ]
     }
@@ -270,7 +270,7 @@ test('Updates', async t => {
           let body = await res.json()
           t.equal(body.url, 'mac.zip')
 
-          res = await fetch(`${address}/owner/repo/darwin-arm/0.0.0`)
+          res = await fetch(`${address}/owner/repo/darwin-arm64/0.0.0`)
           t.equal(res.status, 200)
           body = await res.json()
           t.equal(body.url, 'mac-arm.zip')
@@ -285,10 +285,10 @@ test('Updates', async t => {
           body = await res.json()
           t.match(body.url, 'darwin.zip')
 
-          res = await fetch(`${address}/owner/repo-darwin/darwin-arm/0.0.0`)
+          res = await fetch(`${address}/owner/repo-darwin/darwin-arm64/0.0.0`)
           t.equal(res.status, 200)
           body = await res.json()
-          t.match(body.url, 'darwin-arm.zip')
+          t.match(body.url, 'darwin-arm64.zip')
 
           res = await fetch(`${address}/owner/repo-darwin/darwin/0.0.0`)
           t.equal(res.status, 200)
@@ -348,14 +348,14 @@ test('Updates', async t => {
         }
       })
 
-      await t.test('win32-arm', async t => {
+      await t.test('win32-arm64', async t => {
         for (let i = 0; i < 2; i++) {
           const res = await fetch(
-            `${address}/owner/repo-win32-zip/win32-arm/0.0.0`
+            `${address}/owner/repo-win32-zip/win32-arm64/0.0.0`
           )
           t.equal(res.status, 200)
           const body = await res.json()
-          t.equal(body.url, 'win32-arm.zip')
+          t.equal(body.url, 'win32-arm64.zip')
           t.ok(body.name)
         }
       })
@@ -446,7 +446,7 @@ test('Updates', async t => {
         const body = await res.text()
         t.equal(
           body,
-          'Unsupported platform: "linux". Supported: darwin-x64, darwin-arm, win32-x64, win32-ia32, win32-arm.'
+          'Unsupported platform: "linux". Supported: darwin-x64, darwin-arm64, win32-x64, win32-ia32, win32-arm64.'
         )
       })
     })
@@ -458,7 +458,7 @@ test('Updates', async t => {
         const body = await res.text()
         t.equal(
           body,
-          'Unsupported platform: "os". Supported: darwin-x64, darwin-arm, win32-x64, win32-ia32, win32-arm.'
+          'Unsupported platform: "os". Supported: darwin-x64, darwin-arm64, win32-x64, win32-ia32, win32-arm64.'
         )
       })
     })
