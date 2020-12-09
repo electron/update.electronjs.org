@@ -186,7 +186,6 @@ class Updates {
     const latest = {}
 
     const releases = await res.json()
-    console.log(releases)
     for (const release of releases) {
       if (
         !semver.valid(release.tag_name) ||
@@ -229,7 +228,6 @@ class Updates {
       }
     }
 
-    console.log(latest)
 
     return hasAnyAsset(latest) ? latest : null
   }
