@@ -245,7 +245,8 @@ const hasAllAssets = latest => {
     latest[PLATFORM_ARCH.DARWIN_X64] &&
     latest[PLATFORM_ARCH.DARWIN_ARM64] &&
     latest[PLATFORM_ARCH.WIN_X64] &&
-    latest[PLATFORM_ARCH.WIN_IA32]
+    latest[PLATFORM_ARCH.WIN_IA32] &&
+    latest[PLATFORM_ARCH.WIN_ARM64]
   )
 }
 
