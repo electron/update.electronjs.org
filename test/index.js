@@ -175,17 +175,17 @@ nock('https://api.github.com')
   ])
 nock('https://github.com')
   .get('/owner/repo/releases/download/1.0.0/RELEASES')
-  .times(2)
+  .times(3)
   .reply(200, 'HASH name.nupkg NUMBER')
   .get('/owner/repo-with-v/releases/download/v1.0.0/RELEASES')
   .reply(404)
   .get('/owner/repo-darwin/releases/download/v1.0.0/RELEASES')
   .reply(404)
   .get('/owner/repo-win32-zip/releases/download/v1.0.0/RELEASES')
-  .times(2)
+  .times(3)
   .reply(404)
   .get('/owner/repo-no-releases/releases/download/v1.0.0/RELEASES')
-  .times(2)
+  .times(3)
   .reply(404)
 
 test('Updates', async t => {
@@ -273,7 +273,7 @@ test('Updates', async t => {
           res = await fetch(`${address}/owner/repo/darwin-arm64/0.0.0`)
           t.equal(res.status, 200)
           body = await res.json()
-          t.equal(body.url, 'mac-arm.zip')
+          t.equal(body.url, 'mac-arm64.zip')
 
           res = await fetch(`${address}/owner/repo/darwin/0.0.0`)
           t.equal(res.status, 200)
@@ -434,7 +434,7 @@ test('Updates', async t => {
         const body = await res.text()
         t.equal(
           body,
-          'No updates found (needs asset containing win32-{x64,ia32,arm} or .exe in public repository)'
+          'No updates found (needs asset containing win32-{x64,ia32,arm64} or .exe in public repository)'
         )
       })
     })
