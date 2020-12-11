@@ -99,7 +99,7 @@ class Updates {
     if (!latest) {
       const message = platform.includes(PLATFORM.DARWIN)
         ? 'No updates found (needs asset matching *{mac,darwin,osx}*.zip in public repository)'
-        : 'No updates found (needs asset containing win32-{x64,ia32,arm} or .exe in public repository)'
+        : 'No updates found (needs asset containing win32-{x64,ia32,arm64} or .exe in public repository)'
       notFound(res, message)
     } else if (semver.eq(latest.version, version)) {
       log.info({ account, repository, platform, version }, 'up to date')
@@ -254,7 +254,8 @@ const hasAnyAsset = latest => {
     latest[PLATFORM_ARCH.DARWIN_X64] ||
     latest[PLATFORM_ARCH.DARWIN_ARM64] ||
     latest[PLATFORM_ARCH.WIN_X64] ||
-    latest[PLATFORM_ARCH.WIN_IA32]
+    latest[PLATFORM_ARCH.WIN_IA32] ||
+    latest[PLATFORM_ARCH.WIN_ARM64]
   )
 }
 
@@ -268,7 +269,7 @@ const assetPlatform = fileName => {
   }
 
   if (/win32-ia32/.test(fileName)) return PLATFORM_ARCH.WIN_IA32
-  if (/win32-arm/.test(fileName)) return PLATFORM_ARCH.WIN_ARM64
+  if (/win32-arm64/.test(fileName)) return PLATFORM_ARCH.WIN_ARM64
   if (/win32-x64|(\.exe$)/.test(fileName)) return PLATFORM_ARCH.WIN_X64
   return false
 }
