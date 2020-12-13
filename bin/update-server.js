@@ -2,7 +2,7 @@
 
 'use strict'
 
-require('dotenv-safe').load()
+require('dotenv-safe').config()
 
 process.title = 'update-server'
 

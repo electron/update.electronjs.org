@@ -1,3 +1,4 @@
+// @ts-check
 'use strict'
 
 const http = require('http')
@@ -10,6 +11,20 @@ const requestIp = require('request-ip')
 
 const { NODE_ENV: env } = process.env
 if (env === 'test') log.level = 'error'
+
+const PLATFORM = {
+  WIN32: 'win32',
+  DARWIN: 'darwin'
+}
+
+const PLATFORM_ARCH = {
+  DARWIN_X64: 'darwin-x64',
+  DARWIN_ARM64: 'darwin-arm64',
+  WIN_X64: 'win32-x64',
+  WIN_IA32: 'win32-ia32',
+  WIN_ARM64: 'win32-arm64'
+}
+const PLATFORM_ARCHS = Object.values(PLATFORM_ARCH)
 
 class Updates {
   constructor ({ token, cache } = {}) {
@@ -49,20 +64,19 @@ class Updates {
   }
 
   async handle (req, res) {
-    let segs = req.url.split(/[/?]/).filter(Boolean)
+    const segs = req.url.split(/[/?]/).filter(Boolean)
     const [account, repository, , version, file] = segs
     let platform = segs[2]
-    if (platform === 'win32') platform = 'win32-x64'
-    if (platform === 'darwin') platform = 'darwin-x64'
+
+    if (platform === PLATFORM.WIN32) platform = PLATFORM_ARCH.WIN_X64
+    if (platform === PLATFORM.DARWIN) platform = PLATFORM_ARCH.DARWIN_X64
 
     if (!account || !repository || !platform || !version) {
       redirect(res, 'https://github.com/electron/update.electronjs.org')
-    } else if (
-      platform !== 'darwin-x64' &&
-      platform !== 'win32-x64' &&
-      platform !== 'win32-ia32'
-    ) {
-      const message = `Unsupported platform: "${platform}". Supported: darwin-x64, win32-x64, win32-ia32.`
+    } else if (!PLATFORM_ARCHS.includes(platform)) {
+      const message = `Unsupported platform: "${platform}". Supported: ${PLATFORM_ARCHS.join(
+        ', '
+      )}.`
       notFound(res, message)
     } else if (version && !semver.valid(version)) {
       badRequest(res, `Invalid SemVer: "${version}"`)
@@ -83,10 +97,9 @@ class Updates {
     const latest = await this.cachedGetLatest(account, repository, platform)
 
     if (!latest) {
-      const message =
-        platform === 'darwin-x64'
-          ? 'No updates found (needs asset matching *{mac,darwin,osx}*.zip in public repository)'
-          : 'No updates found (needs asset containing win32-{x64,ia32} or .exe in public repository)'
+      const message = platform.includes(PLATFORM.DARWIN)
+        ? 'No updates found (needs asset matching *{mac,darwin,osx}*.zip in public repository)'
+        : 'No updates found (needs asset containing win32-{x64,ia32,arm64} or .exe in public repository)'
       notFound(res, message)
     } else if (semver.eq(latest.version, version)) {
       log.info({ account, repository, platform, version }, 'up to date')
@@ -116,8 +129,8 @@ class Updates {
 
     if (latest) {
       // reuse cache entries using the old non-arch-aware format
-      if (latest.darwin) latest['darwin-x64'] = latest.darwin
-      if (latest.win32) latest['win32-x64'] = latest.win32
+      if (latest.darwin) latest[PLATFORM_ARCH.DARWIN_X64] = latest.darwin
+      if (latest.win32) latest[PLATFORM_ARCH.WIN_X64] = latest.win32
 
       log.info({ key }, 'cache hit')
       return latest[platform] || null
@@ -181,6 +194,7 @@ class Updates {
       ) {
         continue
       }
+
       for (const asset of release.assets) {
         const platform = assetPlatform(asset.name)
         if (platform && !latest[platform]) {
@@ -191,24 +205,19 @@ class Updates {
             notes: release.body
           }
         }
-        if (
-          latest['darwin-x64'] &&
-          latest['win32-x64'] &&
-          latest['win32-ia32']
-        ) {
+        if (hasAllAssets(latest)) {
           break
         }
       }
-      if (latest['darwin-x64'] && latest['win32-x64'] && latest['win32-ia32']) {
+
+      if (hasAllAssets(latest)) {
         break
       }
     }
 
-    for (const key of ['win32-x64', 'win32-ia32']) {
+    for (const key of [PLATFORM_ARCH.WIN_X64, PLATFORM_ARCH.WIN_IA32, PLATFORM_ARCH.WIN_ARM64]) {
       if (latest[key]) {
-        const rurl = `https://github.com/${account}/${repository}/releases/download/${
-          latest[key].version
-        }/RELEASES`
+        const rurl = `https://github.com/${account}/${repository}/releases/download/${latest[key].version}/RELEASES`
         const rres = await fetch(rurl)
         if (rres.status < 400) {
           const body = await rres.text()
@@ -219,10 +228,9 @@ class Updates {
       }
     }
 
-    return latest['darwin-x64'] || latest['win32-x64'] || latest['win32-ia32']
-      ? latest
-      : null
+    return hasAnyAsset(latest) ? latest : null
   }
+
   hashIp (ip) {
     if (!ip) return
     return crypto
@@ -232,10 +240,38 @@ class Updates {
   }
 }
 
+const hasAllAssets = latest => {
+  return !!(
+    latest[PLATFORM_ARCH.DARWIN_X64] &&
+    latest[PLATFORM_ARCH.DARWIN_ARM64] &&
+    latest[PLATFORM_ARCH.WIN_X64] &&
+    latest[PLATFORM_ARCH.WIN_IA32] &&
+    latest[PLATFORM_ARCH.WIN_ARM64]
+  )
+}
+
+const hasAnyAsset = latest => {
+  return !!(
+    latest[PLATFORM_ARCH.DARWIN_X64] ||
+    latest[PLATFORM_ARCH.DARWIN_ARM64] ||
+    latest[PLATFORM_ARCH.WIN_X64] ||
+    latest[PLATFORM_ARCH.WIN_IA32] ||
+    latest[PLATFORM_ARCH.WIN_ARM64]
+  )
+}
+
 const assetPlatform = fileName => {
-  if (/.*(mac|darwin|osx).*\.zip/i.test(fileName)) return 'darwin-x64'
-  if (/win32-ia32/.test(fileName)) return 'win32-ia32'
-  if (/win32-x64|(\.exe$)/.test(fileName)) return 'win32-x64'
+  if (/.*(mac|darwin|osx).*(-arm).*\.zip/i.test(fileName)) {
+    return PLATFORM_ARCH.DARWIN_ARM64
+  }
+
+  if (/.*(mac|darwin|osx).*\.zip/i.test(fileName)) {
+    return PLATFORM_ARCH.DARWIN_X64
+  }
+
+  if (/win32-ia32/.test(fileName)) return PLATFORM_ARCH.WIN_IA32
+  if (/win32-arm64/.test(fileName)) return PLATFORM_ARCH.WIN_ARM64
+  if (/win32-x64|(\.exe$)/.test(fileName)) return PLATFORM_ARCH.WIN_X64
   return false
 }
 
