@@ -265,7 +265,7 @@ const assetPlatform = fileName => {
     return PLATFORM_ARCH.DARWIN_ARM64
   }
 
-  if (/.*(mac|darwin|osx).*\.zip/i.test(fileName)) {
+  if (/.*(mac|darwin|osx).*\.zip/i.test(fileName) && !/arm64/.test(fileName)) {
     return PLATFORM_ARCH.DARWIN_X64
   }
 
