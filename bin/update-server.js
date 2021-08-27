@@ -29,7 +29,8 @@ assert(token, 'GH_TOKEN required')
 // Cache
 //
 
-const client = redis.createClient(redisUrl)
+const fixedRedisUrl = redisUrl.replace('redis://h:', 'redis://:')
+const client = redis.createClient(fixedRedisUrl)
 const get = promisify(client.get).bind(client)
 const redlock = new Redlock([client], {
   retryDelay: ms('10s')
