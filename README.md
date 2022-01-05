@@ -21,7 +21,7 @@ Install [update-electron-app] as a runtime dependency (not a devDependency):
 npm install update-electron-app --save
 ```
 
-Call it from in you [main process] file:
+Call it from in your [main process] file:
 
 ```js
 require('update-electron-app')()
