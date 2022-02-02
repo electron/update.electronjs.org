@@ -9,7 +9,7 @@ const log = require('pino')()
 const crypto = require('crypto')
 const requestIp = require('request-ip')
 
-const { assetPlatform } = require('./asset-platform');
+const { assetPlatform } = require('./asset-platform')
 const {
   PLATFORM,
   PLATFORM_ARCH,

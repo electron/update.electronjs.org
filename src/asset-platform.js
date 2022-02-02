@@ -1,7 +1,5 @@
 const {
-  PLATFORM,
-  PLATFORM_ARCH,
-  PLATFORM_ARCHS
+  PLATFORM_ARCH
 } = require('./constants')
 
 const assetPlatform = fileName => {

@@ -3,7 +3,7 @@
   "scripts": {
     "start": "nodemon bin/update-server.js",
     "lint": "prettier-standard '**/*.js' && standard",
-    "test": "cross-env NODE_ENV=test nyc tap test/*.js --reporter classic"
+    "test": "npm run lint && cross-env NODE_ENV=test nyc tap test/*.js --reporter classic"
   },
   "dependencies": {
     "dotenv-safe": "^8.2.0",
