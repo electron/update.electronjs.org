@@ -2,7 +2,7 @@
 
 const { test } = require('tap')
 const fetch = require('node-fetch')
-const Updates = require('..')
+const Updates = require('../src/updates')
 const nock = require('nock')
 
 class MemoryCache {
@@ -53,16 +53,16 @@ nock('https://api.github.com')
           browser_download_url: 'mac-arm64.zip'
         },
         {
-          name: 'win.exe',
-          browser_download_url: 'win.exe'
+          name: 'electron-fiddle-1.0.0-win32-x64-setup.exe',
+          browser_download_url: 'electron-fiddle-1.0.0-win32-x64-setup.exe'
         },
         {
-          name: 'win32-ia32.zip',
-          browser_download_url: 'win32-ia32.zip'
+          name: 'electron-fiddle-1.0.0-win32-ia32-setup.exe',
+          browser_download_url: 'electron-fiddle-1.0.0-win32-ia32-setup.exe'
         },
         {
-          name: 'win32-arm64.zip',
-          browser_download_url: 'win32-arm64.zip'
+          name: 'electron-fiddle-1.0.0-win32-arm64-setup.exe',
+          browser_download_url: 'electron-fiddle-1.0.0-win32-arm64-setup.exe'
         }
       ]
     }
@@ -115,16 +115,16 @@ nock('https://api.github.com')
       body: 'notes',
       assets: [
         {
-          name: 'win32-ia32.zip',
-          browser_download_url: 'win32-ia32.zip'
+          name: 'electron-fiddle-1.0.0-win32-ia32-setup.exe',
+          browser_download_url: 'electron-fiddle-1.0.0-win32-ia32-setup.exe'
         },
         {
-          name: 'win32-x64.zip',
-          browser_download_url: 'win32-x64.zip'
+          name: 'electron-fiddle-1.0.0-win32-x64-setup.exe',
+          browser_download_url: 'electron-fiddle-1.0.0-win32-x64-setup.exe'
         },
         {
-          name: 'win32-arm64.zip',
-          browser_download_url: 'win32-arm64.zip'
+          name: 'electron-fiddle-1.0.0-win32-arm64-setup.exe',
+          browser_download_url: 'electron-fiddle-1.0.0-win32-arm64-setup.exe'
         }
       ]
     }
@@ -137,16 +137,16 @@ nock('https://api.github.com')
       body: 'notes',
       assets: [
         {
-          name: 'win32-ia32.zip',
-          browser_download_url: 'win32-ia32.zip'
+          name: 'electron-fiddle-1.0.0-win32-ia32-setup.exe',
+          browser_download_url: 'electron-fiddle-1.0.0-win32-ia32-setup.exe'
         },
         {
-          name: 'win32-x64.zip',
-          browser_download_url: 'win32-x64.zip'
+          name: 'electron-fiddle-1.0.0-win32-x64-setup.exe',
+          browser_download_url: 'electron-fiddle-1.0.0-win32-x64-setup.exe'
         },
         {
-          name: 'win32-arm64.zip',
-          browser_download_url: 'win32-arm64.zip'
+          name: 'electron-fiddle-1.0.0-win32-arm64-setup.exe',
+          browser_download_url: 'electron-fiddle-1.0.0-win32-arm64-setup.exe'
         }
       ]
     }
@@ -159,16 +159,16 @@ nock('https://api.github.com')
       body: 'notes',
       assets: [
         {
-          name: 'win32-ia32.zip',
-          browser_download_url: 'win32-ia32.zip'
+          name: 'electron-fiddle-1.0.0-win32-ia32-setup.exe',
+          browser_download_url: 'electron-fiddle-1.0.0-win32-ia32-setup.exe'
         },
         {
-          name: 'win32-x64.zip',
-          browser_download_url: 'win32-x64.zip'
+          name: 'electron-fiddle-1.0.0-win32-x64-setup.exe',
+          browser_download_url: 'electron-fiddle-1.0.0-win32-x64-setup.exe'
         },
         {
-          name: 'win32-arm64.zip',
-          browser_download_url: 'win32-arm64.zip'
+          name: 'electron-fiddle-1.0.0-win32-arm64-setup.exe',
+          browser_download_url: 'electron-fiddle-1.0.0-win32-arm64-setup.exe'
         }
       ]
     }
@@ -324,7 +324,7 @@ test('Updates', async t => {
           const res = await fetch(`${address}/owner/repo/win32/0.0.0`)
           t.equal(res.status, 200)
           const body = await res.json()
-          t.equal(body.url, 'win.exe')
+          t.equal(body.url, 'electron-fiddle-1.0.0-win32-x64-setup.exe')
           t.ok(body.name)
         }
       })
@@ -334,16 +334,18 @@ test('Updates', async t => {
           const res = await fetch(
             `${address}/owner/repo-win32-zip/win32-x64/0.0.0`
           )
+
           t.equal(res.status, 200)
           const body = await res.json()
-          t.equal(body.url, 'win32-x64.zip')
+          t.equal(body.url, 'electron-fiddle-1.0.0-win32-x64-setup.exe')
           t.ok(body.name)
         }
+
         for (let i = 0; i < 2; i++) {
           const res = await fetch(`${address}/owner/repo-win32-zip/win32/0.0.0`)
           t.equal(res.status, 200)
           const body = await res.json()
-          t.equal(body.url, 'win32-x64.zip')
+          t.equal(body.url, 'electron-fiddle-1.0.0-win32-x64-setup.exe')
           t.ok(body.name)
         }
       })
@@ -355,7 +357,7 @@ test('Updates', async t => {
           )
           t.equal(res.status, 200)
           const body = await res.json()
-          t.equal(body.url, 'win32-arm64.zip')
+          t.equal(body.url, 'electron-fiddle-1.0.0-win32-arm64-setup.exe')
           t.ok(body.name)
         }
       })
@@ -367,7 +369,7 @@ test('Updates', async t => {
           )
           t.equal(res.status, 200)
           const body = await res.json()
-          t.equal(body.url, 'win32-ia32.zip')
+          t.equal(body.url, 'electron-fiddle-1.0.0-win32-ia32-setup.exe')
           t.ok(body.name)
         }
       })
