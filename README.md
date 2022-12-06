@@ -2,7 +2,7 @@
 
 > A free service that makes it easy for open-source Electron apps to update themselves.
 
-[![Build Status](https://travis-ci.org/electron/update.electronjs.org.svg?branch=master)](https://travis-ci.org/electron/update.electronjs.org)
+[![Build Status](https://travis-ci.org/electron/update.electronjs.org.svg?branch=main)](https://travis-ci.org/electron/update.electronjs.org)
 
 ## Requirements
 
@@ -109,4 +109,4 @@ $ "example\out\make\squirrel.windows\x64\test-0.0.0 Setup.exe"
 [update-electron-app API]: https://github.com/electron/update-electron-app#api
 [update-electron-app]: https://github.com/electron/update-electron-app
 [main process]: https://electronjs.org/docs/glossary#main-process
-[code signed]: https://github.com/electron/electron/blob/master/docs/tutorial/code-signing.md
+[code signed]: https://github.com/electron/electron/blob/main/docs/tutorial/code-signing.md
