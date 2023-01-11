@@ -2,7 +2,7 @@
 
 > A free service that makes it easy for open-source Electron apps to update themselves.
 
-[![Build Status](https://travis-ci.org/electron/update.electronjs.org.svg?branch=main)](https://travis-ci.org/electron/update.electronjs.org)
+[![CircleCI build status](https://circleci.com/gh/electron/update.electronjs.org/tree/main.svg?style=shield)](https://circleci.com/gh/electron/update.electronjs.org/tree/main)
 
 ## Requirements
 
