@@ -21,7 +21,7 @@ orbs:
 jobs:
   test-linux-14:
     docker:
-      - image: circleci/node:14
+      - image: cimg/node:14.21
     <<: *steps-test
 
 workflows:
