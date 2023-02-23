@@ -6,7 +6,7 @@ require("dotenv-safe").config();
 
 process.title = "update-server";
 
-const Updates = require("..");
+const Updates = require("../src/updates");
 const redis = require("redis");
 const { promisify } = require("util");
 const ms = require("ms");
