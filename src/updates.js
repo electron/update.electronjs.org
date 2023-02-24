@@ -2,32 +2,21 @@
 "use strict";
 
 const http = require("http");
-const fetch = require("node-fetch");
+const { default: fetch } = require("node-fetch");
 const semver = require("semver");
 const assert = require("assert");
 const log = require("pino")();
 const crypto = require("crypto");
 const requestIp = require("request-ip");
 
+const { assetPlatform } = require("./asset-platform");
+const { PLATFORM, PLATFORM_ARCH, PLATFORM_ARCHS } = require("./constants");
+
 const { NODE_ENV: env } = process.env;
 if (env === "test") log.level = "error";
 
-const PLATFORM = {
-  WIN32: "win32",
-  DARWIN: "darwin",
-};
-
-const PLATFORM_ARCH = {
-  DARWIN_X64: "darwin-x64",
-  DARWIN_ARM64: "darwin-arm64",
-  WIN_X64: "win32-x64",
-  WIN_IA32: "win32-ia32",
-  WIN_ARM64: "win32-arm64",
-};
-const PLATFORM_ARCHS = Object.values(PLATFORM_ARCH);
-
 class Updates {
-  constructor({ token, cache } = {}) {
+  constructor({ token, cache }) {
     assert(cache, ".cache required");
     this.token = token;
     this.cache = cache;
@@ -54,7 +43,7 @@ class Updates {
               url: req.url,
               status: res.statusCode,
               ipHash: this.hashIp(requestIp.getClientIp(req)),
-              duration: new Date() - start,
+              duration: new Date().valueOf() - start.valueOf(),
             },
             "request"
           );
@@ -230,6 +219,7 @@ class Updates {
         if (rres.status < 400) {
           const body = await rres.text();
           const matches = body.match(/[^ ]*\.nupkg/gim);
+          assert(matches);
           const nuPKG = rurl.replace("RELEASES", matches[0]);
           latest[key].RELEASES = body.replace(matches[0], nuPKG);
         }
@@ -263,33 +253,6 @@ const hasAnyAsset = (latest) => {
     latest[PLATFORM_ARCH.WIN_IA32] ||
     latest[PLATFORM_ARCH.WIN_ARM64]
   );
-};
-
-const assetPlatform = (fileName) => {
-  if (/.*(mac|darwin|osx).*(-arm).*\.zip/i.test(fileName)) {
-    return PLATFORM_ARCH.DARWIN_ARM64;
-  }
-
-  if (/.*(mac|darwin|osx).*\.zip/i.test(fileName) && !/arm64/.test(fileName)) {
-    return PLATFORM_ARCH.DARWIN_X64;
-  }
-
-  if (/win32-ia32/.test(fileName)) return PLATFORM_ARCH.WIN_IA32;
-  if (/win32-arm64/.test(fileName)) return PLATFORM_ARCH.WIN_ARM64;
-  if (/win32-x64/.test(fileName)) return PLATFORM_ARCH.WIN_X64;
-
-  // Special case handling: We don't know what kind of asset
-  // we're looking at, so it might be the default x64 windows
-  // asset
-  if (
-    /\.exe$/.test(fileName) &&
-    !/arm/.test(fileName) &&
-    !/ia32/.test(fileName)
-  ) {
-    return PLATFORM_ARCH.WIN_X64;
-  }
-
-  return false;
 };
 
 const notFound = (res, message = "Not found") => {

@@ -2,7 +2,8 @@
   "name": "update.electronjs.org",
   "scripts": {
     "start": "nodemon bin/update-server.js",
-    "test": "prettier --check '**/*.js' && cross-env NODE_ENV=test nyc tap test/*.js"
+    "lint": "prettier --check '**/*.js'",
+    "test": "npm run lint && cross-env NODE_ENV=test nyc tap test/*.js"
   },
   "dependencies": {
     "dotenv-safe": "^8.2.0",
