@@ -88,7 +88,7 @@ class Updates {
 
     if (!latest) {
       const message = platform.includes(PLATFORM.DARWIN)
-        ? "No updates found (needs asset matching *(mac|darwin|osx).*(-arm).*\.zip in public repository)"
+        ? "No updates found (needs asset matching *(mac|darwin|osx).*(-arm).*.zip in public repository)"
         : "No updates found (needs asset containing win32-{x64,ia32,arm64} or .exe in public repository)";
       notFound(res, message);
     } else if (semver.lte(latest.version, version)) {
