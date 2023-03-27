@@ -1,5 +1,6 @@
 const { PLATFORM_ARCH } = require("./constants");
 
+/** @param {string} fileName */
 const assetPlatform = (fileName) => {
   if (/.*(mac|darwin|osx).*(-arm).*\.zip/i.test(fileName)) {
     return PLATFORM_ARCH.DARWIN_ARM64;

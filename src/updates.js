@@ -16,12 +16,20 @@ const { NODE_ENV: env } = process.env;
 if (env === "test") log.level = "error";
 
 class Updates {
+  /** @type {string}      */ token;
+  /** @type {import("./types.js").ServerCache} */ cache;
+
+  /** @param {{token: string, cache: import("./types.js").ServerCache}} options */
   constructor({ token, cache }) {
     assert(cache, ".cache required");
     this.token = token;
     this.cache = cache;
   }
 
+  /**
+   * @param {string|number|undefined} port
+   * @param {()=>void} [cb]
+   */
   listen(port, cb) {
     if (typeof port === "function") {
       [port, cb] = [undefined, port];
@@ -113,8 +121,14 @@ class Updates {
     }
   }
 
+  /**
+   * @param {string} account
+   * @param {string} repository
+   * @param {import("./types.js").Platform} platform
+   */
   async cachedGetLatest(account, repository, platform) {
     const key = `${account}/${repository}`;
+    /** @type {import("./types.js").Latest|undefined|null} */
     let latest = await this.cache.get(key);
 
     if (latest) {
@@ -126,6 +140,7 @@ class Updates {
       return latest[platform] || null;
     }
 
+    /** @type {import("./types.js").Lock|undefined} */
     let lock;
     if (this.cache.lock) {
       log.debug({ key }, "lock acquiring");
@@ -155,6 +170,11 @@ class Updates {
     return latest && latest[platform];
   }
 
+  /**
+   * @param {string} account
+   * @param {string} repository
+   * @returns {Promise<import("./types.js").Latest|undefined|null>}
+   */
   async getLatest(account, repository) {
     account = encodeURIComponent(account);
     repository = encodeURIComponent(repository);
@@ -176,6 +196,7 @@ class Updates {
       return;
     }
 
+    /** @type {import("./types.js").Latest} */
     const latest = {};
 
     const releases = await res.json();
@@ -213,15 +234,16 @@ class Updates {
       PLATFORM_ARCH.WIN_IA32,
       PLATFORM_ARCH.WIN_ARM64,
     ]) {
-      if (latest[key]) {
-        const rurl = `https://github.com/${account}/${repository}/releases/download/${latest[key].version}/RELEASES`;
+      const the_latest = latest[key];
+      if (the_latest) {
+        const rurl = `https://github.com/${account}/${repository}/releases/download/${the_latest.version}/RELEASES`;
         const rres = await fetch(rurl);
         if (rres.status < 400) {
           const body = await rres.text();
           const matches = body.match(/[^ ]*\.nupkg/gim);
           assert(matches);
           const nuPKG = rurl.replace("RELEASES", matches[0]);
-          latest[key].RELEASES = body.replace(matches[0], nuPKG);
+          the_latest.RELEASES = body.replace(matches[0], nuPKG);
         }
       }
     }
@@ -229,12 +251,14 @@ class Updates {
     return hasAnyAsset(latest) ? latest : null;
   }
 
+  /** @param {string|null} ip */
   hashIp(ip) {
     if (!ip) return;
     return crypto.createHash("sha256").update(ip).digest("hex");
   }
 }
 
+/** @param {import("./types.js").Latest} latest */
 const hasAllAssets = (latest) => {
   return !!(
     latest[PLATFORM_ARCH.DARWIN_X64] &&
@@ -245,6 +269,7 @@ const hasAllAssets = (latest) => {
   );
 };
 
+/** @param {import("./types.js").Latest} latest */
 const hasAnyAsset = (latest) => {
   return !!(
     latest[PLATFORM_ARCH.DARWIN_X64] ||
@@ -255,28 +280,45 @@ const hasAnyAsset = (latest) => {
   );
 };
 
+/**
+ * @param {Res} res
+ * @param {string} message
+ */
 const notFound = (res, message = "Not found") => {
   res.statusCode = 404;
   res.end(message);
 };
 
+/**
+ * @param {Res} res
+ * @param {string} message
+ */
 const badRequest = (res, message) => {
   res.statusCode = 400;
   res.end(message);
 };
 
+/** @param {Res} res */
 const noContent = (res) => {
   res.statusCode = 204;
   res.end();
 };
 
+/**
+ * @param {Res} res
+ * @param {any} obj
+ */
 const json = (res, obj) => {
   res.setHeader("Content-Type", "application/json");
   res.end(JSON.stringify(obj));
 };
 
-// DO NOT PASS USER-SUPPLIED CONTENT TO THIS FUNCTION
-// AS IT WILL REDIRECT A USER ANYWHERE
+/**
+ * DO NOT PASS USER-SUPPLIED CONTENT TO THIS FUNCTION
+ * AS IT WILL REDIRECT A USER ANYWHERE
+ * @param {Res} res
+ * @param {string} url
+ */
 const redirect = (res, url) => {
   res.statusCode = 302;
   res.setHeader("Location", url);
@@ -284,3 +326,8 @@ const redirect = (res, url) => {
 };
 
 module.exports = Updates;
+
+/**
+ * @typedef {http.IncomingMessage} Req
+ * @typedef {http.ServerResponse} Res
+ */

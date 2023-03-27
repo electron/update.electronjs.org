@@ -36,6 +36,7 @@ const redlock = new Redlock([client], {
   retryDelay: ms("10s"),
 });
 
+/** @type {import("../src/types.js").ServerCache} */
 const cache = {
   async get(key) {
     const json = await get(key);
