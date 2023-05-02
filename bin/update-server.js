@@ -19,6 +19,7 @@ const Redlock = require("redlock");
 
 const {
   GH_TOKEN: token,
+  REDIS_URL: redisUrl = "redis://localhost:6379",
   PORT: port = 3000,
   CACHE_TTL: cacheTTL = "15m",
 } = process.env;
@@ -28,9 +29,10 @@ assert(token, "GH_TOKEN required");
 // Cache
 //
 
+const fixedRedisUrl = redisUrl.replace("redis://h:", "redis://:");
 const client = redis.createClient({
-  socket: {
-    tls: true,
+  url: fixedRedisUrl,
+  tls: {
     rejectUnauthorized: false,
   },
 });
