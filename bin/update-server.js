@@ -32,7 +32,7 @@ const client = redis.createClient({
   socket: {
     tls: true,
     rejectUnauthorized: false,
-  }
+  },
 });
 const get = promisify(client.get).bind(client);
 const redlock = new Redlock([client], {
