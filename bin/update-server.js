@@ -24,7 +24,7 @@ const {
 } = process.env;
 assert(token, "GH_TOKEN required");
 
-// 
+//
 // Cache
 //
 
