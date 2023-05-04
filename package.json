@@ -17,6 +17,8 @@
     "semver": "^7.3.2"
   },
   "devDependencies": {
+    "@types/node": "^18.15.10",
+    "@types/request-ip": "^0.0.37",
     "cross-env": "^7.0.2",
     "nock": "^13.0.5",
     "nodemon": "^2.0.6",
