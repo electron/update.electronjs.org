@@ -1,34 +1,9 @@
 "use strict";
 
-const { test } = require("tap");
-const fetch = require("node-fetch");
-const Updates = require("../src/updates");
 const nock = require("nock");
-
-class MemoryCache {
-  constructor() {
-    this.data = new Map();
-  }
-
-  async get(key) {
-    return this.data.get(key);
-  }
-
-  async set(key, value) {
-    this.data.set(key, value);
-  }
-}
-
-const createServer = () =>
-  new Promise((resolve) => {
-    const updates = new Updates({ cache: new MemoryCache() });
-    const server = updates.listen(() => {
-      resolve({
-        server,
-        address: `http://localhost:${server.address().port}`,
-      });
-    });
-  });
+const { test, teardown } = require("tap");
+const Updates = require("../src/updates");
+const { createServer } = require("./helpers/create-server");
 
 nock.disableNetConnect();
 nock.enableNetConnect("localhost");
@@ -191,14 +166,17 @@ test("Updates", async (t) => {
 
   await t.test("Routes", async (t) => {
     const res = await fetch(`${address}/`);
+    // Unused - but not unwrapping the response will lead to a dangling promise
+    const _body = await res.text();
     t.equal(res.status, 200);
 
     await t.test("exists and has update", async (t) => {
       for (let i = 0; i < 2; i++) {
         const res = await fetch(`${address}/owner/repo/darwin/0.0.0`);
         t.equal(res.status, 200);
+
         const body = await res.json();
-        t.deepEqual(body, {
+        t.same(body, {
           name: "name",
           url: "mac.zip",
           notes: "notes",
@@ -466,5 +444,7 @@ test("Updates", async (t) => {
     });
   });
 
-  server.close();
+  teardown(() => {
+    server.close();
+  });
 });

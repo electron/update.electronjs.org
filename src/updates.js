@@ -2,7 +2,6 @@
 "use strict";
 
 const http = require("http");
-const { default: fetch } = require("node-fetch");
 const semver = require("semver");
 const assert = require("assert");
 const log = require("pino")();
@@ -12,8 +11,15 @@ const requestIp = require("request-ip");
 const { assetPlatform } = require("./asset-platform");
 const { PLATFORM, PLATFORM_ARCH, PLATFORM_ARCHS } = require("./constants");
 
-const { NODE_ENV: env } = process.env;
-if (env === "test") log.level = "error";
+// Nock does not support native fetch, use node-fetch instead
+// This dance will hopefully not be necessary once nock figures
+// out a way to mock Node's native fetch() implementation
+let fetch = global.fetch;
+
+if (process.env.NODE_ENV === "test") {
+  fetch = require("node-fetch").default;
+  log.level = "error";
+}
 
 class Updates {
   constructor({ token, cache }) {

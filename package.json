@@ -2,14 +2,14 @@
   "name": "update.electronjs.org",
   "scripts": {
     "start": "nodemon bin/update-server.js",
-    "prettier": "prettier --write '**/*.js'",
+    "start-test-server": "cross-env NODE_ENV=test nodemon bin/test-update-server.js",
     "lint": "prettier --check '**/*.js'",
+    "prettier": "prettier --write '**/*.js'",
     "test": "npm run lint && cross-env NODE_ENV=test nyc tap test/*.js"
   },
   "dependencies": {
     "dotenv-safe": "^8.2.0",
     "ms": "^2.1.3",
-    "node-fetch": "^2.6.9",
     "pino": "^8.12.1",
     "redis": "^4.6.6",
     "redlock": "^4.2.0",
@@ -19,6 +19,7 @@
   "devDependencies": {
     "cross-env": "^7.0.3",
     "nock": "^13.3.1",
+    "node-fetch": "2.6.9",
     "nodemon": "^2.0.22",
     "nyc": "^15.1.0",
     "prettier": "^2.8.8",
