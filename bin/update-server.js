@@ -50,10 +50,9 @@ async function getCache() {
       return json && JSON.parse(json);
     },
     async set(key, value) {
-      await client.multi()
-        .set(key, JSON.stringify(value))
-        .expire(key, ms(cacheTTL) / 1000)
-        .exec()
+      await client.set(key, JSON.stringify(value), {
+        EX: ms(cacheTTL) / 1000,
+      })
     },
     async lock(resource) {
       return redlock.lock(`locks:${resource}`, ms("1m"));
