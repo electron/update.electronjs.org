@@ -28,41 +28,50 @@ assert(token, "GH_TOKEN required");
 //
 // Cache
 //
+async function getCache() {
+  const fixedRedisUrl = redisUrl.replace("redis://h:", "redis://:");
+  const client = redis.createClient({
+    url: fixedRedisUrl,
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
 
-const fixedRedisUrl = redisUrl.replace("redis://h:", "redis://:");
-const client = redis.createClient({
-  url: fixedRedisUrl,
-  tls: {
-    rejectUnauthorized: false,
-  },
-});
-const get = promisify(client.get).bind(client);
-const redlock = new Redlock([client], {
-  retryDelay: ms("10s"),
-});
+  await client.connect();
+  await client.ping();
 
-const cache = {
-  async get(key) {
-    const json = await get(key);
-    return json && JSON.parse(json);
-  },
-  async set(key, value) {
-    const multi = client.multi();
-    multi.set(key, JSON.stringify(value));
-    multi.expire(key, ms(cacheTTL) / 1000);
-    const exec = promisify(multi.exec).bind(multi);
-    await exec();
-  },
-  async lock(resource) {
-    return redlock.lock(`locks:${resource}`, ms("1m"));
-  },
-};
+  const redlock = new Redlock([client], {
+    retryDelay: ms("10s"),
+  });
+
+  const cache = {
+    async get(key) {
+      const json = await client.get(key);
+      return json && JSON.parse(json);
+    },
+    async set(key, value) {
+      await client.multi()
+        .set(key, JSON.stringify(value))
+        .expire(key, ms(cacheTTL) / 1000)
+        .exec()
+    },
+    async lock(resource) {
+      return redlock.lock(`locks:${resource}`, ms("1m"));
+    },
+  };
+
+  return cache;
+}
 
 //
 // Go!
 //
+async function main() {
+  const cache = getCache()
+  const updates = new Updates({ token, cache });
+  updates.listen(port, () => {
+    console.log(`http://localhost:${port}`);
+  });
+}
 
-const updates = new Updates({ token, cache });
-updates.listen(port, () => {
-  console.log(`http://localhost:${port}`);
-});
+main()
