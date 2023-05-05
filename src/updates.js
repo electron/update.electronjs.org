@@ -11,9 +11,9 @@ const requestIp = require("request-ip");
 const { assetPlatform } = require("./asset-platform");
 const { PLATFORM, PLATFORM_ARCH, PLATFORM_ARCHS } = require("./constants");
 
-// Nock does not support native fetch, use node-fetch instead
-// This dance will hopefully not be necessary once nock figures
-// out a way to mock Node's native fetch() implementation
+// TODO: Nock does not support native fetch, use node-fetch instead
+//       This dance will hopefully not be necessary once nock figures
+//       out a way to mock Node's native fetch() implementation
 let fetch = global.fetch;
 
 if (process.env.NODE_ENV === "test") {
