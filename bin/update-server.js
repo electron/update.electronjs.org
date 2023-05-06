@@ -52,7 +52,7 @@ async function getCache() {
     async set(key, value) {
       await client.set(key, JSON.stringify(value), {
         EX: ms(cacheTTL) / 1000,
-      })
+      });
     },
     async lock(resource) {
       return redlock.lock(`locks:${resource}`, ms("1m"));
@@ -66,11 +66,11 @@ async function getCache() {
 // Go!
 //
 async function main() {
-  const cache = getCache()
+  const cache = getCache();
   const updates = new Updates({ token, cache });
   updates.listen(port, () => {
     console.log(`http://localhost:${port}`);
   });
 }
 
-main()
+main();
