@@ -166,8 +166,7 @@ test("Updates", async (t) => {
 
   await t.test("Routes", async (t) => {
     const res = await fetch(`${address}/`);
-    // Unused - but not unwrapping the response will lead to a dangling promise
-    const _body = await res.text();
+    void res.text();
     t.equal(res.status, 200);
 
     await t.test("exists and has update", async (t) => {
