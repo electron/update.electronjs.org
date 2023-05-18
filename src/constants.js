@@ -11,10 +11,13 @@ const PLATFORM_ARCH = {
   WIN_ARM64: "win32-arm64",
 };
 
+const ENV = process.env.NODE_ENV || "development";
+
 const PLATFORM_ARCHS = Object.values(PLATFORM_ARCH);
 
 module.exports = {
   PLATFORM,
   PLATFORM_ARCH,
   PLATFORM_ARCHS,
+  ENV
 };
