@@ -31,7 +31,8 @@ async function getCache() {
   const fixedRedisUrl = redisUrl.replace("redis://h:", "redis://:");
   const client = redis.createClient({
     url: fixedRedisUrl,
-    // Needed for compatibility with Redlock
+    // Needed for compatibility with Redlock. However, it also requires all "modern" commands
+    // to be prefixed with `client.v4`.
     // See also: https://github.com/redis/node-redis/blob/master/docs/v3-to-v4.md#legacy-mode
     legacyMode: true,
     socket: {
@@ -51,11 +52,13 @@ async function getCache() {
 
   const cache = {
     async get(key) {
-      const json = await client.get(key);
+      const json = await client.v4.get(key);
       return json && JSON.parse(json);
     },
     async set(key, value) {
-      await client.set(key, JSON.stringify(value), {
+      const json = JSON.stringify(value);
+
+      await client.v4.set(key, json, {
         EX: ms(cacheTTL) / 1000,
       });
     },

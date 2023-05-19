@@ -78,18 +78,22 @@ publish.
 
 ## Development
 
+You'll first need to have a running Redis server. There are two options:
+
+1) Locally: Install Redis locally and run it directly with `redis-server`. Guides can be found [here](https://redis.io/docs/getting-started/installation/install-redis-on-mac-os/).
+2) Docker: Install and run Redis with `docker run -p 6379:6379 -it redis/redis-stack-server:latest`.
+
 ```bash
-$ npm install
-$ redis-server
+$ yarn
 $ GH_TOKEN=TOKEN npm start
 ```
 
 To try with an actual electron app, run:
 
 ```bash
-$ npm start &
+$ yarn start &
 $ cd example
-$ npm install
+$ yarn
 ```
 
 On Darwin:
