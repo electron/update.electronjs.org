@@ -19,5 +19,5 @@ module.exports = {
   PLATFORM,
   PLATFORM_ARCH,
   PLATFORM_ARCHS,
-  ENV
+  ENV,
 };

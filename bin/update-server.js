@@ -44,7 +44,7 @@ async function getCache() {
   await client.connect();
   await client.ping();
 
-  client.on('error', err => console.log('Redis Client Error', err));
+  client.on("error", (err) => console.log("Redis Client Error", err));
 
   const redlock = new Redlock([client], {
     retryDelay: ms("10s"),
