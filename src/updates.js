@@ -9,7 +9,7 @@ const crypto = require("crypto");
 const requestIp = require("request-ip");
 
 const { assetPlatform } = require("./asset-platform");
-const { PLATFORM, PLATFORM_ARCH, PLATFORM_ARCHS } = require("./constants");
+const { PLATFORM, PLATFORM_ARCH, PLATFORM_ARCHS, ENV } = require("./constants");
 
 // TODO: Nock does not support native fetch, use node-fetch instead
 //       This dance will hopefully not be necessary once nock figures
@@ -39,7 +39,7 @@ class Updates {
           log.error(err);
           res.statusCode = err.statusCode || 500;
           const msg =
-            env === "production" ? "Internal Server Error" : err.stack;
+            ENV === "production" ? "Internal Server Error" : err.stack;
           res.end(msg);
         })
         .then(() => {
