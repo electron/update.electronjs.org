@@ -654,7 +654,7 @@ bind-obj-methods@^3.0.0:
   resolved "https://registry.yarnpkg.com/bind-obj-methods/-/bind-obj-methods-3.0.0.tgz#65b66544d9d668d80dfefe2089dd347ad1dbcaed"
   integrity sha512-nLEaaz3/sEzNSyPWRsN9HNsqwk1AUyECtGj+XwGdIi3xABnEqecvXtIJ0wehQXuuER5uZ/5fTs2usONgYjG+iw==
 
-bluebird@^3.7.2:
+bluebird@^3.3.3:
   version "3.7.2"
   resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.7.2.tgz#9f229c15be272454ffa973ace0dbee79a1b0c36f"
   integrity sha512-XpNj6GDQzdfW+r2Wnn7xiSAd7TM3jzkxGXBGTtWKuSXv1xUV+azxAm8jdWZN06QTQk+2N2XB9jRDkvbmQmcRtg==
@@ -2680,12 +2680,12 @@ redis@^4.6.6:
     "@redis/search" "1.1.2"
     "@redis/time-series" "1.0.4"
 
-redlock@^4.2.0:
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/redlock/-/redlock-4.2.0.tgz#c26590768559afd5fff76aa1133c94b411ff4f5f"
-  integrity sha512-j+oQlG+dOwcetUt2WJWttu4CZVeRzUrcVcISFmEmfyuwCVSJ93rDT7YSgg7H7rnxwoRyk/jU46kycVka5tW7jA==
+redlock@^3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/redlock/-/redlock-3.1.2.tgz#27c82534da8548027aa8d61084a08078ae74ed36"
+  integrity sha512-CKXhOvLd4In5QOfbcF0GIcSsa+pL9JPZd+eKeMk/Sydxh93NUNtwQMTIKFqwPu3PjEgDStwYFJTurVzNA33pZw==
   dependencies:
-    bluebird "^3.7.2"
+    bluebird "^3.3.3"
 
 regexp.prototype.flags@^1.4.3:
   version "1.5.0"
