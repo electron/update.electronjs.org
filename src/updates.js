@@ -226,8 +226,12 @@ class Updates {
           const body = await rres.text();
           const matches = body.match(/[^ ]*\.nupkg/gim);
           assert(matches);
-          const nuPKG = rurl.replace("RELEASES", matches[0]);
-          latest[key].RELEASES = body.replace(matches[0], nuPKG);
+          let RELEASES = body;
+          for (const match of matches) {
+            const nuPKG = rurl.replace("RELEASES", match);
+            RELEASES = RELEASES.replace(match, nuPKG);
+          }
+          latest[key].RELEASES = RELEASES;
         }
       }
     }
