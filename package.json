@@ -20,7 +20,7 @@
     "cross-env": "^7.0.3",
     "nock": "^13.3.1",
     "node-fetch": "2.6.9",
-    "nodemon": "^2.0.22",
+    "nodemon": "^3.0.1",
     "nyc": "^15.1.0",
     "prettier": "^2.8.8",
     "standard": "^17.0.0",
