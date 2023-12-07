@@ -145,8 +145,74 @@ nock("https://api.github.com")
         },
       ],
     },
+  ])
+  .get("/repos/electron/fiddle/releases?per_page=100")
+  .reply(200, [
+    {
+      name: "v0.36.0",
+      tag_name: "v0.36.0",
+      body: "notes",
+      assets: [
+        {
+          name: "mac.zip",
+          browser_download_url: "mac.zip",
+        },
+        {
+          name: "mac-arm64.zip",
+          browser_download_url: "mac-arm64.zip",
+        },
+        {
+          name: "electron-fiddle-0.36.0-win32-x64-setup.exe",
+          browser_download_url: "electron-fiddle-0.36.0-win32-x64-setup.exe",
+        },
+        {
+          name: "electron-fiddle-0.36.0-win32-ia32-setup.exe",
+          browser_download_url: "electron-fiddle-0.36.0-win32-ia32-setup.exe",
+        },
+        {
+          name: "electron-fiddle-0.36.0-win32-arm64-setup.exe",
+          browser_download_url: "electron-fiddle-0.36.0-win32-arm64-setup.exe",
+        },
+      ],
+    },
+  ])
+  .get("/repos/electron/fiddle/releases/tags/v0.35.1")
+  .reply(200, [
+    {
+      name: "v0.35.1",
+      tag_name: "v0.35.1",
+      body: "notes",
+      assets: [
+        {
+          name: "mac.zip",
+          browser_download_url: "mac.zip",
+        },
+        {
+          name: "mac-arm64.zip",
+          browser_download_url: "mac-arm64.zip",
+        },
+        {
+          name: "electron-fiddle-1.0.0-win32-x64-setup.exe",
+          browser_download_url: "electron-fiddle-1.0.0-win32-x64-setup.exe",
+        },
+        {
+          name: "electron-fiddle-1.0.0-win32-ia32-setup.exe",
+          browser_download_url: "electron-fiddle-1.0.0-win32-ia32-setup.exe",
+        },
+        {
+          name: "electron-fiddle-1.0.0-win32-arm64-setup.exe",
+          browser_download_url: "electron-fiddle-1.0.0-win32-arm64-setup.exe",
+        },
+      ],
+    },
   ]);
 nock("https://github.com")
+  .get("/electron/fiddle/releases/download/v0.35.1/RELEASES")
+  .times(3)
+  .reply(200, "HASH name.nupkg NUMBER")
+  .get("/electron/fiddle/releases/download/v0.36.0/RELEASES")
+  .times(3)
+  .reply(200, "HASH name.nupkg NUMBER")
   .get("/owner/repo/releases/download/1.0.0/RELEASES")
   .times(3)
   .reply(200, "HASH name.nupkg NUMBER")
@@ -440,6 +506,96 @@ test("Updates", async (t) => {
           'Unsupported platform: "os". Supported: darwin-x64, darwin-arm64, win32-x64, win32-ia32, win32-arm64.'
         );
       });
+    });
+  });
+
+  teardown(() => {
+    server.close();
+  });
+});
+
+test("electron/fiddle", async (t) => {
+  const { server, address } = await createServer();
+
+  await t.test("first updates to v0.35.1", async (t) => {
+    await t.test("on macOS", async (t) => {
+      for (const platform of ["darwin", "darwin-x64", "darwin-arm64"]) {
+        for (let i = 0; i < 2; i++) {
+          const res = await fetch(
+            `${address}/electron/fiddle/${platform}/0.34.0`
+          );
+          t.equal(res.status, 200);
+
+          const body = await res.json();
+          t.match(body, {
+            name: "v0.35.1",
+            notes: "notes",
+          });
+        }
+      }
+    });
+
+    await t.test("not on Windows", async (t) => {
+      for (const platform of [
+        "win32",
+        "win32-x64",
+        "win32-ia32",
+        "win32-arm64",
+      ]) {
+        for (let i = 0; i < 2; i++) {
+          const res = await fetch(
+            `${address}/electron/fiddle/${platform}/0.34.0`
+          );
+          t.equal(res.status, 200);
+
+          const body = await res.json();
+          t.match(body, {
+            name: "v0.36.0",
+            notes: "notes",
+          });
+        }
+      }
+    });
+  });
+
+  await t.test("updates to latest", async (t) => {
+    await t.test("on macOS", async (t) => {
+      for (const platform of ["darwin", "darwin-x64", "darwin-arm64"]) {
+        for (let i = 0; i < 2; i++) {
+          const res = await fetch(
+            `${address}/electron/fiddle/${platform}/0.35.1`
+          );
+          t.equal(res.status, 200);
+
+          const body = await res.json();
+          t.match(body, {
+            name: "v0.36.0",
+            notes: "notes",
+          });
+        }
+      }
+    });
+
+    await t.test("on Windows", async (t) => {
+      for (const platform of [
+        "win32",
+        "win32-x64",
+        "win32-ia32",
+        "win32-arm64",
+      ]) {
+        for (let i = 0; i < 2; i++) {
+          const res = await fetch(
+            `${address}/electron/fiddle/${platform}/0.35.1`
+          );
+          t.equal(res.status, 200);
+
+          const body = await res.json();
+          t.match(body, {
+            name: "v0.36.0",
+            notes: "notes",
+          });
+        }
+      }
     });
   });
 
