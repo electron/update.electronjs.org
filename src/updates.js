@@ -268,10 +268,10 @@ const needsSpecificReleaseTag = (account, repository, platform, version) => {
   const FIDDLE_TRANSITION_VERSION = "v0.35.1";
 
   if (
-    [PLATFORM_ARCH.DARWIN_X64, PLATFORM_ARCH.DARWIN_ARM64].includes(platform) &&
     account === "electron" &&
-    repository === "fiddle" &&
-    semver.lt(version, FIDDLE_TRANSITION_VERSION)
+    semver.lt(version, FIDDLE_TRANSITION_VERSION) &&
+    [PLATFORM_ARCH.DARWIN_X64, PLATFORM_ARCH.DARWIN_ARM64].includes(platform) &&
+    repository === "fiddle"
   ) {
     return FIDDLE_TRANSITION_VERSION;
   }
