@@ -77,20 +77,30 @@ class Updates {
     } else if (version && !semver.valid(version)) {
       badRequest(res, `Invalid SemVer: "${version}"`);
     } else if (file === "RELEASES") {
-      await this.handleReleases(res, account, repository, platform);
+      await this.handleReleases(res, account, repository, platform, version);
     } else {
       await this.handleUpdate(res, account, repository, platform, version);
     }
   }
 
-  async handleReleases(res, account, repository, platform) {
-    const latest = await this.cachedGetLatest(account, repository, platform);
+  async handleReleases(res, account, repository, platform, version) {
+    const latest = await this.cachedGetLatest(
+      account,
+      repository,
+      platform,
+      version
+    );
     if (!latest || !latest.RELEASES) return notFound(res);
     res.end(latest.RELEASES);
   }
 
   async handleUpdate(res, account, repository, platform, version) {
-    const latest = await this.cachedGetLatest(account, repository, platform);
+    const latest = await this.cachedGetLatest(
+      account,
+      repository,
+      platform,
+      version
+    );
 
     if (!latest) {
       const message = platform.includes(PLATFORM.DARWIN)
@@ -119,8 +129,12 @@ class Updates {
     }
   }
 
-  async cachedGetLatest(account, repository, platform) {
-    const key = `${account}/${repository}`;
+  async cachedGetLatest(account, repository, platform, version) {
+    const tag = needsSpecificReleaseTag(account, repository, platform, version);
+
+    const key = tag
+      ? `${account}/${repository}-${tag}`
+      : `${account}/${repository}`;
     let latest = await this.cache.get(key);
 
     if (latest) {
@@ -144,7 +158,7 @@ class Updates {
       }
     }
 
-    latest = await this.getLatest(account, repository);
+    latest = await this.getLatest(account, repository, platform, version);
 
     if (latest) {
       await this.cache.set(key, latest);
@@ -161,10 +175,15 @@ class Updates {
     return latest && latest[platform];
   }
 
-  async getLatest(account, repository) {
+  async getLatest(account, repository, platform, version) {
     account = encodeURIComponent(account);
     repository = encodeURIComponent(repository);
-    const url = `https://api.github.com/repos/${account}/${repository}/releases?per_page=100`;
+
+    const tag = needsSpecificReleaseTag(account, repository, platform, version);
+
+    const url = tag
+      ? `https://api.github.com/repos/${account}/${repository}/releases/tags/${tag}`
+      : `https://api.github.com/repos/${account}/${repository}/releases?per_page=100`;
     const headers = { Accept: "application/vnd.github.preview" };
     if (this.token) headers.Authorization = `token ${this.token}`;
     const res = await fetch(url, { headers });
@@ -184,7 +203,10 @@ class Updates {
 
     const latest = {};
 
-    const releases = await res.json();
+    let releases = await res.json();
+    if (!Array.isArray(releases)) {
+      releases = [releases];
+    }
     for (const release of releases) {
       if (
         !semver.valid(release.tag_name) ||
@@ -240,6 +262,22 @@ class Updates {
     return crypto.createHash("sha256").update(ip).digest("hex");
   }
 }
+
+// Any logic to require a specific release when updating should go here
+const needsSpecificReleaseTag = (account, repository, platform, version) => {
+  const FIDDLE_TRANSITION_VERSION = "v0.35.1";
+
+  if (
+    [PLATFORM_ARCH.DARWIN_X64, PLATFORM_ARCH.DARWIN_ARM64].includes(platform) &&
+    account === "electron" &&
+    repository === "fiddle" &&
+    semver.lt(version, FIDDLE_TRANSITION_VERSION)
+  ) {
+    return FIDDLE_TRANSITION_VERSION;
+  }
+
+  return null;
+};
 
 const hasAllAssets = (latest) => {
   return !!(
