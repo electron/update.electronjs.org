@@ -43,7 +43,7 @@ class Updates {
           res.end(msg);
         })
         .then(() => {
-          log.info(
+          log.debug(
             {
               method: req.method,
               url: req.url,
@@ -108,10 +108,10 @@ class Updates {
         : "No updates found (needs asset containing win32-{x64,ia32,arm64} or .exe in public repository)";
       notFound(res, message);
     } else if (semver.lte(latest.version, version)) {
-      log.info({ account, repository, platform, version }, "up to date");
+      log.debug({ account, repository, platform, version }, "up to date");
       noContent(res);
     } else {
-      log.info(
+      log.debug(
         {
           account,
           repository,
@@ -142,7 +142,7 @@ class Updates {
       if (latest.darwin) latest[PLATFORM_ARCH.DARWIN_X64] = latest.darwin;
       if (latest.win32) latest[PLATFORM_ARCH.WIN_X64] = latest.win32;
 
-      log.info({ key }, "cache hit");
+      log.debug({ key }, "cache hit");
       return latest[platform] || null;
     }
 
@@ -153,7 +153,7 @@ class Updates {
       log.debug({ key }, "lock acquired");
       latest = await this.cache.get(key);
       if (latest) {
-        log.info({ key }, "cache hit after lock");
+        log.debug({ key }, "cache hit after lock");
         return latest[platform] ? latest[platform] : null;
       }
     }
@@ -187,7 +187,7 @@ class Updates {
     const headers = { Accept: "application/vnd.github.preview" };
     if (this.token) headers.Authorization = `token ${this.token}`;
     const res = await fetch(url, { headers });
-    log.info(
+    log.debug(
       { account, repository, status: res.status },
       "github releases api"
     );
