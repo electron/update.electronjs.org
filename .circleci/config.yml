@@ -1,31 +1,11 @@
-step-restore-cache: &step-restore-cache
-  restore_cache:
-    keys:
-      - v1-dependencies-{{ arch }}-{{ checksum "yarn.lock" }}
-      - v1-dependencies-{{ arch }}
-
-steps-test: &steps-test
-  steps:
-    - checkout
-    - *step-restore-cache
-    - run: yarn
-    - save_cache:
-        paths:
-          - node_modules
-        key: v1-dependencies-{{ arch }}-{{ checksum "yarn.lock" }}
-    - run: yarn test
-
 version: 2.1
+
 orbs:
-  win: circleci/windows@1.0.0
-jobs:
-  test-linux-18:
-    docker:
-      - image: cimg/node:18.16.0
-    <<: *steps-test
+  node: electronjs/node@2.2.1
 
 workflows:
-  version: 2
-  test_and_release:
+  build:
     jobs:
-      - test-linux-18
+      - node/test:
+          executor: node/linux
+          node-version: "18.16"
