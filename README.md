@@ -11,7 +11,7 @@ Before using this service, make sure your Electron app meets these criteria:
 - Your app runs on macOS or Windows
 - Your app has a public GitHub repository
 - Your builds are published to GitHub Releases
-- Your builds are [code signed]
+- Your builds are [code signed] **(macOS only)**
 
 ## Quick Setup
 
