@@ -1,5 +1,6 @@
 {
   "name": "update.electronjs.org",
+  "private": true,
   "scripts": {
     "start": "nodemon bin/update-server.js",
     "start-test-server": "cross-env NODE_ENV=test nodemon bin/test-update-server.js",
