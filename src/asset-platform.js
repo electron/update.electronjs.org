@@ -1,6 +1,11 @@
 const { PLATFORM_ARCH } = require("./constants");
 
 const assetPlatform = (fileName) => {
+  // Rule for electron-builder support, example: example-1.0.0-arm64-mac.zip
+  if (/.*-arm64-mac\.zip/i.test(fileName)) {
+    return PLATFORM_ARCH.DARWIN_ARM64;
+  }
+  
   if (/.*(mac|darwin|osx).*(-arm).*\.zip/i.test(fileName)) {
     return PLATFORM_ARCH.DARWIN_ARM64;
   }
