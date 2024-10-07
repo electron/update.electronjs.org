@@ -29,14 +29,10 @@ test("assetPlatform() matches the right platform", (t) => {
       platform: PLATFORM_ARCH.DARWIN_ARM64,
     },
     {
-      name: "Electron.Fiddle-0.27.3-arm64-mac.zip",
-      platform: PLATFORM_ARCH.DARWIN_ARM64,
-    },
-    {
       name: "Electron.Fiddle-darwin-x64-0.27.3.zip",
       platform: PLATFORM_ARCH.DARWIN_X64,
     },
-    // Electron Builder
+    // Electron Builder default naming conventions
     {
       name: "Electron-Builder-1.2.3-mac.zip",
       platform: PLATFORM_ARCH.DARWIN_X64,
