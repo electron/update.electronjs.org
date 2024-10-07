@@ -491,7 +491,7 @@ test("Updates", async (t) => {
         const body = await res.text();
         t.equal(
           body,
-          'Unsupported platform: "linux". Supported: darwin-x64, darwin-arm64, win32-x64, win32-ia32, win32-arm64.'
+          'Unsupported platform: "linux". Supported: darwin-x64, darwin-arm64, darwin-universal, win32-x64, win32-ia32, win32-arm64.'
         );
       });
     });
@@ -503,7 +503,7 @@ test("Updates", async (t) => {
         const body = await res.text();
         t.equal(
           body,
-          'Unsupported platform: "os". Supported: darwin-x64, darwin-arm64, win32-x64, win32-ia32, win32-arm64.'
+          'Unsupported platform: "os". Supported: darwin-x64, darwin-arm64, darwin-universal, win32-x64, win32-ia32, win32-arm64.'
         );
       });
     });
