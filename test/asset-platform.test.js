@@ -45,6 +45,10 @@ test("assetPlatform() matches the right platform", (t) => {
       name: "Electron-Builder-1.2.3-arm64-mac.zip",
       platform: PLATFORM_ARCH.DARWIN_ARM64,
     },
+    {
+      name: "Electron.Fiddle-1.62.6-mac.zip.blockmap",
+      platform: false,
+    },
   ];
 
   for (const release of releases) {
