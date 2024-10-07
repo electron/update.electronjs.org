@@ -102,15 +102,18 @@ class Updates {
       version
     );
 
-    const latestUniversal = await this.cachedGetLatest(
-      account,
-      repository,
-      PLATFORM_ARCH.DARWIN_UNIVERSAL,
-      version
-    );
+    if (!latest && platform.includes(PLATFORM.DARWIN)) {
+      const latestUniversal = await this.cachedGetLatest(
+        account,
+        repository,
+        PLATFORM_ARCH.DARWIN_UNIVERSAL,
+        version
+      );
 
-    if (!latest && latestUniversal) {
-      latest = latestUniversal;
+      if (latestUniversal) {
+        log.info("Falling back to universal build for darwin");
+        latest = latestUniversal;
+      }
     }
 
     if (!latest) {
