@@ -221,6 +221,7 @@ class Updates {
     for (const release of releases) {
       if (
         !semver.valid(release.tag_name) ||
+        semver.lt(release.tag_name, version) ||
         release.draft ||
         release.prerelease
       ) {
