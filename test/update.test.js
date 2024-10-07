@@ -346,7 +346,7 @@ test("Updates", async (t) => {
         let body = await res.text();
         t.equal(
           body,
-          "No updates found (needs asset matching *(mac|darwin|osx).*(-arm).*.zip in public repository)"
+          "No updates found (needs asset matching *(mac|darwin|osx).*.zip in public repository)"
         );
 
         res = await fetch(`${address}/owner/repo-win32-zip/darwin/0.0.0`);
@@ -354,7 +354,7 @@ test("Updates", async (t) => {
         body = await res.text();
         t.equal(
           body,
-          "No updates found (needs asset matching *(mac|darwin|osx).*(-arm).*.zip in public repository)"
+          "No updates found (needs asset matching *(mac|darwin|osx).*.zip in public repository)"
         );
       });
     });
