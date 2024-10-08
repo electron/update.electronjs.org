@@ -125,7 +125,6 @@ class Updates {
         : "No updates found (needs asset containing win32-{x64,ia32,arm64} or .exe in public repository)";
       notFound(res, message);
     } else if (semver.lte(latest.version, version)) {
-      console.log("latest version", latest.version);
       log.debug({ account, repository, platform, version }, "up to date");
       noContent(res);
     } else {
