@@ -102,7 +102,7 @@ class Updates {
       version
     );
 
-    if (!latest && platform.includes(PLATFORM.DARWIN)) {
+    if (platform.includes(PLATFORM.DARWIN)) {
       const latestUniversal = await this.cachedGetLatest(
         account,
         repository,
@@ -110,7 +110,7 @@ class Updates {
         version
       );
 
-      if (latestUniversal) {
+      if (latestUniversal && semver.gt(latestUniversal.version, latest.version)) {
         log.info("Falling back to universal build for darwin");
         latest = latestUniversal;
       }
@@ -122,6 +122,7 @@ class Updates {
         : "No updates found (needs asset containing win32-{x64,ia32,arm64} or .exe in public repository)";
       notFound(res, message);
     } else if (semver.lte(latest.version, version)) {
+      console.log("latest version", latest.version);
       log.debug({ account, repository, platform, version }, "up to date");
       noContent(res);
     } else {
@@ -224,7 +225,6 @@ class Updates {
     for (const release of releases) {
       if (
         !semver.valid(release.tag_name) ||
-        semver.lt(release.tag_name, version) ||
         release.draft ||
         release.prerelease
       ) {
