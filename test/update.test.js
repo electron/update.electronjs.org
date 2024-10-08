@@ -411,18 +411,30 @@ test("Updates", async (t) => {
         );
       });
 
-      await t.test("use universal if available", async (t) => {
-        let res = await fetch(
-          `${address}/owner/repo-universal/darwin-x64/0.0.0`
+      await t.test("darwin universal assets", async (t) => {
+        await t.test(
+          "use universal asset if platform-specific asset not available",
+          async (t) => {
+            let res = await fetch(
+              `${address}/owner/repo-universal/darwin-x64/0.0.0`
+            );
+            t.equal(res.status, 200);
+            let body = await res.json();
+            t.match(body.url, "universal-mac.zip");
+          }
         );
-        t.equal(res.status, 200);
-        let body = await res.json();
-        t.match(body.url, "universal-mac.zip");
 
-        res = await fetch(`${address}/owner/repo-universal/darwin-arm64/0.0.0`);
-        t.equal(res.status, 200);
-        body = await res.json();
-        t.match(body.url, "arm64-mac.zip");
+        await t.test(
+          "skip universal asset if platform-specific asset available",
+          async (t) => {
+            let res = await fetch(
+              `${address}/owner/repo-universal/darwin-arm64/0.0.0`
+            );
+            t.equal(res.status, 200);
+            let body = await res.json();
+            t.match(body.url, "arm64-mac.zip");
+          }
+        );
       });
     });
 
