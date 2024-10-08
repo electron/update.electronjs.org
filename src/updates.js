@@ -110,7 +110,10 @@ class Updates {
         version
       );
 
-      if (latestUniversal && semver.gt(latestUniversal.version, latest.version)) {
+      if (
+        latestUniversal &&
+        semver.gt(latestUniversal.version, latest.version)
+      ) {
         log.info("Falling back to universal build for darwin");
         latest = latestUniversal;
       }
