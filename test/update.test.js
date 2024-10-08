@@ -26,6 +26,10 @@ nock("https://api.github.com")
           browser_download_url: "mac-arm64.zip",
         },
         {
+          name: "universal-mac.zip",
+          browser_download_url: "universal-mac.zip",
+        },
+        {
           name: "electron-fiddle-1.0.0-win32-x64-setup.exe",
           browser_download_url: "electron-fiddle-1.0.0-win32-x64-setup.exe",
         },
@@ -76,6 +80,43 @@ nock("https://api.github.com")
         {
           name: "darwin-arm64.zip",
           browser_download_url: "darwin-arm64.zip",
+        },
+        {
+          name: "universal-mac.zip",
+          browser_download_url: "universal-mac.zip",
+        },
+      ],
+    },
+  ])
+  .get("/repos/owner/repo-universal/releases?per_page=100")
+  .reply(200, [
+    {
+      name: "name",
+      tag_name: "v2.0.0",
+      body: "notes",
+      assets: [
+        {
+          name: "universal-mac.zip",
+          browser_download_url: "universal-mac.zip",
+        },
+        {
+          name: "arm64-mac.zip",
+          browser_download_url: "arm64-mac.zip",
+        },
+      ],
+    },
+    {
+      name: "name",
+      tag_name: "v1.0.0",
+      body: "notes",
+      assets: [
+        {
+          name: "mac.zip",
+          browser_download_url: "mac.zip",
+        },
+        {
+          name: "arm64-mac.zip",
+          browser_download_url: "arm64-mac.zip",
         },
       ],
     },
@@ -321,6 +362,11 @@ test("Updates", async (t) => {
           body = await res.json();
           t.equal(body.url, "mac.zip");
 
+          res = await fetch(`${address}/owner/repo/darwin-universal/0.0.0`);
+          t.equal(res.status, 200);
+          body = await res.json();
+          t.equal(body.url, "universal-mac.zip");
+
           res = await fetch(`${address}/owner/repo-darwin/darwin-x64/0.0.0`);
           t.equal(res.status, 200);
           body = await res.json();
@@ -335,6 +381,13 @@ test("Updates", async (t) => {
           t.equal(res.status, 200);
           body = await res.json();
           t.match(body.url, "darwin.zip");
+
+          res = await fetch(
+            `${address}/owner/repo-darwin/darwin-universal/0.0.0`
+          );
+          t.equal(res.status, 200);
+          body = await res.json();
+          t.match(body.url, "universal-mac.zip");
         }
       });
 
@@ -356,6 +409,20 @@ test("Updates", async (t) => {
           body,
           "No updates found (needs asset matching *(mac|darwin|osx).*.zip in public repository)"
         );
+      });
+
+      await t.test("use universal if available", async (t) => {
+        let res = await fetch(
+          `${address}/owner/repo-universal/darwin-x64/0.0.0`
+        );
+        t.equal(res.status, 200);
+        let body = await res.json();
+        t.match(body.url, "universal-mac.zip");
+
+        res = await fetch(`${address}/owner/repo-universal/darwin-arm64/0.0.0`);
+        t.equal(res.status, 200);
+        body = await res.json();
+        t.match(body.url, "arm64-mac.zip");
       });
     });
 
