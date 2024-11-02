@@ -102,15 +102,21 @@ class Updates {
       version
     );
 
-    const latestUniversal = await this.cachedGetLatest(
-      account,
-      repository,
-      PLATFORM_ARCH.DARWIN_UNIVERSAL,
-      version
-    );
+    if (platform.includes(PLATFORM.DARWIN)) {
+      const latestUniversal = await this.cachedGetLatest(
+        account,
+        repository,
+        PLATFORM_ARCH.DARWIN_UNIVERSAL,
+        version
+      );
 
-    if (!latest && latestUniversal) {
-      latest = latestUniversal;
+      if (
+        latestUniversal &&
+        semver.gt(latestUniversal.version, latest.version)
+      ) {
+        log.info("Falling back to universal build for darwin");
+        latest = latestUniversal;
+      }
     }
 
     if (!latest) {
@@ -221,7 +227,6 @@ class Updates {
     for (const release of releases) {
       if (
         !semver.valid(release.tag_name) ||
-        semver.lt(release.tag_name, version) ||
         release.draft ||
         release.prerelease
       ) {
