@@ -45,7 +45,19 @@ test("assetPlatform() matches the right platform", (t) => {
       platform: PLATFORM_ARCH.DARWIN_ARM64,
     },
     {
-      name: "Electron.Fiddle-1.62.6-mac.zip.blockmap",
+      name: "Electron.Builder-1.2.3-mac.zip.blockmap",
+      platform: false,
+    },
+    {
+      name: "mac.zip",
+      platform: false,
+    },
+    {
+      name: "darwin.zip",
+      platform: false,
+    },
+    {
+      name: "osx.zip",
       platform: false,
     },
   ];
