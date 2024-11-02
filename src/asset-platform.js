@@ -1,7 +1,7 @@
 const { PLATFORM_ARCH } = require("./constants");
 
 const assetPlatform = (fileName) => {
-  if (/.*(mac|darwin|osx).*\.zip$/i.test(fileName)) {
+  if (/.*-(mac|darwin|osx).*\.zip$/i.test(fileName)) {
     if (/-arm64/.test(fileName)) return PLATFORM_ARCH.DARWIN_ARM64;
     if (/-universal/.test(fileName)) return PLATFORM_ARCH.DARWIN_UNIVERSAL;
 
