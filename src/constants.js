@@ -6,6 +6,7 @@ const PLATFORM = {
 const PLATFORM_ARCH = {
   DARWIN_X64: "darwin-x64",
   DARWIN_ARM64: "darwin-arm64",
+  DARWIN_UNIVERSAL: "darwin-universal",
   WIN_X64: "win32-x64",
   WIN_IA32: "win32-ia32",
   WIN_ARM64: "win32-arm64",

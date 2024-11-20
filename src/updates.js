@@ -95,16 +95,33 @@ class Updates {
   }
 
   async handleUpdate(res, account, repository, platform, version) {
-    const latest = await this.cachedGetLatest(
+    let latest = await this.cachedGetLatest(
       account,
       repository,
       platform,
       version
     );
 
+    if (platform.includes(PLATFORM.DARWIN)) {
+      const latestUniversal = await this.cachedGetLatest(
+        account,
+        repository,
+        PLATFORM_ARCH.DARWIN_UNIVERSAL,
+        version
+      );
+
+      if (
+        latestUniversal &&
+        semver.gt(latestUniversal.version, latest.version)
+      ) {
+        log.info("Falling back to universal build for darwin");
+        latest = latestUniversal;
+      }
+    }
+
     if (!latest) {
       const message = platform.includes(PLATFORM.DARWIN)
-        ? "No updates found (needs asset matching *(mac|darwin|osx).*(-arm).*.zip in public repository)"
+        ? "No updates found (needs asset matching .*-(mac|darwin|osx).*.zip in public repository)"
         : "No updates found (needs asset containing win32-{x64,ia32,arm64} or .exe in public repository)";
       notFound(res, message);
     } else if (semver.lte(latest.version, version)) {
