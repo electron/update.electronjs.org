@@ -10,9 +10,10 @@ const assetPlatform = (fileName) => {
   }
 
   if (/.*-win32-(ia32|x64|arm64).*$/i.test(fileName)) {
-    if (/ia32/.test(fileName)) return PLATFORM_ARCH.WIN_IA32;
-    if (/x64/.test(fileName)) return PLATFORM_ARCH.WIN_X64;
-    if (/arm64/.test(fileName)) return PLATFORM_ARCH.WIN_ARM64;
+    if (/-ia32/.test(fileName)) return PLATFORM_ARCH.WIN_IA32;
+    if (/-arm64/.test(fileName)) return PLATFORM_ARCH.WIN_ARM64;
+
+    return PLATFORM_ARCH.WIN_X64;
   }
 
   // Special case handling: We don't know what kind of asset
