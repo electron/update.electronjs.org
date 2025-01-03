@@ -256,7 +256,7 @@ nock("https://github.com")
   .reply(200, "HASH name.nupkg NUMBER")
   .get("/owner/repo/releases/download/1.0.0/RELEASES")
   .times(3)
-  .reply(200, "HASH name.nupkg NUMBER")
+  .reply(200, "HASH name.nupkg NUMBER\nHASH2 name2.nupkg NUMBER2")
   .get("/owner/repo-with-v/releases/download/v1.0.0/RELEASES")
   .reply(404)
   .get("/owner/repo-darwin/releases/download/v1.0.0/RELEASES")
@@ -506,7 +506,7 @@ test("Updates", async (t) => {
             const body = await res.text();
             t.match(
               body,
-              /^[^ ]+ https:\/\/github.com\/owner\/repo\/releases\/download\/[^/]+\/name.nupkg [^ ]+$/
+              /^[^ ]+ https:\/\/github.com\/owner\/repo\/releases\/download\/[^/]+\/name.nupkg [^ ]+\n[^ ]+ https:\/\/github.com\/owner\/repo\/releases\/download\/[^/]+\/name2.nupkg [^ ]+$/
             );
           }
 
@@ -518,7 +518,7 @@ test("Updates", async (t) => {
             const body = await res.text();
             t.match(
               body,
-              /^[^ ]+ https:\/\/github.com\/owner\/repo\/releases\/download\/[^/]+\/name.nupkg [^ ]+$/
+              /^[^ ]+ https:\/\/github.com\/owner\/repo\/releases\/download\/[^/]+\/name.nupkg [^ ]+\n[^ ]+ https:\/\/github.com\/owner\/repo\/releases\/download\/[^/]+\/name2.nupkg [^ ]+$/
             );
           }
         });
@@ -532,7 +532,7 @@ test("Updates", async (t) => {
             const body = await res.text();
             t.match(
               body,
-              /^[^ ]+ https:\/\/github.com\/owner\/repo\/releases\/download\/[^/]+\/name.nupkg [^ ]+$/
+              /^[^ ]+ https:\/\/github.com\/owner\/repo\/releases\/download\/[^/]+\/name.nupkg [^ ]+\n[^ ]+ https:\/\/github.com\/owner\/repo\/releases\/download\/[^/]+\/name2.nupkg [^ ]+$/
             );
           }
         });
