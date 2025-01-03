@@ -18,12 +18,16 @@ nock("https://api.github.com")
       body: "notes",
       assets: [
         {
-          name: "mac.zip",
-          browser_download_url: "mac.zip",
+          name: "app-mac.zip",
+          browser_download_url: "app-mac.zip",
         },
         {
-          name: "mac-arm64.zip",
-          browser_download_url: "mac-arm64.zip",
+          name: "app-mac-arm64.zip",
+          browser_download_url: "app-mac-arm64.zip",
+        },
+        {
+          name: "app-universal-mac.zip",
+          browser_download_url: "app-universal-mac.zip",
         },
         {
           name: "electron-fiddle-1.0.0-win32-x64-setup.exe",
@@ -48,12 +52,12 @@ nock("https://api.github.com")
       body: "notes",
       assets: [
         {
-          name: "mac.zip",
-          browser_download_url: "mac.zip",
+          name: "app-mac.zip",
+          browser_download_url: "app-mac.zip",
         },
         {
-          name: "mac-arm64.zip",
-          browser_download_url: "mac-arm64.zip",
+          name: "app-mac-arm64.zip",
+          browser_download_url: "app-mac-arm64.zip",
         },
       ],
     },
@@ -70,12 +74,49 @@ nock("https://api.github.com")
       body: "notes",
       assets: [
         {
-          name: "darwin.zip",
-          browser_download_url: "darwin.zip",
+          name: "app-darwin.zip",
+          browser_download_url: "app-darwin.zip",
         },
         {
-          name: "darwin-arm64.zip",
-          browser_download_url: "darwin-arm64.zip",
+          name: "app-darwin-arm64.zip",
+          browser_download_url: "app-darwin-arm64.zip",
+        },
+        {
+          name: "app-universal-mac.zip",
+          browser_download_url: "app-universal-mac.zip",
+        },
+      ],
+    },
+  ])
+  .get("/repos/owner/repo-universal/releases?per_page=100")
+  .reply(200, [
+    {
+      name: "name",
+      tag_name: "v2.0.0",
+      body: "notes",
+      assets: [
+        {
+          name: "app-universal-mac.zip",
+          browser_download_url: "app-universal-mac.zip",
+        },
+        {
+          name: "app-arm64-mac.zip",
+          browser_download_url: "app-arm64-mac.zip",
+        },
+      ],
+    },
+    {
+      name: "name",
+      tag_name: "v1.0.0",
+      body: "notes",
+      assets: [
+        {
+          name: "app-mac.zip",
+          browser_download_url: "app-mac.zip",
+        },
+        {
+          name: "app-arm64-mac.zip",
+          browser_download_url: "app-arm64-mac.zip",
         },
       ],
     },
@@ -154,12 +195,12 @@ nock("https://api.github.com")
       body: "notes",
       assets: [
         {
-          name: "mac.zip",
-          browser_download_url: "mac.zip",
+          name: "app-mac.zip",
+          browser_download_url: "app-mac.zip",
         },
         {
-          name: "mac-arm64.zip",
-          browser_download_url: "mac-arm64.zip",
+          name: "app-mac-arm64.zip",
+          browser_download_url: "app-mac-arm64.zip",
         },
         {
           name: "electron-fiddle-0.36.0-win32-x64-setup.exe",
@@ -184,12 +225,12 @@ nock("https://api.github.com")
       body: "notes",
       assets: [
         {
-          name: "mac.zip",
-          browser_download_url: "mac.zip",
+          name: "app-mac.zip",
+          browser_download_url: "app-mac.zip",
         },
         {
-          name: "mac-arm64.zip",
-          browser_download_url: "mac-arm64.zip",
+          name: "app-mac-arm64.zip",
+          browser_download_url: "app-mac-arm64.zip",
         },
         {
           name: "electron-fiddle-1.0.0-win32-x64-setup.exe",
@@ -243,7 +284,7 @@ test("Updates", async (t) => {
         const body = await res.json();
         t.same(body, {
           name: "name",
-          url: "mac.zip",
+          url: "app-mac.zip",
           notes: "notes",
         });
       }
@@ -309,32 +350,44 @@ test("Updates", async (t) => {
           let res = await fetch(`${address}/owner/repo/darwin-x64/0.0.0`);
           t.equal(res.status, 200);
           let body = await res.json();
-          t.equal(body.url, "mac.zip");
+          t.equal(body.url, "app-mac.zip");
 
           res = await fetch(`${address}/owner/repo/darwin-arm64/0.0.0`);
           t.equal(res.status, 200);
           body = await res.json();
-          t.equal(body.url, "mac-arm64.zip");
+          t.equal(body.url, "app-mac-arm64.zip");
 
           res = await fetch(`${address}/owner/repo/darwin/0.0.0`);
           t.equal(res.status, 200);
           body = await res.json();
-          t.equal(body.url, "mac.zip");
+          t.equal(body.url, "app-mac.zip");
+
+          res = await fetch(`${address}/owner/repo/darwin-universal/0.0.0`);
+          t.equal(res.status, 200);
+          body = await res.json();
+          t.equal(body.url, "app-universal-mac.zip");
 
           res = await fetch(`${address}/owner/repo-darwin/darwin-x64/0.0.0`);
           t.equal(res.status, 200);
           body = await res.json();
-          t.match(body.url, "darwin.zip");
+          t.match(body.url, "app-darwin.zip");
 
           res = await fetch(`${address}/owner/repo-darwin/darwin-arm64/0.0.0`);
           t.equal(res.status, 200);
           body = await res.json();
-          t.match(body.url, "darwin-arm64.zip");
+          t.match(body.url, "app-darwin-arm64.zip");
 
           res = await fetch(`${address}/owner/repo-darwin/darwin/0.0.0`);
           t.equal(res.status, 200);
           body = await res.json();
-          t.match(body.url, "darwin.zip");
+          t.match(body.url, "app-darwin.zip");
+
+          res = await fetch(
+            `${address}/owner/repo-darwin/darwin-universal/0.0.0`
+          );
+          t.equal(res.status, 200);
+          body = await res.json();
+          t.match(body.url, "app-universal-mac.zip");
         }
       });
 
@@ -346,7 +399,7 @@ test("Updates", async (t) => {
         let body = await res.text();
         t.equal(
           body,
-          "No updates found (needs asset matching *(mac|darwin|osx).*(-arm).*.zip in public repository)"
+          "No updates found (needs asset matching .*-(mac|darwin|osx).*.zip in public repository)"
         );
 
         res = await fetch(`${address}/owner/repo-win32-zip/darwin/0.0.0`);
@@ -354,7 +407,33 @@ test("Updates", async (t) => {
         body = await res.text();
         t.equal(
           body,
-          "No updates found (needs asset matching *(mac|darwin|osx).*(-arm).*.zip in public repository)"
+          "No updates found (needs asset matching .*-(mac|darwin|osx).*.zip in public repository)"
+        );
+      });
+
+      await t.test("darwin universal assets", async (t) => {
+        await t.test(
+          "use universal asset if platform-specific asset not available",
+          async (t) => {
+            let res = await fetch(
+              `${address}/owner/repo-universal/darwin-x64/0.0.0`
+            );
+            t.equal(res.status, 200);
+            let body = await res.json();
+            t.match(body.url, "app-universal-mac.zip");
+          }
+        );
+
+        await t.test(
+          "skip universal asset if platform-specific asset available",
+          async (t) => {
+            let res = await fetch(
+              `${address}/owner/repo-universal/darwin-arm64/0.0.0`
+            );
+            t.equal(res.status, 200);
+            let body = await res.json();
+            t.match(body.url, "app-arm64-mac.zip");
+          }
         );
       });
     });
@@ -491,7 +570,7 @@ test("Updates", async (t) => {
         const body = await res.text();
         t.equal(
           body,
-          'Unsupported platform: "linux". Supported: darwin-x64, darwin-arm64, win32-x64, win32-ia32, win32-arm64.'
+          'Unsupported platform: "linux". Supported: darwin-x64, darwin-arm64, darwin-universal, win32-x64, win32-ia32, win32-arm64.'
         );
       });
     });
@@ -503,7 +582,7 @@ test("Updates", async (t) => {
         const body = await res.text();
         t.equal(
           body,
-          'Unsupported platform: "os". Supported: darwin-x64, darwin-arm64, win32-x64, win32-ia32, win32-arm64.'
+          'Unsupported platform: "os". Supported: darwin-x64, darwin-arm64, darwin-universal, win32-x64, win32-ia32, win32-arm64.'
         );
       });
     });

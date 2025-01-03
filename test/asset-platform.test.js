@@ -44,6 +44,34 @@ test("assetPlatform() matches the right platform", (t) => {
       name: "Electron.Fiddle-darwin-x64-0.27.3.zip",
       platform: PLATFORM_ARCH.DARWIN_X64,
     },
+    {
+      name: "Electron-Builder-1.2.3-mac.zip",
+      platform: PLATFORM_ARCH.DARWIN_X64,
+    },
+    {
+      name: "Electron-Builder-1.2.3-universal-mac.zip",
+      platform: PLATFORM_ARCH.DARWIN_UNIVERSAL,
+    },
+    {
+      name: "Electron-Builder-1.2.3-arm64-mac.zip",
+      platform: PLATFORM_ARCH.DARWIN_ARM64,
+    },
+    {
+      name: "Electron.Builder-1.2.3-mac.zip.blockmap",
+      platform: false,
+    },
+    {
+      name: "mac.zip",
+      platform: false,
+    },
+    {
+      name: "darwin.zip",
+      platform: false,
+    },
+    {
+      name: "osx.zip",
+      platform: false,
+    },
   ];
 
   for (const release of releases) {
