@@ -558,7 +558,7 @@ test("Updates", async (t) => {
         const body = await res.text();
         t.equal(
           body,
-          "No updates found (needs asset containing win32-{x64,ia32,arm64} or .exe in public repository)"
+          "No updates found (needs asset containing .*-win32-(x64|ia32|arm64) or .exe in public repository)"
         );
       });
     });

@@ -21,6 +21,18 @@ test("assetPlatform() matches the right platform", (t) => {
       name: "electron-fiddle-0.27.3-win32-x64-setup.exe",
       platform: PLATFORM_ARCH.WIN_X64,
     },
+    {
+      name: "win32.exe",
+      platform: PLATFORM_ARCH.WIN_X64,
+    },
+    {
+      name: "win32-arm64.exe",
+      platform: false,
+    },
+    {
+      name: "win32-ia32.exe",
+      platform: false,
+    },
     { name: "electron-fiddle_0.27.3_amd64.deb", platform: false },
     { name: "electron-fiddle_0.27.3_arm64.deb", platform: false },
     { name: "electron-fiddle_0.27.3_armhf.deb", platform: false },
