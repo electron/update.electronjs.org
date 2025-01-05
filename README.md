@@ -76,6 +76,44 @@ publish.
 ### `/:owner/:repo/:platform/:version`
 ### `/:owner/:repo/win32/:version/RELEASES`
 
+## Asset Naming Convention
+
+This project supports specific naming conventions for assets in GitHub Releases. 
+
+The following patterns are used to identify platform-specific files:
+
+### macOS Assets
+- Asset must be a `.zip` file.
+- Asset name must include one of the following identifiers: `-mac`, `-darwin`, or `-osx`.
+- Asset name may specify the specific architecture type:
+  - `-arm64` for Apple Silicon.
+  - `-universal` for Universal binaries.
+- Otherwise, will default as Intel-based macOS.
+
+**Example asset names:**
+- `app-mac-arm64.zip`
+- `app-darwin-universal.zip`
+- `app-osx-x64.zip`
+
+### Windows Assets
+- Asset must be a `.zip` file.
+- Asset name must include `-win32` followed by the architecture:
+  - `-ia32` for 32-bit Windows.
+  - `-x64` for 64-bit Windows.
+  - `-arm64` for ARM-based Windows.
+
+**Example asset names:**
+- `app-win32-ia32.zip`
+- `app-win32-x64.zip`
+- `app-win32-arm64.zip`
+
+#### Special Cases
+- `.exe` files without specific architecture tags are assumed to be `-x64` by default.
+
+**Example asset names:**
+- `app-installer.exe` (treated as `-x64`).
+
+  
 ## Development
 
 You'll first need to have a running Redis server. There are two options:
