@@ -78,34 +78,46 @@ publish.
 
 ## Asset Naming Convention
 
-This project supports specific naming conventions for assets in GitHub Releases. 
+This project supports specific naming conventions for GitHub Releases assets. 
 
-The following patterns are used to identify platform-specific files:
+The following heuristics are used to identify update availability for a specific platform and architecture:
 
 ### macOS Assets
 - Asset must be a `.zip` file.
-- Asset name must include one of the following identifiers: `-mac`, `-darwin`, or `-osx`.
-- Asset name may specify the specific architecture type:
+- Asset name must include one of the following platform identifiers: `-mac`, `-darwin`, or `-osx`.
+- Asset name may specify the architecture (if not specified, will default to `-x64`):
   - `-arm64` for Apple Silicon.
-  - `-universal` for Universal binaries.
-- Otherwise, will default as Intel-based macOS.
+  - `-x64` for Intel-based macOS.
+  -  `-universal` for Universal binaries.
+
 
 **Example asset names:**
+- `app-mac-arm64-0.0.1.zip
 - `app-mac-arm64.zip`
-- `app-darwin-universal.zip`
+- `app-0.0.1-osx-x64.zip`
 - `app-osx-x64.zip`
+- `app-darwin-universal.zip`
+- `app-mac.zip` (no architecture specified - treated as `-x64`) 
 
 ### Windows Assets
-- Asset must be a `.zip` file.
-- Asset name must include `-win32` followed by the architecture:
+- Asset must be a `.zip` or `.exe` file.
+- Asset name must include the `-win32` platform identifier.
+- Asset name may specify the architecture (if not specified, will default to `x64`):
   - `-ia32` for 32-bit Windows.
   - `-x64` for 64-bit Windows.
   - `-arm64` for ARM-based Windows.
+- `.exe` files without specific architecture tags or the `-win32` platform identifier are assumed to be `-x64` by default.  
 
 **Example asset names:**
+- `app-win32-ia32-0.0.1.zip`
 - `app-win32-ia32.zip`
+- `app-0.0.1-win32-x64.zip`
 - `app-win32-x64.zip`
 - `app-win32-arm64.zip`
+- `app-win32-arm64.exe`  
+- `app-win32-arm64-v1.2.3.exe`  
+- `app-win32.exe` (no architecture specified - treated as `-x64`)  
+- `app-installer.exe` (generic `.exe` file with no architecture or platform identifier specified - treated as `-x64`) 
 
 #### Special Cases
 - `.exe` files without specific architecture tags are assumed to be `-x64` by default.
@@ -113,7 +125,6 @@ The following patterns are used to identify platform-specific files:
 **Example asset names:**
 - `app-installer.exe` (treated as `-x64`).
 
-  
 ## Development
 
 You'll first need to have a running Redis server. There are two options:
