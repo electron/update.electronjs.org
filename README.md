@@ -76,8 +76,8 @@ publish.
 The following API endpoints are available:
 
 - `/:owner/:repo/:platform/:version`
-- `/:owner/:repo/:platform-arch/:version`
-- `/:owner/:repo/win32/:version/RELEASES`
+- `/:owner/:repo/:platform-:arch/:version`
+- `/:owner/:repo/:platform/:version/RELEASES`
 
 These API endpoints support the query path arguments as defined below:
 - `:owner` - GitHub repository owner (organization or user)
@@ -85,9 +85,9 @@ These API endpoints support the query path arguments as defined below:
 - `:platform` - Platform type
   - Windows: `win32`
   - macOS: `darwin`
-- `:platform-arch` - Platform + architecture type
-  - Windows: `win32-x64`, `win32-ia32`, `win32-arm64`
-  - macOS: `darwin-x64`, `darwin-arm64`, `darwin-universal`
+- `:arch` - Architecture type
+  - Windows: `x64`, `ia32`, `arm64`
+  - macOS: `x64`, `arm64`, `universal`
 - `:version` - Sematic version (semver) compatible application version number
   
 
