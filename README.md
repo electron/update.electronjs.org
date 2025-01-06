@@ -89,8 +89,6 @@ The following heuristics are used to identify update availability for a specific
   - `-arm64` for Apple Silicon.
   - `-x64` for Intel-based macOS.
   -  `-universal` for Universal binaries.
-
-
 **Example asset names:**
 - `app-mac-arm64-0.0.1.zip`
 - `app-mac-arm64.zip`
