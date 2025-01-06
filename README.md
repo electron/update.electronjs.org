@@ -73,8 +73,23 @@ publish.
 
 ## Routes
 
-### `/:owner/:repo/:platform/:version`
-### `/:owner/:repo/win32/:version/RELEASES`
+The following API endpoints are available:
+
+- `/:owner/:repo/:platform/:version`
+- `/:owner/:repo/:platform-:arch/:version`
+- `/:owner/:repo/:platform/:version/RELEASES`
+
+These API endpoints support the query path arguments as defined below:
+- `:owner` - GitHub repository owner (organization or user)
+- `:repo` - GitHub repository name
+- `:platform` - Platform type
+  - Windows: `win32`
+  - macOS: `darwin`
+- `:arch` - Architecture type
+  - Windows: `x64`, `ia32`, `arm64`
+  - macOS: `x64`, `arm64`, `universal`
+- `:version` - Semantic Versioning (SemVer) compatible application version number
+  
 
 ## Development
 
