@@ -119,12 +119,6 @@ The following heuristics are used to identify update availability for a specific
 - `app-win32.exe` (no architecture specified - treated as `-x64`)  
 - `app-installer.exe` (generic `.exe` file with no architecture or platform identifier specified - treated as `-x64`) 
 
-#### Special Cases
-- `.exe` files without specific architecture tags are assumed to be `-x64` by default.
-
-**Example asset names:**
-- `app-installer.exe` (treated as `-x64`).
-
 ## Development
 
 You'll first need to have a running Redis server. There are two options:
