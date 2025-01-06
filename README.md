@@ -102,7 +102,7 @@ The following heuristics are used to identify update availability for a specific
 ### Windows Assets
 - Asset must be a `.zip` or `.exe` file.
 - Asset name must include the `-win32` platform identifier.
-- Asset name may specify the architecture (if not specified, will default to `x64`):
+- Asset name may specify the architecture (if not specified, will default to `-x64`):
   - `-ia32` for 32-bit Windows.
   - `-x64` for 64-bit Windows.
   - `-arm64` for ARM-based Windows.
