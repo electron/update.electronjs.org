@@ -92,7 +92,7 @@ The following heuristics are used to identify update availability for a specific
 
 
 **Example asset names:**
-- `app-mac-arm64-0.0.1.zip
+- `app-mac-arm64-0.0.1.zip`
 - `app-mac-arm64.zip`
 - `app-0.0.1-osx-x64.zip`
 - `app-osx-x64.zip`
