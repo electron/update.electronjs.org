@@ -88,7 +88,7 @@ These API endpoints support the query path arguments as defined below:
 - `:arch` - Architecture type
   - Windows: `x64`, `ia32`, `arm64`
   - macOS: `x64`, `arm64`, `universal`
-- `:version` - Sematic version (semver) compatible application version number
+- `:version` - Semantic Versioning (SemVer) compatible application version number
   
 
 ## Development
