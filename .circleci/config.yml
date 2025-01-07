@@ -8,4 +8,4 @@ workflows:
     jobs:
       - node/test:
           executor: node/linux
-          node-version: "18.16"
+          node-version: "22.12"
