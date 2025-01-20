@@ -2,7 +2,7 @@
 
 > A free service that makes it easy for open-source Electron apps to update themselves.
 
-[![CircleCI build status](https://circleci.com/gh/electron/update.electronjs.org/tree/main.svg?style=shield)](https://circleci.com/gh/electron/update.electronjs.org/tree/main)
+[![Test](https://github.com/electron/update.electronjs.org/actions/workflows/test.yml/badge.svg)](https://github.com/electron/update.electronjs.org/actions/workflows/test.yml)
 
 ## Requirements
 
