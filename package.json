@@ -6,7 +6,10 @@
     "start-test-server": "cross-env NODE_ENV=test nodemon bin/test-update-server.js",
     "lint": "prettier --check '**/*.js'",
     "prettier": "prettier --write '**/*.js'",
-    "test": "npm run lint && cross-env NODE_ENV=test nyc tap test/*.js"
+    "test": "npm run lint && cross-env NODE_ENV=test vitest run",
+    "test:watch": "cross-env NODE_ENV=test vitest watch",
+    "test:ui": "cross-env NODE_ENV=test vitest --ui",
+    "test:coverage": "cross-env NODE_ENV=test vitest run --coverage"
   },
   "dependencies": {
     "dotenv-safe": "^8.2.0",

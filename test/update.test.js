@@ -1,7 +1,6 @@
 "use strict";
 
 const nock = require("nock");
-const { test, teardown } = require("tap");
 const Updates = require("../src/updates");
 const { createServer } = require("./helpers/create-server");
 
@@ -268,21 +267,33 @@ nock("https://github.com")
   .times(3)
   .reply(404);
 
-test("Updates", async (t) => {
-  const { server, address } = await createServer();
+describe("Updates", () => {
+  let server, address;
 
-  await t.test("Routes", async (t) => {
-    const res = await fetch(`${address}/`);
-    void res.text();
-    t.equal(res.status, 200);
+  beforeAll(async () => {
+    const result = await createServer();
+    server = result.server;
+    address = result.address;
+  });
 
-    await t.test("exists and has update", async (t) => {
+  afterAll(() => {
+    server.close();
+  });
+
+  describe("Routes", () => {
+    it("handles root path", async () => {
+      const res = await fetch(`${address}/`);
+      void res.text();
+      expect(res.status).toBe(200);
+    });
+
+    it("exists and has update", async () => {
       for (let i = 0; i < 2; i++) {
         const res = await fetch(`${address}/owner/repo/darwin/0.0.0`);
-        t.equal(res.status, 200);
+        expect(res.status).toBe(200);
 
         const body = await res.json();
-        t.same(body, {
+        expect(body).toEqual({
           name: "name",
           url: "app-mac.zip",
           notes: "notes",
@@ -290,222 +301,213 @@ test("Updates", async (t) => {
       }
     });
 
-    await t.test("exists but no updates", async (t) => {
+    it("exists but no updates", async () => {
       for (let i = 0; i < 2; i++) {
         const res = await fetch(`${address}/owner/repo/darwin/1.0.0`);
-        t.equal(res.status, 204);
+        expect(res.status).toBe(204);
       }
     });
 
-    await t.test("parses semver with optional leading v", async (t) => {
+    it("parses semver with optional leading v", async () => {
       for (let i = 0; i < 2; i++) {
         const res = await fetch(`${address}/owner/repo/darwin/v1.0.0`);
-        t.equal(res.status, 204);
+        expect(res.status).toBe(204);
       }
       for (let i = 0; i < 2; i++) {
         const res = await fetch(`${address}/owner/repo-with-v/darwin/1.0.0`);
-        t.equal(res.status, 204);
+        expect(res.status).toBe(204);
       }
       for (let i = 0; i < 2; i++) {
         const res = await fetch(`${address}/owner/repo-with-v/darwin/v1.0.0`);
-        t.equal(res.status, 204);
+        expect(res.status).toBe(204);
       }
     });
 
-    await t.test("invalid semver in request", async (t) => {
+    it("invalid semver in request", async () => {
       const res = await fetch(`${address}/owner/repo/darwin/latest`);
-      t.equal(res.status, 400);
+      expect(res.status).toBe(400);
       const body = await res.text();
-      t.equal(body, 'Invalid SemVer: "latest"');
+      expect(body).toBe('Invalid SemVer: "latest"');
     });
 
-    await t.test("invalid semver in release", async (t) => {
+    it("invalid semver in release", async () => {
       const res = await fetch(
         `${address}/owner/repo-invalid-semver/darwin/0.0.0`
       );
-      t.equal(res.status, 404);
+      expect(res.status).toBe(404);
     });
 
-    await t.test("exists but has no releases", async (t) => {
+    it("exists but has no releases", async () => {
       for (let i = 0; i < 2; i++) {
         const res = await fetch(
           `${address}/owner/repo-without-releases/darwin/0.0.0`
         );
-        t.equal(res.status, 404);
+        expect(res.status).toBe(404);
       }
     });
 
-    await t.test("doesn't exist", async (t) => {
+    it("doesn't exist", async () => {
       for (let i = 0; i < 2; i++) {
         const res = await fetch(`${address}/owner/not-exist/darwin/0.0.0`);
-        t.equal(res.status, 404);
+        expect(res.status).toBe(404);
       }
     });
   });
 
-  await t.test("Platforms", async (t) => {
-    await t.test("Darwin", async (t) => {
-      await t.test(".zip", async (t) => {
+  describe("Platforms", () => {
+    describe("Darwin", () => {
+      it(".zip", async () => {
         for (let i = 0; i < 2; i++) {
           let res = await fetch(`${address}/owner/repo/darwin-x64/0.0.0`);
-          t.equal(res.status, 200);
+          expect(res.status).toBe(200);
           let body = await res.json();
-          t.equal(body.url, "app-mac.zip");
+          expect(body.url).toBe("app-mac.zip");
 
           res = await fetch(`${address}/owner/repo/darwin-arm64/0.0.0`);
-          t.equal(res.status, 200);
+          expect(res.status).toBe(200);
           body = await res.json();
-          t.equal(body.url, "app-mac-arm64.zip");
+          expect(body.url).toBe("app-mac-arm64.zip");
 
           res = await fetch(`${address}/owner/repo/darwin/0.0.0`);
-          t.equal(res.status, 200);
+          expect(res.status).toBe(200);
           body = await res.json();
-          t.equal(body.url, "app-mac.zip");
+          expect(body.url).toBe("app-mac.zip");
 
           res = await fetch(`${address}/owner/repo/darwin-universal/0.0.0`);
-          t.equal(res.status, 200);
+          expect(res.status).toBe(200);
           body = await res.json();
-          t.equal(body.url, "app-universal-mac.zip");
+          expect(body.url).toBe("app-universal-mac.zip");
 
           res = await fetch(`${address}/owner/repo-darwin/darwin-x64/0.0.0`);
-          t.equal(res.status, 200);
+          expect(res.status).toBe(200);
           body = await res.json();
-          t.match(body.url, "app-darwin.zip");
+          expect(body.url).toMatch("app-darwin.zip");
 
           res = await fetch(`${address}/owner/repo-darwin/darwin-arm64/0.0.0`);
-          t.equal(res.status, 200);
+          expect(res.status).toBe(200);
           body = await res.json();
-          t.match(body.url, "app-darwin-arm64.zip");
+          expect(body.url).toMatch("app-darwin-arm64.zip");
 
           res = await fetch(`${address}/owner/repo-darwin/darwin/0.0.0`);
-          t.equal(res.status, 200);
+          expect(res.status).toBe(200);
           body = await res.json();
-          t.match(body.url, "app-darwin.zip");
+          expect(body.url).toMatch("app-darwin.zip");
 
           res = await fetch(
             `${address}/owner/repo-darwin/darwin-universal/0.0.0`
           );
-          t.equal(res.status, 200);
+          expect(res.status).toBe(200);
           body = await res.json();
-          t.match(body.url, "app-universal-mac.zip");
+          expect(body.url).toMatch("app-universal-mac.zip");
         }
       });
 
-      await t.test("missing asset", async (t) => {
+      it("missing asset", async () => {
         let res = await fetch(
           `${address}/owner/repo-win32-zip/darwin-x64/0.0.0`
         );
-        t.equal(res.status, 404);
+        expect(res.status).toBe(404);
         let body = await res.text();
-        t.equal(
-          body,
+        expect(body).toBe(
           "No updates found (needs asset matching .*-(mac|darwin|osx).*.zip in public repository)"
         );
 
         res = await fetch(`${address}/owner/repo-win32-zip/darwin/0.0.0`);
-        t.equal(res.status, 404);
+        expect(res.status).toBe(404);
         body = await res.text();
-        t.equal(
-          body,
+        expect(body).toBe(
           "No updates found (needs asset matching .*-(mac|darwin|osx).*.zip in public repository)"
         );
       });
 
-      await t.test("darwin universal assets", async (t) => {
-        await t.test(
-          "use universal asset if platform-specific asset not available",
-          async (t) => {
-            let res = await fetch(
-              `${address}/owner/repo-universal/darwin-x64/0.0.0`
-            );
-            t.equal(res.status, 200);
-            let body = await res.json();
-            t.match(body.url, "app-universal-mac.zip");
-          }
-        );
+      describe("darwin universal assets", () => {
+        it("use universal asset if platform-specific asset not available", async () => {
+          let res = await fetch(
+            `${address}/owner/repo-universal/darwin-x64/0.0.0`
+          );
+          expect(res.status).toBe(200);
+          let body = await res.json();
+          expect(body.url).toMatch("app-universal-mac.zip");
+        });
 
-        await t.test(
-          "skip universal asset if platform-specific asset available",
-          async (t) => {
-            let res = await fetch(
-              `${address}/owner/repo-universal/darwin-arm64/0.0.0`
-            );
-            t.equal(res.status, 200);
-            let body = await res.json();
-            t.match(body.url, "app-arm64-mac.zip");
-          }
-        );
+        it("skip universal asset if platform-specific asset available", async () => {
+          let res = await fetch(
+            `${address}/owner/repo-universal/darwin-arm64/0.0.0`
+          );
+          expect(res.status).toBe(200);
+          let body = await res.json();
+          expect(body.url).toMatch("app-arm64-mac.zip");
+        });
       });
     });
 
-    await t.test("Win32", async (t) => {
-      await t.test(".exe", async (t) => {
+    describe("Win32", () => {
+      it(".exe", async () => {
         for (let i = 0; i < 2; i++) {
           const res = await fetch(`${address}/owner/repo/win32/0.0.0`);
-          t.equal(res.status, 200);
+          expect(res.status).toBe(200);
           const body = await res.json();
-          t.equal(body.url, "electron-fiddle-1.0.0-win32-x64-setup.exe");
-          t.ok(body.name);
+          expect(body.url).toBe("electron-fiddle-1.0.0-win32-x64-setup.exe");
+          expect(body.name).toBeTruthy();
         }
       });
 
-      await t.test("win32-x64", async (t) => {
+      it("win32-x64", async () => {
         for (let i = 0; i < 2; i++) {
           const res = await fetch(
             `${address}/owner/repo-win32-zip/win32-x64/0.0.0`
           );
 
-          t.equal(res.status, 200);
+          expect(res.status).toBe(200);
           const body = await res.json();
-          t.equal(body.url, "electron-fiddle-1.0.0-win32-x64-setup.exe");
-          t.ok(body.name);
+          expect(body.url).toBe("electron-fiddle-1.0.0-win32-x64-setup.exe");
+          expect(body.name).toBeTruthy();
         }
 
         for (let i = 0; i < 2; i++) {
           const res = await fetch(
             `${address}/owner/repo-win32-zip/win32/0.0.0`
           );
-          t.equal(res.status, 200);
+          expect(res.status).toBe(200);
           const body = await res.json();
-          t.equal(body.url, "electron-fiddle-1.0.0-win32-x64-setup.exe");
-          t.ok(body.name);
+          expect(body.url).toBe("electron-fiddle-1.0.0-win32-x64-setup.exe");
+          expect(body.name).toBeTruthy();
         }
       });
 
-      await t.test("win32-arm64", async (t) => {
+      it("win32-arm64", async () => {
         for (let i = 0; i < 2; i++) {
           const res = await fetch(
             `${address}/owner/repo-win32-zip/win32-arm64/0.0.0`
           );
-          t.equal(res.status, 200);
+          expect(res.status).toBe(200);
           const body = await res.json();
-          t.equal(body.url, "electron-fiddle-1.0.0-win32-arm64-setup.exe");
-          t.ok(body.name);
+          expect(body.url).toBe("electron-fiddle-1.0.0-win32-arm64-setup.exe");
+          expect(body.name).toBeTruthy();
         }
       });
 
-      await t.test("win32-ia32", async (t) => {
+      it("win32-ia32", async () => {
         for (let i = 0; i < 2; i++) {
           const res = await fetch(
             `${address}/owner/repo-win32-zip/win32-ia32/0.0.0`
           );
-          t.equal(res.status, 200);
+          expect(res.status).toBe(200);
           const body = await res.json();
-          t.equal(body.url, "electron-fiddle-1.0.0-win32-ia32-setup.exe");
-          t.ok(body.name);
+          expect(body.url).toBe("electron-fiddle-1.0.0-win32-ia32-setup.exe");
+          expect(body.name).toBeTruthy();
         }
       });
 
-      await t.test("RELEASES", async (t) => {
-        await t.test("win32-x64", async (t) => {
+      describe("RELEASES", () => {
+        it("win32-x64", async () => {
           for (let i = 0; i < 2; i++) {
             const res = await fetch(
               `${address}/owner/repo/win32-x64/0.0.0/RELEASES?some-extra`
             );
-            t.equal(res.status, 200);
+            expect(res.status).toBe(200);
             const body = await res.text();
-            t.match(
-              body,
+            expect(body).toMatch(
               /^[^ ]+ https:\/\/github.com\/owner\/repo\/releases\/download\/[^/]+\/name.nupkg [^ ]+$/
             );
           }
@@ -514,99 +516,102 @@ test("Updates", async (t) => {
             const res = await fetch(
               `${address}/owner/repo/win32/0.0.0/RELEASES?some-extra`
             );
-            t.equal(res.status, 200);
+            expect(res.status).toBe(200);
             const body = await res.text();
-            t.match(
-              body,
+            expect(body).toMatch(
               /^[^ ]+ https:\/\/github.com\/owner\/repo\/releases\/download\/[^/]+\/name.nupkg [^ ]+$/
             );
           }
         });
 
-        await t.test("win32-ia32", async (t) => {
+        it("win32-ia32", async () => {
           for (let i = 0; i < 2; i++) {
             const res = await fetch(
               `${address}/owner/repo/win32-ia32/0.0.0/RELEASES?some-extra`
             );
-            t.equal(res.status, 200);
+            expect(res.status).toBe(200);
             const body = await res.text();
-            t.match(
-              body,
+            expect(body).toMatch(
               /^[^ ]+ https:\/\/github.com\/owner\/repo\/releases\/download\/[^/]+\/name.nupkg [^ ]+$/
             );
           }
         });
 
-        for (let i = 0; i < 2; i++) {
-          const res = await fetch(
-            `${address}/owner/repo-no-releases/win32-x64/0.0.0/RELEASES`
-          );
-          t.equal(res.status, 404);
-        }
+        it("handles missing RELEASES files", async () => {
+          for (let i = 0; i < 2; i++) {
+            const res = await fetch(
+              `${address}/owner/repo-no-releases/win32-x64/0.0.0/RELEASES`
+            );
+            expect(res.status).toBe(404);
+          }
 
-        for (let i = 0; i < 2; i++) {
-          const res = await fetch(
-            `${address}/owner/repo-no-releases/win32/0.0.0/RELEASES`
-          );
-          t.equal(res.status, 404);
-        }
+          for (let i = 0; i < 2; i++) {
+            const res = await fetch(
+              `${address}/owner/repo-no-releases/win32/0.0.0/RELEASES`
+            );
+            expect(res.status).toBe(404);
+          }
+        });
       });
 
-      await t.test("missing asset", async (t) => {
+      it("missing asset", async () => {
         const res = await fetch(`${address}/owner/repo-darwin/win32/0.0.0`);
-        t.equal(res.status, 404);
+        expect(res.status).toBe(404);
         const body = await res.text();
-        t.equal(
-          body,
+        expect(body).toBe(
           "No updates found (needs asset containing .*-win32-(x64|ia32|arm64) or .exe in public repository)"
         );
       });
     });
 
-    await t.test("Linux", async (t) => {
-      await t.test("not supported", async (t) => {
+    describe("Linux", () => {
+      it("not supported", async () => {
         const res = await fetch(`${address}/owner/repo/linux/0.0.0`);
-        t.equal(res.status, 404);
+        expect(res.status).toBe(404);
         const body = await res.text();
-        t.equal(
-          body,
+        expect(body).toBe(
           'Unsupported platform: "linux". Supported: darwin-x64, darwin-arm64, darwin-universal, win32-x64, win32-ia32, win32-arm64.'
         );
       });
     });
 
-    await t.test("Others", async (t) => {
-      await t.test("not supported", async (t) => {
+    describe("Others", () => {
+      it("not supported", async () => {
         const res = await fetch(`${address}/owner/repo/os/0.0.0`);
-        t.equal(res.status, 404);
+        expect(res.status).toBe(404);
         const body = await res.text();
-        t.equal(
-          body,
+        expect(body).toBe(
           'Unsupported platform: "os". Supported: darwin-x64, darwin-arm64, darwin-universal, win32-x64, win32-ia32, win32-arm64.'
         );
       });
     });
   });
-
-  teardown(() => {
-    server.close();
-  });
 });
 
-test("electron/fiddle", async (t) => {
-  const { server, address } = await createServer();
+describe("electron/fiddle", () => {
+  let server, address;
 
-  await t.test("first updates to v0.35.1", async (t) => {
-    await t.test("on macOS", async (t) => {
+  beforeAll(async () => {
+    const result = await createServer();
+    server = result.server;
+    address = result.address;
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
+  describe("first updates to v0.35.1", () => {
+    it("on macOS", async () => {
       for (const platform of ["darwin", "darwin-x64", "darwin-arm64"]) {
         for (let i = 0; i < 2; i++) {
           const res = await fetch(
             `${address}/electron/fiddle/${platform}/0.34.0`
           );
-          t.equal(res.status, 200);
+          expect(res.status).toBe(200);
 
           const body = await res.json();
-          t.match(body, {
+          expect(body).toMatchObject({
             name: "v0.35.1",
             notes: "notes",
           });
@@ -614,7 +619,7 @@ test("electron/fiddle", async (t) => {
       }
     });
 
-    await t.test("not on Windows", async (t) => {
+    it("not on Windows", async () => {
       for (const platform of [
         "win32",
         "win32-x64",
@@ -625,10 +630,10 @@ test("electron/fiddle", async (t) => {
           const res = await fetch(
             `${address}/electron/fiddle/${platform}/0.34.0`
           );
-          t.equal(res.status, 200);
+          expect(res.status).toBe(200);
 
           const body = await res.json();
-          t.match(body, {
+          expect(body).toMatchObject({
             name: "v0.36.0",
             notes: "notes",
           });
@@ -637,17 +642,17 @@ test("electron/fiddle", async (t) => {
     });
   });
 
-  await t.test("updates to latest", async (t) => {
-    await t.test("on macOS", async (t) => {
+  describe("updates to latest", () => {
+    it("on macOS", async () => {
       for (const platform of ["darwin", "darwin-x64", "darwin-arm64"]) {
         for (let i = 0; i < 2; i++) {
           const res = await fetch(
             `${address}/electron/fiddle/${platform}/0.35.1`
           );
-          t.equal(res.status, 200);
+          expect(res.status).toBe(200);
 
           const body = await res.json();
-          t.match(body, {
+          expect(body).toMatchObject({
             name: "v0.36.0",
             notes: "notes",
           });
@@ -655,7 +660,7 @@ test("electron/fiddle", async (t) => {
       }
     });
 
-    await t.test("on Windows", async (t) => {
+    it("on Windows", async () => {
       for (const platform of [
         "win32",
         "win32-x64",
@@ -666,19 +671,15 @@ test("electron/fiddle", async (t) => {
           const res = await fetch(
             `${address}/electron/fiddle/${platform}/0.35.1`
           );
-          t.equal(res.status, 200);
+          expect(res.status).toBe(200);
 
           const body = await res.json();
-          t.match(body, {
+          expect(body).toMatchObject({
             name: "v0.36.0",
             notes: "notes",
           });
         }
       }
     });
-  });
-
-  teardown(() => {
-    server.close();
   });
 });
