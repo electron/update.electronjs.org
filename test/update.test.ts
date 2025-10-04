@@ -1,8 +1,7 @@
-"use strict";
-
-const nock = require("nock");
-const Updates = require("../src/updates");
-const { createServer } = require("./helpers/create-server");
+import http from "node:http";
+import nock from "nock";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { createServer } from "./helpers/create-server.js";
 
 nock.disableNetConnect();
 nock.enableNetConnect("localhost");
@@ -268,7 +267,8 @@ nock("https://github.com")
   .reply(404);
 
 describe("Updates", () => {
-  let server, address;
+  let server: http.Server;
+  let address: string;
 
   beforeAll(async () => {
     const result = await createServer();
@@ -360,7 +360,7 @@ describe("Updates", () => {
         for (let i = 0; i < 2; i++) {
           let res = await fetch(`${address}/owner/repo/darwin-x64/0.0.0`);
           expect(res.status).toBe(200);
-          let body = await res.json();
+          let body = (await res.json()) as any;
           expect(body.url).toBe("app-mac.zip");
 
           res = await fetch(`${address}/owner/repo/darwin-arm64/0.0.0`);
@@ -422,20 +422,20 @@ describe("Updates", () => {
 
       describe("darwin universal assets", () => {
         it("use universal asset if platform-specific asset not available", async () => {
-          let res = await fetch(
+          const res = await fetch(
             `${address}/owner/repo-universal/darwin-x64/0.0.0`
           );
           expect(res.status).toBe(200);
-          let body = await res.json();
+          const body = (await res.json()) as any;
           expect(body.url).toMatch("app-universal-mac.zip");
         });
 
         it("skip universal asset if platform-specific asset available", async () => {
-          let res = await fetch(
+          const res = await fetch(
             `${address}/owner/repo-universal/darwin-arm64/0.0.0`
           );
           expect(res.status).toBe(200);
-          let body = await res.json();
+          const body = (await res.json()) as any;
           expect(body.url).toMatch("app-arm64-mac.zip");
         });
       });
@@ -446,7 +446,7 @@ describe("Updates", () => {
         for (let i = 0; i < 2; i++) {
           const res = await fetch(`${address}/owner/repo/win32/0.0.0`);
           expect(res.status).toBe(200);
-          const body = await res.json();
+          const body = (await res.json()) as any;
           expect(body.url).toBe("electron-fiddle-1.0.0-win32-x64-setup.exe");
           expect(body.name).toBeTruthy();
         }
@@ -454,12 +454,12 @@ describe("Updates", () => {
 
       it("win32-x64", async () => {
         for (let i = 0; i < 2; i++) {
-          const res = await fetch(
+          let res = await fetch(
             `${address}/owner/repo-win32-zip/win32-x64/0.0.0`
           );
 
           expect(res.status).toBe(200);
-          const body = await res.json();
+          let body = (await res.json()) as any;
           expect(body.url).toBe("electron-fiddle-1.0.0-win32-x64-setup.exe");
           expect(body.name).toBeTruthy();
         }
@@ -469,7 +469,7 @@ describe("Updates", () => {
             `${address}/owner/repo-win32-zip/win32/0.0.0`
           );
           expect(res.status).toBe(200);
-          const body = await res.json();
+          const body = (await res.json()) as any;
           expect(body.url).toBe("electron-fiddle-1.0.0-win32-x64-setup.exe");
           expect(body.name).toBeTruthy();
         }
@@ -481,7 +481,7 @@ describe("Updates", () => {
             `${address}/owner/repo-win32-zip/win32-arm64/0.0.0`
           );
           expect(res.status).toBe(200);
-          const body = await res.json();
+          const body = (await res.json()) as any;
           expect(body.url).toBe("electron-fiddle-1.0.0-win32-arm64-setup.exe");
           expect(body.name).toBeTruthy();
         }
@@ -493,7 +493,7 @@ describe("Updates", () => {
             `${address}/owner/repo-win32-zip/win32-ia32/0.0.0`
           );
           expect(res.status).toBe(200);
-          const body = await res.json();
+          const body = (await res.json()) as any;
           expect(body.url).toBe("electron-fiddle-1.0.0-win32-ia32-setup.exe");
           expect(body.name).toBeTruthy();
         }
@@ -589,7 +589,8 @@ describe("Updates", () => {
 });
 
 describe("electron/fiddle", () => {
-  let server, address;
+  let server: http.Server;
+  let address: string;
 
   beforeAll(async () => {
     const result = await createServer();
@@ -610,7 +611,7 @@ describe("electron/fiddle", () => {
           );
           expect(res.status).toBe(200);
 
-          const body = await res.json();
+          const body = (await res.json()) as any;
           expect(body).toMatchObject({
             name: "v0.35.1",
             notes: "notes",
@@ -632,7 +633,7 @@ describe("electron/fiddle", () => {
           );
           expect(res.status).toBe(200);
 
-          const body = await res.json();
+          const body = (await res.json()) as any;
           expect(body).toMatchObject({
             name: "v0.36.0",
             notes: "notes",
@@ -651,7 +652,7 @@ describe("electron/fiddle", () => {
           );
           expect(res.status).toBe(200);
 
-          const body = await res.json();
+          const body = (await res.json()) as any;
           expect(body).toMatchObject({
             name: "v0.36.0",
             notes: "notes",
@@ -673,7 +674,7 @@ describe("electron/fiddle", () => {
           );
           expect(res.status).toBe(200);
 
-          const body = await res.json();
+          const body = (await res.json()) as any;
           expect(body).toMatchObject({
             name: "v0.36.0",
             notes: "notes",

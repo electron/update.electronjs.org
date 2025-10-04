@@ -1,0 +1,10 @@
+{
+  "extends": "@tsconfig/node22/tsconfig.json",
+  "compilerOptions": {
+    "sourceMap": true,
+    "outDir": "dist",
+    "types": ["node"],
+    "declaration": true
+  },
+  "include": ["src", "bin"]
+}

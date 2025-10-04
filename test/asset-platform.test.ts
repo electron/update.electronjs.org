@@ -1,10 +1,10 @@
-const { assetPlatform } = require("../src/asset-platform");
-
-const { PLATFORM_ARCH } = require("../src/constants");
+import { describe, it, expect } from "vitest";
+import { assetPlatform } from "../src/asset-platform.js";
+import { PLATFORM_ARCH, type PlatformArch } from "../src/constants.js";
 
 describe("assetPlatform()", () => {
   it("matches the right platform", () => {
-    const releases = [
+    const releases: Array<{ name: string; platform: PlatformArch | false }> = [
       { name: "electron-fiddle-0.27.3-1.arm64.rpm", platform: false },
       { name: "electron-fiddle-0.27.3-1.armv7hl.rpm", platform: false },
       { name: "electron-fiddle-0.27.3-1.x86_64.rpm", platform: false },
