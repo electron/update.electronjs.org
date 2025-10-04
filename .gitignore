@@ -5,3 +5,4 @@ node_modules
 example/dist
 example/node_modules
 dump.rdb
+.yarn/install-state.gz
