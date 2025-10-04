@@ -404,6 +404,7 @@ const hasAllAssets = (latest: LatestReleases): boolean => {
   return !!(
     latest[PLATFORM_ARCH.DARWIN_X64] &&
     latest[PLATFORM_ARCH.DARWIN_ARM64] &&
+    latest[PLATFORM_ARCH.DARWIN_UNIVERSAL] &&
     latest[PLATFORM_ARCH.WIN_X64] &&
     latest[PLATFORM_ARCH.WIN_IA32] &&
     latest[PLATFORM_ARCH.WIN_ARM64]
@@ -414,6 +415,7 @@ const hasAnyAsset = (latest: LatestReleases): boolean => {
   return !!(
     latest[PLATFORM_ARCH.DARWIN_X64] ||
     latest[PLATFORM_ARCH.DARWIN_ARM64] ||
+    latest[PLATFORM_ARCH.DARWIN_UNIVERSAL] ||
     latest[PLATFORM_ARCH.WIN_X64] ||
     latest[PLATFORM_ARCH.WIN_IA32] ||
     latest[PLATFORM_ARCH.WIN_ARM64]

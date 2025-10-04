@@ -28,7 +28,6 @@
     "@tsconfig/node22": "^22.0.2",
     "@types/dotenv-safe": "^9.1.0",
     "@types/ms": "^2.1.0",
-    "@types/nock": "^11.1.0",
     "@types/node": "^24.6.2",
     "@types/node-fetch": "^2.6.13",
     "@types/redlock": "^4.0.7",
