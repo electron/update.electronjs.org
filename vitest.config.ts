@@ -12,6 +12,8 @@ export default defineConfig({
         "bin/**",
         "example/**",
         "dist/**",
+        ".yarn/**",
+        "vitest.config.ts",
       ],
     },
     setupFiles: [],
