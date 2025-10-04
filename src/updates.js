@@ -109,6 +109,7 @@ class Updates {
         PLATFORM_ARCH.DARWIN_UNIVERSAL,
         version
       );
+      latest = latest || latestUniversal;
 
       if (
         latestUniversal &&
