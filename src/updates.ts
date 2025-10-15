@@ -1,41 +1,91 @@
-// @ts-check
-"use strict";
+import http from "node:http";
+import crypto from "node:crypto";
+import assert from "node:assert";
+import semver from "semver";
+import { pino } from "pino";
+import requestIp from "request-ip";
 
-const http = require("http");
-const semver = require("semver");
-const assert = require("assert");
-const log = require("pino")();
-const crypto = require("crypto");
-const requestIp = require("request-ip");
-
-const { assetPlatform } = require("./asset-platform");
-const { PLATFORM, PLATFORM_ARCH, PLATFORM_ARCHS, ENV } = require("./constants");
+import { assetPlatform } from "./asset-platform.js";
+import {
+  PLATFORM,
+  PLATFORM_ARCH,
+  PLATFORM_ARCHS,
+  ENV,
+  type PlatformArch,
+} from "./constants.js";
 
 // TODO: Nock does not support native fetch, use node-fetch instead
 //       This dance will hopefully not be necessary once nock figures
 //       out a way to mock Node's native fetch() implementation
-let fetch = global.fetch;
+let fetchFn = global.fetch;
 
 if (process.env.NODE_ENV === "test") {
-  fetch = require("node-fetch").default;
-  log.level = "error";
+  const nodeFetch = await import("node-fetch");
+  fetchFn = nodeFetch.default as unknown as typeof fetch;
 }
 
-class Updates {
-  constructor({ token, cache }) {
+const log = pino({
+  level: process.env.NODE_ENV === "test" ? "error" : "info",
+});
+
+interface Asset {
+  name: string;
+  browser_download_url: string;
+}
+
+interface Release {
+  name?: string;
+  tag_name: string;
+  body?: string;
+  draft?: boolean;
+  prerelease?: boolean;
+  assets: Asset[];
+}
+
+interface LatestRelease {
+  name?: string;
+  version: string;
+  url: string;
+  notes?: string;
+  RELEASES?: string;
+}
+
+type LatestReleases = Partial<Record<PlatformArch, LatestRelease>>;
+
+interface Cache {
+  get(key: string): Promise<LatestReleases | null | undefined>;
+  set(key: string, value: LatestReleases): Promise<void>;
+  lock?(key: string): Promise<{ unlock(): Promise<void> }>;
+}
+
+export default class Updates {
+  private token?: string;
+  private cache: Cache;
+
+  constructor({ token, cache }: { token?: string; cache: Cache }) {
     assert(cache, ".cache required");
     this.token = token;
     this.cache = cache;
   }
 
-  listen(port, cb) {
-    if (typeof port === "function") {
-      [port, cb] = [undefined, port];
+  listen(port?: number): http.Server;
+  listen(cb: () => void): http.Server;
+  listen(port: number, cb: () => void): http.Server;
+  listen(portOrCb?: number | (() => void), cb?: () => void): http.Server {
+    let port: number | undefined;
+    let callback: (() => void) | undefined;
+
+    if (typeof portOrCb === "function") {
+      callback = portOrCb;
+    } else {
+      port = portOrCb;
+      callback = cb;
     }
+
     const server = http.createServer((req, res) => {
       const start = new Date();
       this.handle(req, res)
-        .catch((err) => {
+        .catch((err: any) => {
           log.error(err);
           res.statusCode = err.statusCode || 500;
           const msg =
@@ -55,12 +105,15 @@ class Updates {
           );
         });
     });
-    server.listen(port, cb);
+    server.listen(port, callback);
     return server;
   }
 
-  async handle(req, res) {
-    const segs = req.url.split(/[/?]/).filter(Boolean);
+  async handle(
+    req: http.IncomingMessage,
+    res: http.ServerResponse
+  ): Promise<void> {
+    const segs = (req.url || "").split(/[/?]/).filter(Boolean);
     const [account, repository, , version, file] = segs;
     let platform = segs[2];
 
@@ -69,7 +122,7 @@ class Updates {
 
     if (!account || !repository || !platform || !version) {
       redirect(res, "https://github.com/electron/update.electronjs.org");
-    } else if (!PLATFORM_ARCHS.includes(platform)) {
+    } else if (!PLATFORM_ARCHS.includes(platform as PlatformArch)) {
       const message = `Unsupported platform: "${platform}". Supported: ${PLATFORM_ARCHS.join(
         ", "
       )}.`;
@@ -77,13 +130,31 @@ class Updates {
     } else if (version && !semver.valid(version)) {
       badRequest(res, `Invalid SemVer: "${version}"`);
     } else if (file === "RELEASES") {
-      await this.handleReleases(res, account, repository, platform, version);
+      await this.handleReleases(
+        res,
+        account,
+        repository,
+        platform as PlatformArch,
+        version
+      );
     } else {
-      await this.handleUpdate(res, account, repository, platform, version);
+      await this.handleUpdate(
+        res,
+        account,
+        repository,
+        platform as PlatformArch,
+        version
+      );
     }
   }
 
-  async handleReleases(res, account, repository, platform, version) {
+  async handleReleases(
+    res: http.ServerResponse,
+    account: string,
+    repository: string,
+    platform: PlatformArch,
+    version: string
+  ): Promise<void> {
     const latest = await this.cachedGetLatest(
       account,
       repository,
@@ -94,7 +165,13 @@ class Updates {
     res.end(latest.RELEASES);
   }
 
-  async handleUpdate(res, account, repository, platform, version) {
+  async handleUpdate(
+    res: http.ServerResponse,
+    account: string,
+    repository: string,
+    platform: PlatformArch,
+    version: string
+  ): Promise<void> {
     let latest = await this.cachedGetLatest(
       account,
       repository,
@@ -113,6 +190,7 @@ class Updates {
 
       if (
         latestUniversal &&
+        latest &&
         semver.gt(latestUniversal.version, latest.version)
       ) {
         log.info("Falling back to universal build for darwin");
@@ -147,7 +225,12 @@ class Updates {
     }
   }
 
-  async cachedGetLatest(account, repository, platform, version) {
+  async cachedGetLatest(
+    account: string,
+    repository: string,
+    platform: PlatformArch,
+    version: string
+  ): Promise<LatestRelease | null> {
     const tag = needsSpecificReleaseTag(account, repository, platform, version);
 
     const key = tag
@@ -157,14 +240,19 @@ class Updates {
 
     if (latest) {
       // reuse cache entries using the old non-arch-aware format
-      if (latest.darwin) latest[PLATFORM_ARCH.DARWIN_X64] = latest.darwin;
-      if (latest.win32) latest[PLATFORM_ARCH.WIN_X64] = latest.win32;
+      if ("darwin" in latest && !latest[PLATFORM_ARCH.DARWIN_X64]) {
+        latest[PLATFORM_ARCH.DARWIN_X64] = (latest as any)
+          .darwin as LatestRelease;
+      }
+      if ("win32" in latest && !latest[PLATFORM_ARCH.WIN_X64]) {
+        latest[PLATFORM_ARCH.WIN_X64] = (latest as any).win32 as LatestRelease;
+      }
 
       log.debug({ key }, "cache hit");
       return latest[platform] || null;
     }
 
-    let lock;
+    let lock: { unlock(): Promise<void> } | undefined;
     if (this.cache.lock) {
       log.debug({ key }, "lock acquiring");
       lock = await this.cache.lock(key);
@@ -172,7 +260,7 @@ class Updates {
       latest = await this.cache.get(key);
       if (latest) {
         log.debug({ key }, "cache hit after lock");
-        return latest[platform] ? latest[platform] : null;
+        return latest[platform] ? latest[platform]! : null;
       }
     }
 
@@ -190,10 +278,15 @@ class Updates {
       log.debug({ key }, "lock released");
     }
 
-    return latest && latest[platform];
+    return latest && latest[platform] ? latest[platform]! : null;
   }
 
-  async getLatest(account, repository, platform, version) {
+  async getLatest(
+    account: string,
+    repository: string,
+    platform: PlatformArch,
+    version: string
+  ): Promise<LatestReleases | null> {
     account = encodeURIComponent(account);
     repository = encodeURIComponent(repository);
 
@@ -202,9 +295,11 @@ class Updates {
     const url = tag
       ? `https://api.github.com/repos/${account}/${repository}/releases/tags/${tag}`
       : `https://api.github.com/repos/${account}/${repository}/releases?per_page=100`;
-    const headers = { Accept: "application/vnd.github.preview" };
+    const headers: Record<string, string> = {
+      Accept: "application/vnd.github.preview",
+    };
     if (this.token) headers.Authorization = `token ${this.token}`;
-    const res = await fetch(url, { headers });
+    const res = await fetchFn(url, { headers });
     log.debug(
       { account, repository, status: res.status },
       "github releases api"
@@ -212,16 +307,16 @@ class Updates {
 
     if (res.status === 403) {
       console.error("Rate Limited!");
-      return;
+      return null;
     }
 
     if (res.status >= 400) {
-      return;
+      return null;
     }
 
-    const latest = {};
+    const latest: LatestReleases = {};
 
-    let releases = await res.json();
+    let releases = (await res.json()) as Release | Release[];
     if (!Array.isArray(releases)) {
       releases = [releases];
     }
@@ -235,9 +330,9 @@ class Updates {
       }
 
       for (const asset of release.assets) {
-        const platform = assetPlatform(asset.name);
-        if (platform && !latest[platform]) {
-          latest[platform] = {
+        const assetPlatformResult = assetPlatform(asset.name);
+        if (assetPlatformResult && !latest[assetPlatformResult]) {
+          latest[assetPlatformResult] = {
             name: release.name,
             version: release.tag_name,
             url: asset.browser_download_url,
@@ -259,15 +354,16 @@ class Updates {
       PLATFORM_ARCH.WIN_IA32,
       PLATFORM_ARCH.WIN_ARM64,
     ]) {
-      if (latest[key]) {
-        const rurl = `https://github.com/${account}/${repository}/releases/download/${latest[key].version}/RELEASES`;
-        const rres = await fetch(rurl);
+      const releaseForKey = latest[key];
+      if (releaseForKey) {
+        const rurl = `https://github.com/${account}/${repository}/releases/download/${releaseForKey.version}/RELEASES`;
+        const rres = await fetchFn(rurl);
         if (rres.status < 400) {
           const body = await rres.text();
           const matches = body.match(/[^ ]*\.nupkg/gim);
           assert(matches);
-          const nuPKG = rurl.replace("RELEASES", matches[0]);
-          latest[key].RELEASES = body.replace(matches[0], nuPKG);
+          const nuPKG = rurl.replace("RELEASES", matches[0]!);
+          releaseForKey.RELEASES = body.replace(matches[0]!, nuPKG);
         }
       }
     }
@@ -275,20 +371,27 @@ class Updates {
     return hasAnyAsset(latest) ? latest : null;
   }
 
-  hashIp(ip) {
-    if (!ip) return;
+  hashIp(ip: string | null | undefined): string | undefined {
+    if (!ip) return undefined;
     return crypto.createHash("sha256").update(ip).digest("hex");
   }
 }
 
 // Any logic to require a specific release when updating should go here
-const needsSpecificReleaseTag = (account, repository, platform, version) => {
+const needsSpecificReleaseTag = (
+  account: string,
+  repository: string,
+  platform: PlatformArch,
+  version: string
+): string | null => {
   const FIDDLE_TRANSITION_VERSION = "v0.35.1";
 
   if (
     account === "electron" &&
     semver.lt(version, FIDDLE_TRANSITION_VERSION) &&
-    [PLATFORM_ARCH.DARWIN_X64, PLATFORM_ARCH.DARWIN_ARM64].includes(platform) &&
+    (
+      [PLATFORM_ARCH.DARWIN_X64, PLATFORM_ARCH.DARWIN_ARM64] as PlatformArch[]
+    ).includes(platform) &&
     repository === "fiddle"
   ) {
     return FIDDLE_TRANSITION_VERSION;
@@ -297,52 +400,52 @@ const needsSpecificReleaseTag = (account, repository, platform, version) => {
   return null;
 };
 
-const hasAllAssets = (latest) => {
+const hasAllAssets = (latest: LatestReleases): boolean => {
   return !!(
     latest[PLATFORM_ARCH.DARWIN_X64] &&
     latest[PLATFORM_ARCH.DARWIN_ARM64] &&
+    latest[PLATFORM_ARCH.DARWIN_UNIVERSAL] &&
     latest[PLATFORM_ARCH.WIN_X64] &&
     latest[PLATFORM_ARCH.WIN_IA32] &&
     latest[PLATFORM_ARCH.WIN_ARM64]
   );
 };
 
-const hasAnyAsset = (latest) => {
+const hasAnyAsset = (latest: LatestReleases): boolean => {
   return !!(
     latest[PLATFORM_ARCH.DARWIN_X64] ||
     latest[PLATFORM_ARCH.DARWIN_ARM64] ||
+    latest[PLATFORM_ARCH.DARWIN_UNIVERSAL] ||
     latest[PLATFORM_ARCH.WIN_X64] ||
     latest[PLATFORM_ARCH.WIN_IA32] ||
     latest[PLATFORM_ARCH.WIN_ARM64]
   );
 };
 
-const notFound = (res, message = "Not found") => {
+const notFound = (res: http.ServerResponse, message = "Not found"): void => {
   res.statusCode = 404;
   res.end(message);
 };
 
-const badRequest = (res, message) => {
+const badRequest = (res: http.ServerResponse, message: string): void => {
   res.statusCode = 400;
   res.end(message);
 };
 
-const noContent = (res) => {
+const noContent = (res: http.ServerResponse): void => {
   res.statusCode = 204;
   res.end();
 };
 
-const json = (res, obj) => {
+const json = (res: http.ServerResponse, obj: any): void => {
   res.setHeader("Content-Type", "application/json");
   res.end(JSON.stringify(obj));
 };
 
 // DO NOT PASS USER-SUPPLIED CONTENT TO THIS FUNCTION
 // AS IT WILL REDIRECT A USER ANYWHERE
-const redirect = (res, url) => {
+const redirect = (res: http.ServerResponse, url: string): void => {
   res.statusCode = 302;
   res.setHeader("Location", url);
   res.end(url);
 };
-
-module.exports = Updates;

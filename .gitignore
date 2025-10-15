@@ -5,3 +5,11 @@ node_modules
 example/dist
 example/node_modules
 dump.rdb
+.yarn/install-state.gz
+dist
+coverage
+*.log
+.DS_Store
+.vscode
+*.tsbuildinfo
+.claude

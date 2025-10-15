@@ -1,6 +1,6 @@
-const { PLATFORM_ARCH } = require("./constants");
+import { PLATFORM_ARCH, type PlatformArch } from "./constants.js";
 
-const assetPlatform = (fileName) => {
+export const assetPlatform = (fileName: string): PlatformArch | false => {
   if (/.*-(mac|darwin|osx).*\.zip$/i.test(fileName)) {
     if (/-arm64/.test(fileName)) return PLATFORM_ARCH.DARWIN_ARM64;
     if (/-universal/.test(fileName)) return PLATFORM_ARCH.DARWIN_UNIVERSAL;
@@ -27,8 +27,4 @@ const assetPlatform = (fileName) => {
   }
 
   return false;
-};
-
-module.exports = {
-  assetPlatform,
 };

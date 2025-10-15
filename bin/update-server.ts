@@ -1,16 +1,15 @@
 #!/usr/bin/env node
 
-"use strict";
+import { config } from "dotenv-safe";
+import assert from "node:assert";
+import redis from "redis";
+import ms, { StringValue } from "ms";
+import Redlock, { CompatibleRedisClient } from "redlock";
+import Updates from "../src/updates.js";
 
-require("dotenv-safe").config();
+config();
 
 process.title = "update-server";
-
-const Updates = require("../src/updates");
-const redis = require("redis");
-const ms = require("ms");
-const assert = require("assert");
-const Redlock = require("redlock");
 
 //
 // Args
@@ -19,7 +18,7 @@ const Redlock = require("redlock");
 const {
   GH_TOKEN: token,
   REDIS_URL: redisUrl = "redis://localhost:6379",
-  PORT: port = 3000,
+  PORT: port = "3000",
   CACHE_TTL: cacheTTL = "15m",
 } = process.env;
 assert(token, "GH_TOKEN required");
@@ -31,10 +30,6 @@ async function getCache() {
   const fixedRedisUrl = redisUrl.replace("redis://h:", "redis://:");
   const client = redis.createClient({
     url: fixedRedisUrl,
-    // Needed for compatibility with Redlock. However, it also requires all "modern" commands
-    // to be prefixed with `client.v4`.
-    // See also: https://github.com/redis/node-redis/blob/master/docs/v3-to-v4.md#legacy-mode
-    legacyMode: true,
     socket: {
       tls: true,
       rejectUnauthorized: false,
@@ -46,24 +41,29 @@ async function getCache() {
 
   client.on("error", (err) => console.log("Redis Client Error", err));
 
-  const redlock = new Redlock([client], {
+  const redlock = new Redlock([client.legacy() as CompatibleRedisClient], {
     retryDelay: ms("10s"),
   });
 
   const cache = {
-    async get(key) {
-      const json = await client.v4.get(key);
-      return json && JSON.parse(json);
+    async get(key: string) {
+      const json = await client.get(key);
+      return json && typeof json === "string" && JSON.parse(json);
     },
-    async set(key, value) {
+    async set(key: string, value: any) {
       const json = JSON.stringify(value);
 
-      await client.v4.set(key, json, {
-        EX: ms(cacheTTL) / 1000,
+      await client.set(key, json, {
+        EX: Math.floor(ms(cacheTTL as StringValue) / 1000),
       });
     },
-    async lock(resource) {
-      return redlock.lock(`locks:${resource}`, ms("1m"));
+    async lock(resource: string) {
+      const result = await redlock.lock([`locks:${resource}`], ms("1m"));
+      return {
+        async unlock() {
+          await result.unlock();
+        },
+      };
     },
   };
 
@@ -76,7 +76,7 @@ async function getCache() {
 async function main() {
   const cache = await getCache();
   const updates = new Updates({ token, cache });
-  updates.listen(port, () => {
+  updates.listen(Number(port), () => {
     console.log(`http://localhost:${port}`);
   });
 }
