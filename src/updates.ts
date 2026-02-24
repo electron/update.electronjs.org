@@ -14,16 +14,6 @@ import {
   type PlatformArch,
 } from "./constants.js";
 
-// TODO: Nock does not support native fetch, use node-fetch instead
-//       This dance will hopefully not be necessary once nock figures
-//       out a way to mock Node's native fetch() implementation
-let fetchFn = global.fetch;
-
-if (process.env.NODE_ENV === "test") {
-  const nodeFetch = await import("node-fetch");
-  fetchFn = nodeFetch.default as unknown as typeof fetch;
-}
-
 const log = pino({
   level: process.env.NODE_ENV === "test" ? "error" : "info",
 });
@@ -299,7 +289,7 @@ export default class Updates {
       Accept: "application/vnd.github.preview",
     };
     if (this.token) headers.Authorization = `token ${this.token}`;
-    const res = await fetchFn(url, { headers });
+    const res = await fetch(url, { headers });
     log.debug(
       { account, repository, status: res.status },
       "github releases api"
@@ -357,7 +347,7 @@ export default class Updates {
       const releaseForKey = latest[key];
       if (releaseForKey) {
         const rurl = `https://github.com/${account}/${repository}/releases/download/${releaseForKey.version}/RELEASES`;
-        const rres = await fetchFn(rurl);
+        const rres = await fetch(rurl);
         if (rres.status < 400) {
           const body = await rres.text();
           const matches = body.match(/[^ ]*\.nupkg/gim);
