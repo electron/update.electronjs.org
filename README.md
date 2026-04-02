@@ -77,9 +77,12 @@ The following API endpoints are available:
 
 - `/:owner/:repo/:platform/:version`
 - `/:owner/:repo/:platform-:arch/:version`
+- `/:owner/:repo/:platform/:format/:version`
+- `/:owner/:repo/:platform-:arch/:format/:version`
 - `/:owner/:repo/:platform/:version/RELEASES`
 
 These API endpoints support the query path arguments as defined below:
+
 - `:owner` - GitHub repository owner (organization or user)
 - `:repo` - GitHub repository name
 - `:platform` - Platform type
@@ -88,6 +91,9 @@ These API endpoints support the query path arguments as defined below:
 - `:arch` - Architecture type
   - Windows: `x64`, `ia32`, `arm64`
   - macOS: `x64`, `arm64`, `universal`
+- `:format` - (Optional) Update format type
+  - `squirrel` - Squirrel.Windows (default for Windows when omitted)
+  - `msix` - MSIX auto-update (available on Electron 41+)
 - `:version` - Semantic Versioning (SemVer) compatible application version number
   
 
@@ -98,13 +104,16 @@ This project supports specific naming conventions for GitHub Releases assets.
 The following heuristics are used to identify update availability for a specific platform and architecture:
 
 ### macOS Assets
+
 - Asset must be a `.zip` file.
 - Asset name must include one of the following platform identifiers: `-mac`, `-darwin`, or `-osx`.
 - Asset name may specify the architecture (if not specified, will default to `-x64`):
   - `-arm64` for Apple Silicon.
   - `-x64` for Intel-based macOS.
-  -  `-universal` for Universal binaries.
+  - `-universal` for Universal binaries.
+
 **Example asset names:**
+
 - `app-mac-arm64-0.0.1.zip`
 - `app-mac-arm64.zip`
 - `app-0.0.1-osx-x64.zip`
@@ -112,7 +121,8 @@ The following heuristics are used to identify update availability for a specific
 - `app-darwin-universal.zip`
 - `app-mac.zip` (no architecture specified - treated as `-x64`) 
 
-### Windows Assets
+### Windows Assets (Squirrel)
+
 - Asset must be a `.zip` or `.exe` file.
 - Asset name must include the `-win32` platform identifier.
 - Asset name may specify the architecture (if not specified, will default to `-x64`):
@@ -122,6 +132,7 @@ The following heuristics are used to identify update availability for a specific
 - `.exe` files without specific architecture tags or the `-win32` platform identifier are assumed to be `-x64` by default.  
 
 **Example asset names:**
+
 - `app-win32-ia32-0.0.1.zip`
 - `app-win32-ia32.zip`
 - `app-0.0.1-win32-x64.zip`
@@ -131,6 +142,34 @@ The following heuristics are used to identify update availability for a specific
 - `app-win32-arm64-v1.2.3.exe`  
 - `app-win32.exe` (no architecture specified - treated as `-x64`)  
 - `app-installer.exe` (generic `.exe` file with no architecture or platform identifier specified - treated as `-x64`) 
+
+### Windows Assets (MSIX)
+
+- Asset must be a `.msix` file.
+- Asset name must include the `-win32` platform identifier.
+- Asset name may specify the architecture (if not specified, will default to `-x64`):
+  - `-x64` for 64-bit Windows.
+  - `-arm64` for ARM-based Windows.
+- `.msix` files without specific architecture tags or the `-win32` platform identifier are assumed to be `-x64` by default.
+
+**Example asset names:**
+
+- `app-win32-x64.msix`
+- `app-1.0.0-win32-x64.msix`
+- `app-win32-arm64.msix`
+- `app-win32.msix` (no architecture specified - treated as `-x64`)
+- `app-installer.msix` (generic `.msix` file with no architecture or platform identifier specified - treated as `-x64`)
+
+To use MSIX updates, include the `msix` format segment in the update feed URL:
+
+```javascript
+const server = 'https://update.electronjs.org'
+const feed = `${server}/OWNER/REPO/${process.platform}-${process.arch}/msix/${app.getVersion()}`
+
+autoUpdater.setFeedURL(feed)
+```
+
+The MSIX updater returns the same JSON format as macOS (`{ name, notes, url }`) and does not use the `RELEASES` endpoint.
 
 ## Development
 
