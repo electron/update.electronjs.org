@@ -4,6 +4,8 @@ on:
   issues:
     types:
       - opened
+  # zizmor: ignore[dangerous-triggers] needed so PRs from forks can be added to the project board;
+  # this workflow does not check out or execute any PR-supplied code.
   pull_request_target:
     types:
       - opened
