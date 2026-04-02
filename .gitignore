@@ -4,6 +4,7 @@ node_modules
 .nyc_output
 example/dist
 example/node_modules
+example/.yarn/install-state.gz
 dump.rdb
 .yarn/install-state.gz
 dist
