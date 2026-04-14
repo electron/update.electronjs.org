@@ -1,10 +1,10 @@
-import http from "node:http";
-import nock from "nock";
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
-import Updates from "../src/updates.js";
+import http from 'node:http';
+import nock from 'nock';
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import Updates from '../src/updates.js';
 
 nock.disableNetConnect();
-nock.enableNetConnect("localhost");
+nock.enableNetConnect('localhost');
 
 interface CacheData {
   [key: string]: any;
@@ -41,7 +41,7 @@ class MemoryCacheWithLock {
   }
 }
 
-describe("Cache Locking", () => {
+describe('Cache Locking', () => {
   let server: http.Server;
   let address: string;
   let cache: MemoryCacheWithLock;
@@ -58,7 +58,7 @@ describe("Cache Locking", () => {
       const s = updates.listen(() => resolve(s));
     });
     const addr = server.address();
-    const port = typeof addr === "object" && addr !== null ? addr.port : 3000;
+    const port = typeof addr === 'object' && addr !== null ? addr.port : 3000;
     address = `http://localhost:${port}`;
   });
 
@@ -66,22 +66,22 @@ describe("Cache Locking", () => {
     server.close();
   });
 
-  it("prevents duplicate API calls with lock", async () => {
+  it('prevents duplicate API calls with lock', async () => {
     let apiCallCount = 0;
 
-    nock("https://api.github.com")
-      .get("/repos/owner/locked-repo/releases?per_page=100")
+    nock('https://api.github.com')
+      .get('/repos/owner/locked-repo/releases?per_page=100')
       .reply(200, function () {
         apiCallCount++;
         return [
           {
-            name: "Release",
-            tag_name: "v1.0.0",
-            body: "notes",
+            name: 'Release',
+            tag_name: 'v1.0.0',
+            body: 'notes',
             assets: [
               {
-                name: "app-mac.zip",
-                browser_download_url: "app-mac.zip",
+                name: 'app-mac.zip',
+                browser_download_url: 'app-mac.zip',
               },
             ],
           },
@@ -101,22 +101,22 @@ describe("Cache Locking", () => {
     expect(apiCallCount).toBe(1);
   });
 
-  it("uses cached data after lock is released", async () => {
+  it('uses cached data after lock is released', async () => {
     let apiCallCount = 0;
 
-    nock("https://api.github.com")
-      .get("/repos/owner/cached-repo/releases?per_page=100")
+    nock('https://api.github.com')
+      .get('/repos/owner/cached-repo/releases?per_page=100')
       .reply(200, function () {
         apiCallCount++;
         return [
           {
-            name: "Release",
-            tag_name: "v1.0.0",
-            body: "notes",
+            name: 'Release',
+            tag_name: 'v1.0.0',
+            body: 'notes',
             assets: [
               {
-                name: "app-mac.zip",
-                browser_download_url: "app-mac.zip",
+                name: 'app-mac.zip',
+                browser_download_url: 'app-mac.zip',
               },
             ],
           },
@@ -135,7 +135,7 @@ describe("Cache Locking", () => {
   });
 });
 
-describe("Cache Migration", () => {
+describe('Cache Migration', () => {
   let server: http.Server;
   let address: string;
 
@@ -145,18 +145,18 @@ describe("Cache Migration", () => {
     constructor() {
       this.data = new Map();
       // Populate with old-format cache data
-      this.data.set("owner/legacy-repo", {
+      this.data.set('owner/legacy-repo', {
         darwin: {
-          name: "Legacy Release",
-          version: "1.0.0",
-          url: "app-mac-legacy.zip",
-          notes: "Legacy format",
+          name: 'Legacy Release',
+          version: '1.0.0',
+          url: 'app-mac-legacy.zip',
+          notes: 'Legacy format',
         },
         win32: {
-          name: "Legacy Release",
-          version: "1.0.0",
-          url: "app-win32-legacy.exe",
-          notes: "Legacy format",
+          name: 'Legacy Release',
+          version: '1.0.0',
+          url: 'app-win32-legacy.exe',
+          notes: 'Legacy format',
         },
       });
     }
@@ -177,7 +177,7 @@ describe("Cache Migration", () => {
       const s = updates.listen(() => resolve(s));
     });
     const addr = server.address();
-    const port = typeof addr === "object" && addr !== null ? addr.port : 3000;
+    const port = typeof addr === 'object' && addr !== null ? addr.port : 3000;
     address = `http://localhost:${port}`;
   });
 
@@ -185,35 +185,35 @@ describe("Cache Migration", () => {
     server.close();
   });
 
-  it("migrates old darwin cache format to darwin-x64", async () => {
+  it('migrates old darwin cache format to darwin-x64', async () => {
     const res = await fetch(`${address}/owner/legacy-repo/darwin-x64/0.0.0`);
     expect(res.status).toBe(200);
     const body = (await res.json()) as any;
-    expect(body.name).toBe("Legacy Release");
-    expect(body.url).toBe("app-mac-legacy.zip");
+    expect(body.name).toBe('Legacy Release');
+    expect(body.url).toBe('app-mac-legacy.zip');
   });
 
-  it("migrates old darwin cache format for darwin platform", async () => {
+  it('migrates old darwin cache format for darwin platform', async () => {
     const res = await fetch(`${address}/owner/legacy-repo/darwin/0.0.0`);
     expect(res.status).toBe(200);
     const body = (await res.json()) as any;
-    expect(body.name).toBe("Legacy Release");
-    expect(body.url).toBe("app-mac-legacy.zip");
+    expect(body.name).toBe('Legacy Release');
+    expect(body.url).toBe('app-mac-legacy.zip');
   });
 
-  it("migrates old win32 cache format to win32-x64", async () => {
+  it('migrates old win32 cache format to win32-x64', async () => {
     const res = await fetch(`${address}/owner/legacy-repo/win32-x64/0.0.0`);
     expect(res.status).toBe(200);
     const body = (await res.json()) as any;
-    expect(body.name).toBe("Legacy Release");
-    expect(body.url).toBe("app-win32-legacy.exe");
+    expect(body.name).toBe('Legacy Release');
+    expect(body.url).toBe('app-win32-legacy.exe');
   });
 
-  it("migrates old win32 cache format for win32 platform", async () => {
+  it('migrates old win32 cache format for win32 platform', async () => {
     const res = await fetch(`${address}/owner/legacy-repo/win32/0.0.0`);
     expect(res.status).toBe(200);
     const body = (await res.json()) as any;
-    expect(body.name).toBe("Legacy Release");
-    expect(body.url).toBe("app-win32-legacy.exe");
+    expect(body.name).toBe('Legacy Release');
+    expect(body.url).toBe('app-win32-legacy.exe');
   });
 });

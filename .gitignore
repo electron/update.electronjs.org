@@ -6,6 +6,7 @@ example/dist
 example/node_modules
 example/.yarn/install-state.gz
 dump.rdb
+example/.yarn/install-state.gz
 .yarn/install-state.gz
 dist
 coverage
