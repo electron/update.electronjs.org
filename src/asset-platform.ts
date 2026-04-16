@@ -1,4 +1,4 @@
-import { PLATFORM_ARCH, type PlatformArch } from "./constants.js";
+import { PLATFORM_ARCH, type PlatformArch } from './constants.js';
 
 export const assetPlatform = (fileName: string): PlatformArch | false => {
   if (/.*-(mac|darwin|osx).*\.zip$/i.test(fileName)) {
@@ -18,11 +18,7 @@ export const assetPlatform = (fileName: string): PlatformArch | false => {
   // Special case handling: We don't know what kind of asset
   // we're looking at, so it might be the default x64 windows
   // asset
-  if (
-    /\.exe$/.test(fileName) &&
-    !/arm/.test(fileName) &&
-    !/ia32/.test(fileName)
-  ) {
+  if (fileName.endsWith('.exe') && !/arm/.test(fileName) && !/ia32/.test(fileName)) {
     return PLATFORM_ARCH.WIN_X64;
   }
 

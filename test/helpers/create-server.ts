@@ -1,5 +1,5 @@
-import http from "node:http";
-import Updates from "../../src/updates.js";
+import http from 'node:http';
+import Updates from '../../src/updates.js';
 
 interface CacheData {
   [key: string]: any;
@@ -29,7 +29,7 @@ export function createServer(): Promise<{
     const updates = new Updates({ cache: new MemoryCache() });
     const server = updates.listen(() => {
       const addr = server.address();
-      const port = typeof addr === "object" && addr !== null ? addr.port : 3000;
+      const port = typeof addr === 'object' && addr !== null ? addr.port : 3000;
       resolve({
         server,
         address: `http://localhost:${port}`,
