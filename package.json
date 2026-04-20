@@ -6,13 +6,14 @@
     "build": "tsc",
     "start": "node dist/bin/update-server.js",
     "start-test-server": "cross-env NODE_ENV=test node dist/bin/test-update-server.js",
-    "lint": "prettier --check '**/*.{js,ts}' --ignore-path .gitignore",
-    "prettier": "prettier --write '**/*.{js,ts}' --ignore-path .gitignore",
+    "lint": "oxfmt --check . && oxlint",
+    "lint:fix": "oxfmt --write . && oxlint --fix",
     "typecheck": "tsc --noEmit",
     "test": "npm run lint && npm run typecheck && cross-env NODE_ENV=test vitest run",
     "test:watch": "cross-env NODE_ENV=test vitest watch",
     "test:ui": "cross-env NODE_ENV=test vitest --ui",
-    "test:coverage": "cross-env NODE_ENV=test vitest run --coverage"
+    "test:coverage": "cross-env NODE_ENV=test vitest run --coverage",
+    "prepare": "husky"
   },
   "dependencies": {
     "dotenv": "^17.2.3",
@@ -35,10 +36,26 @@
     "@vitest/coverage-v8": "^4.0.18",
     "@vitest/ui": "^4.0.18",
     "cross-env": "^7.0.3",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.0",
     "nock": "^14.0.11",
-    "prettier": "^2.8.8",
-    "typescript": "^5.9.3",
+    "oxfmt": "^0.44.0",
+    "oxlint": "^1.59.0",
+    "oxlint-tsgolint": "^0.20.0",
+    "typescript": "^6.0.2",
     "vitest": "^4.0.18"
+  },
+  "resolutions": {
+    "fsevents": "npm:@electron/fsevents@2.3.3-fork"
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "oxfmt --write",
+      "oxlint --fix"
+    ],
+    "*.json": [
+      "oxfmt --write"
+    ]
   },
   "packageManager": "yarn@4.10.3+sha512.c38cafb5c7bb273f3926d04e55e1d8c9dfa7d9c3ea1f36a4868fa028b9e5f72298f0b7f401ad5eb921749eb012eb1c3bb74bf7503df3ee43fd600d14a018266f"
 }

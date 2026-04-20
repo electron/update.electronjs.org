@@ -23,10 +23,14 @@
       ]
     }
   },
-  "dependencies": {},
   "devDependencies": {
-    "@electron-forge/cli": "^6.0.0",
-    "@electron-forge/maker-squirrel": "^6.0.0",
-    "electron": "^35.7.5"
+    "@electron-forge/cli": "^8.0.0-alpha.6",
+    "@electron-forge/maker-squirrel": "^8.0.0-alpha.6",
+    "electron": "^41.1.1"
+  },
+  "dependenciesMeta": {
+    "electron": {
+      "built": true
+    }
   }
 }
