@@ -5,7 +5,7 @@ import semver from 'semver';
 import { pino } from 'pino';
 import requestIp from 'request-ip';
 
-import { assetPlatform } from './asset-platform.js';
+import { assetPlatform } from './asset-platform.ts';
 import {
   PLATFORM,
   PLATFORM_ARCH,
@@ -16,7 +16,7 @@ import {
   ENV,
   type PlatformArch,
   type UpdateFormat,
-} from './constants.js';
+} from './constants.ts';
 
 const log = pino({
   level: process.env.NODE_ENV === 'test' ? 'error' : 'info',
@@ -78,7 +78,7 @@ export default class Updates {
 
     const server = http.createServer((req, res) => {
       const start = new Date();
-      this.handle(req, res)
+      void this.handle(req, res)
         .catch((err: any) => {
           log.error(err);
           res.statusCode = err.statusCode || 500;

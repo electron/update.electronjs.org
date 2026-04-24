@@ -3,9 +3,8 @@
 import { config } from 'dotenv-safe';
 import assert from 'node:assert';
 import redis from 'redis';
-import ms, { StringValue } from 'ms';
-import Redlock, { CompatibleRedisClient } from 'redlock';
-import Updates from '../src/updates.js';
+import ms from 'ms';
+import Updates from '../src/updates.ts';
 
 config();
 
@@ -30,20 +29,13 @@ async function getCache() {
   const fixedRedisUrl = redisUrl.replace('redis://h:', 'redis://:');
   const client = redis.createClient({
     url: fixedRedisUrl,
-    socket: {
-      tls: true,
-      rejectUnauthorized: false,
-    },
+    socket: { tls: true, rejectUnauthorized: false },
   });
 
   await client.connect();
   await client.ping();
 
   client.on('error', (err) => console.log('Redis Client Error', err));
-
-  const redlock = new Redlock([client.legacy() as CompatibleRedisClient], {
-    retryDelay: ms('10s'),
-  });
 
   const cache = {
     async get(key: string) {
@@ -54,14 +46,19 @@ async function getCache() {
       const json = JSON.stringify(value);
 
       await client.set(key, json, {
-        EX: Math.floor(ms(cacheTTL as StringValue) / 1000),
+        EX: Math.floor(ms(cacheTTL as ms.StringValue) / 1000),
       });
     },
     async lock(resource: string) {
-      const result = await redlock.lock([`locks:${resource}`], ms('1m'));
+      const lockKey = `locks:${resource}`;
+      const lockTTL = Math.floor(ms('1m') / 1000);
+      const acquired = await client.set(lockKey, '1', { NX: true, EX: lockTTL });
+      if (!acquired) {
+        throw new Error(`Could not acquire lock for ${resource}`);
+      }
       return {
         async unlock() {
-          await result.unlock();
+          await client.del(lockKey);
         },
       };
     },
@@ -81,4 +78,4 @@ async function main() {
   });
 }
 
-main();
+void main();

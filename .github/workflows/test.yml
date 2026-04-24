@@ -29,6 +29,10 @@ jobs:
           node-version-file: '.nvmrc' 
           cache: 'yarn'
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
+      - name: Lint
+        run: yarn lint
+      - name: Typecheck
+        run: yarn typecheck
       - name: Test
         run: yarn test

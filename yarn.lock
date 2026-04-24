@@ -833,17 +833,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tsconfig/node22@npm:^22.0.2":
-  version: 22.0.2
-  resolution: "@tsconfig/node22@npm:22.0.2"
-  checksum: 10c0/c75e6b9ea86ec2a384adefac0e2f16a6c08202ae5cf6c8c745944396a6931ffb38e742809491c1882d1868c2af1c33744193701779674bfb1e05f6a130045a18
-  languageName: node
-  linkType: hard
-
-"@types/bluebird@npm:*":
-  version: 3.5.42
-  resolution: "@types/bluebird@npm:3.5.42"
-  checksum: 10c0/ce752a5e277bbc0cdee3dee9c875ac093d1331905a8a5175665ccb8cb76b7b95a84836f92bc46076c2fd1e384a107866893eeeb20f6fb33427482663879faf93
+"@tsconfig/node24@npm:^24.0.4":
+  version: 24.0.4
+  resolution: "@tsconfig/node24@npm:24.0.4"
+  checksum: 10c0/9c5d4173204c6935c45d3ff0584fd423bd7d8bc3f6b246e646320ae584e4226b34ea1c66ec67cd16769c73e7e80f4cc562287b0acaa4ec81aa482463972ff83f
   languageName: node
   linkType: hard
 
@@ -881,15 +874,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/ioredis@npm:^4.28.10":
-  version: 4.28.10
-  resolution: "@types/ioredis@npm:4.28.10"
-  dependencies:
-    "@types/node": "npm:*"
-  checksum: 10c0/ff680fef6750721c465ee9d6060d3229e49e5b217d68503c4972c4b869b8f84b91cbd9b7d5195a40fb0bff6ab9a4f5e24a2cc17a368ddb0bfe2dfd4eb5fc1872
-  languageName: node
-  linkType: hard
-
 "@types/ms@npm:^2.1.0":
   version: 2.1.0
   resolution: "@types/ms@npm:2.1.0"
@@ -906,26 +890,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/redis@npm:^2.8.0":
-  version: 2.8.32
-  resolution: "@types/redis@npm:2.8.32"
-  dependencies:
-    "@types/node": "npm:*"
-  checksum: 10c0/99fd52ffc1f4c2cbe3f1ec7a38f9a85a128a430fcbf8e241914d8687ea53555e90dc7b66b3ff1a0c9b74afa1c677551ee405b1f73926c944dadc6026e5e6a80a
-  languageName: node
-  linkType: hard
-
-"@types/redlock@npm:^4.0.7":
-  version: 4.0.7
-  resolution: "@types/redlock@npm:4.0.7"
-  dependencies:
-    "@types/bluebird": "npm:*"
-    "@types/ioredis": "npm:^4.28.10"
-    "@types/redis": "npm:^2.8.0"
-  checksum: 10c0/f96f0f63aa12ea9b923be3d8d9d6881eccc70a6805202354c0b137cbef84508f1afc06f9f358efad8ad4227d0e75394d5b4e211bfcabe9c62f1481393c57a3d5
-  languageName: node
-  linkType: hard
-
 "@types/request-ip@npm:^0.0.41":
   version: 0.0.41
   resolution: "@types/request-ip@npm:0.0.41"
@@ -939,6 +903,87 @@ __metadata:
   version: 7.7.1
   resolution: "@types/semver@npm:7.7.1"
   checksum: 10c0/c938aef3bf79a73f0f3f6037c16e2e759ff40c54122ddf0b2583703393d8d3127130823facb880e694caa324eb6845628186aac1997ee8b31dc2d18fafe26268
+  languageName: node
+  linkType: hard
+
+"@typescript/native-preview-darwin-arm64@npm:7.0.0-dev.20260417.1":
+  version: 7.0.0-dev.20260417.1
+  resolution: "@typescript/native-preview-darwin-arm64@npm:7.0.0-dev.20260417.1"
+  conditions: os=darwin & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@typescript/native-preview-darwin-x64@npm:7.0.0-dev.20260417.1":
+  version: 7.0.0-dev.20260417.1
+  resolution: "@typescript/native-preview-darwin-x64@npm:7.0.0-dev.20260417.1"
+  conditions: os=darwin & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@typescript/native-preview-linux-arm64@npm:7.0.0-dev.20260417.1":
+  version: 7.0.0-dev.20260417.1
+  resolution: "@typescript/native-preview-linux-arm64@npm:7.0.0-dev.20260417.1"
+  conditions: os=linux & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@typescript/native-preview-linux-arm@npm:7.0.0-dev.20260417.1":
+  version: 7.0.0-dev.20260417.1
+  resolution: "@typescript/native-preview-linux-arm@npm:7.0.0-dev.20260417.1"
+  conditions: os=linux & cpu=arm
+  languageName: node
+  linkType: hard
+
+"@typescript/native-preview-linux-x64@npm:7.0.0-dev.20260417.1":
+  version: 7.0.0-dev.20260417.1
+  resolution: "@typescript/native-preview-linux-x64@npm:7.0.0-dev.20260417.1"
+  conditions: os=linux & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@typescript/native-preview-win32-arm64@npm:7.0.0-dev.20260417.1":
+  version: 7.0.0-dev.20260417.1
+  resolution: "@typescript/native-preview-win32-arm64@npm:7.0.0-dev.20260417.1"
+  conditions: os=win32 & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@typescript/native-preview-win32-x64@npm:7.0.0-dev.20260417.1":
+  version: 7.0.0-dev.20260417.1
+  resolution: "@typescript/native-preview-win32-x64@npm:7.0.0-dev.20260417.1"
+  conditions: os=win32 & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@typescript/native-preview@npm:^7.0.0-dev.20260417.1":
+  version: 7.0.0-dev.20260417.1
+  resolution: "@typescript/native-preview@npm:7.0.0-dev.20260417.1"
+  dependencies:
+    "@typescript/native-preview-darwin-arm64": "npm:7.0.0-dev.20260417.1"
+    "@typescript/native-preview-darwin-x64": "npm:7.0.0-dev.20260417.1"
+    "@typescript/native-preview-linux-arm": "npm:7.0.0-dev.20260417.1"
+    "@typescript/native-preview-linux-arm64": "npm:7.0.0-dev.20260417.1"
+    "@typescript/native-preview-linux-x64": "npm:7.0.0-dev.20260417.1"
+    "@typescript/native-preview-win32-arm64": "npm:7.0.0-dev.20260417.1"
+    "@typescript/native-preview-win32-x64": "npm:7.0.0-dev.20260417.1"
+  dependenciesMeta:
+    "@typescript/native-preview-darwin-arm64":
+      optional: true
+    "@typescript/native-preview-darwin-x64":
+      optional: true
+    "@typescript/native-preview-linux-arm":
+      optional: true
+    "@typescript/native-preview-linux-arm64":
+      optional: true
+    "@typescript/native-preview-linux-x64":
+      optional: true
+    "@typescript/native-preview-win32-arm64":
+      optional: true
+    "@typescript/native-preview-win32-x64":
+      optional: true
+  bin:
+    tsgo: bin/tsgo.js
+  checksum: 10c0/a6ab152d4aa5ac2033e053240658d15da1bda2acb9ef87f0250b5c78526a1e7ce59449c80ba46fed62382aed13b30ae0cc892bcf7ccaf7115321131e34e4cc82
   languageName: node
   linkType: hard
 
@@ -1117,13 +1162,6 @@ __metadata:
   version: 1.5.1
   resolution: "base64-js@npm:1.5.1"
   checksum: 10c0/f23823513b63173a001030fae4f2dabe283b99a9d324ade3ad3d148e218134676f1ee8568c877cd79ec1c53158dcf2d2ba527a97c606618928ba99dd930102bf
-  languageName: node
-  linkType: hard
-
-"bluebird@npm:^3.7.2":
-  version: 3.7.2
-  resolution: "bluebird@npm:3.7.2"
-  checksum: 10c0/680de03adc54ff925eaa6c7bb9a47a0690e8b5de60f4792604aae8ed618c65e6b63a7893b57ca924beaf53eee69c5af4f8314148c08124c550fe1df1add897d2
   languageName: node
   linkType: hard
 
@@ -2007,15 +2045,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"redlock@npm:^4.2.0":
-  version: 4.2.0
-  resolution: "redlock@npm:4.2.0"
-  dependencies:
-    bluebird: "npm:^3.7.2"
-  checksum: 10c0/42850223216f3354d213bda7ff261446bdf03324d663000760ada29cfd0bd372fca6c7c757752e88fbee7a684ab92f0c561eb7ae6c00807cb57a1236cc3a6239
-  languageName: node
-  linkType: hard
-
 "request-ip@npm:^3.3.0":
   version: 3.3.0
   resolution: "request-ip@npm:3.3.0"
@@ -2369,26 +2398,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^6.0.2":
-  version: 6.0.2
-  resolution: "typescript@npm:6.0.2"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 10c0/4b860b0bf87cc0fee0f66d8ef2640b5a8a8a8c74d1129adb82e389e5f97124383823c47946bef8a73ede371461143a3aa8544399d2133c7b2e4f07e81860af7f
-  languageName: node
-  linkType: hard
-
-"typescript@patch:typescript@npm%3A^6.0.2#optional!builtin<compat/typescript>":
-  version: 6.0.2
-  resolution: "typescript@patch:typescript@npm%3A6.0.2#optional!builtin<compat/typescript>::version=6.0.2&hash=5786d5"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 10c0/49f0b84fc6ca55653e77752b8a61beabc09ee3dae5d965c31596225aa6ef213c5727b1d2e895b900416dc603854ba0872ac4a812c2a4ed6793a601f9c675de02
-  languageName: node
-  linkType: hard
-
 "undici-types@npm:~7.13.0":
   version: 7.13.0
   resolution: "undici-types@npm:7.13.0"
@@ -2400,13 +2409,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "update.electronjs.org@workspace:."
   dependencies:
-    "@tsconfig/node22": "npm:^22.0.2"
+    "@tsconfig/node24": "npm:^24.0.4"
     "@types/dotenv-safe": "npm:^9.1.0"
     "@types/ms": "npm:^2.1.0"
     "@types/node": "npm:^24.6.2"
-    "@types/redlock": "npm:^4.0.7"
     "@types/request-ip": "npm:^0.0.41"
     "@types/semver": "npm:^7.7.1"
+    "@typescript/native-preview": "npm:^7.0.0-dev.20260417.1"
     "@vitest/coverage-v8": "npm:^4.0.18"
     "@vitest/ui": "npm:^4.0.18"
     cross-env: "npm:^7.0.3"
@@ -2421,10 +2430,8 @@ __metadata:
     oxlint-tsgolint: "npm:^0.20.0"
     pino: "npm:^8.12.1"
     redis: "npm:^5.8.3"
-    redlock: "npm:^4.2.0"
     request-ip: "npm:^3.3.0"
     semver: "npm:^7.5.2"
-    typescript: "npm:^6.0.2"
     vitest: "npm:^4.0.18"
   languageName: unknown
   linkType: soft

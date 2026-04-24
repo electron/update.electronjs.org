@@ -1,10 +1,12 @@
 {
-  "extends": "@tsconfig/node22/tsconfig.json",
+  "extends": "@tsconfig/node24/tsconfig.json",
   "compilerOptions": {
     "sourceMap": true,
     "outDir": "dist",
     "types": ["node"],
-    "declaration": true
+    "declaration": true,
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true
   },
   "include": ["src", "bin"]
 }

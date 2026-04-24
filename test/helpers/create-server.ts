@@ -1,5 +1,5 @@
 import http from 'node:http';
-import Updates from '../../src/updates.js';
+import Updates from '../../src/updates.ts';
 
 interface CacheData {
   [key: string]: any;
