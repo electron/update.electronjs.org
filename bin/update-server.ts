@@ -27,11 +27,9 @@ assert(token, 'GH_TOKEN required');
 //
 async function getCache() {
   const fixedRedisUrl = redisUrl.replace('redis://h:', 'redis://:');
-  // rediss:// provided by Heroku in production
-  const useTls = fixedRedisUrl.startsWith('rediss://');
   const client = redis.createClient({
     url: fixedRedisUrl,
-    socket: useTls ? { tls: true, rejectUnauthorized: false } : undefined,
+    socket: { tls: true, rejectUnauthorized: false },
   });
 
   await client.connect();
