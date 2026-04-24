@@ -15,10 +15,11 @@ Before using this service, make sure your Electron app meets these criteria:
 
 ## Quick Setup
 
-Install [update-electron-app] as a runtime dependency (not a devDependency):
+We provide [update-electron-app] as a zero-config runtime dependency to use update.electronjs.org
+with your Electron app.
 
 ```sh
-npm install update-electron-app --save
+npm install update-electron-app
 ```
 
 Call it from in your [main process] file:
@@ -38,17 +39,18 @@ publish.
 
 Use something like the following setup to add automatic updates to your application:
 
-**Important:** Please ensure that the code below will only be executed in
-your packaged app, and not in development. You can use
-[electron-is-dev](https://github.com/sindresorhus/electron-is-dev) to check for
-the environment.
+> [!IMPORTANT]
+> Please ensure that the code below will only be executed in
+> your packaged app, and not in development. You can use
+> the [app.isPackaged](https://www.electronjs.org/docs/latest/api/app#appispackaged-readonly) API
+> to check for the environment.
 
 ```javascript
 const { app, autoUpdater } = require('electron')
 ```
 
 Next, construct the URL of the update server and tell
-[autoUpdater](https://electronjs.org/docs/api/auto-updater) about it:
+[autoUpdater](https://electronjs.org/docs/latest/api/auto-updater) about it:
 
 ```javascript
 const server = 'https://update.electronjs.org'
@@ -95,7 +97,6 @@ These API endpoints support the query path arguments as defined below:
   - `squirrel` - Squirrel.Windows (default for Windows when omitted)
   - `msix` - MSIX auto-update (available on Electron 41+)
 - `:version` - Semantic Versioning (SemVer) compatible application version number
-  
 
 ## Asset Naming Convention
 
@@ -173,36 +174,56 @@ The MSIX updater returns the same JSON format as macOS (`{ name, notes, url }`) 
 
 ## Development
 
+There are two development servers available:
+
+### Production server
+
+This runs the full server with Redis caching and GitHub API integration.
+
 You'll first need to have a running Redis server. There are two options:
 
-1) Locally: Install Redis locally and run it directly with `redis-server`. Guides can be found [here](https://redis.io/docs/getting-started/installation/install-redis-on-mac-os/).
+1) Locally: Install Redis locally and run it directly with `redis-server`. [Learn how to install Redis on the Redis website](https://redis.io/docs/latest/operate/oss_and_stack/install/install-stack/).
 2) Docker: Install and run Redis with `docker run -p 6379:6379 -it redis/redis-stack-server:latest`.
 
+Then run the server:
+
 ```bash
-$ yarn
-$ GH_TOKEN=TOKEN npm start
+yarn
+GH_TOKEN=TOKEN yarn start
 ```
+
+### Test server
+
+This runs a lightweight server with an in-memory cache and no external dependencies (no Redis or `GH_TOKEN` required).
+Useful for local development and testing.
+
+```bash
+yarn
+yarn start-test-server
+```
+
+### Sample app
 
 To try with an actual electron app, run:
 
 ```bash
-$ yarn start &
-$ cd example
-$ yarn
+yarn start &
+cd example
+yarn
 ```
 
 On Darwin:
 
 ```bash
-$ npm run build
-$ ./out/test-darwin-x64/test.app/Contents/MacOS/test
+yarn build
+./out/test-darwin-x64/test.app/Contents/MacOS/test
 ```
 
 On Windows:
 
 ```bash
-$ npm run build
-$ "example\out\make\squirrel.windows\x64\test-0.0.0 Setup.exe"
+yarn run build
+"example\out\make\squirrel.windows\x64\test-0.0.0 Setup.exe"
 ```
 
 [update-electron-app API]: https://github.com/electron/update-electron-app#api

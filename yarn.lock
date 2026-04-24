@@ -906,6 +906,87 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@typescript/native-preview-darwin-arm64@npm:7.0.0-dev.20260417.1":
+  version: 7.0.0-dev.20260417.1
+  resolution: "@typescript/native-preview-darwin-arm64@npm:7.0.0-dev.20260417.1"
+  conditions: os=darwin & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@typescript/native-preview-darwin-x64@npm:7.0.0-dev.20260417.1":
+  version: 7.0.0-dev.20260417.1
+  resolution: "@typescript/native-preview-darwin-x64@npm:7.0.0-dev.20260417.1"
+  conditions: os=darwin & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@typescript/native-preview-linux-arm64@npm:7.0.0-dev.20260417.1":
+  version: 7.0.0-dev.20260417.1
+  resolution: "@typescript/native-preview-linux-arm64@npm:7.0.0-dev.20260417.1"
+  conditions: os=linux & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@typescript/native-preview-linux-arm@npm:7.0.0-dev.20260417.1":
+  version: 7.0.0-dev.20260417.1
+  resolution: "@typescript/native-preview-linux-arm@npm:7.0.0-dev.20260417.1"
+  conditions: os=linux & cpu=arm
+  languageName: node
+  linkType: hard
+
+"@typescript/native-preview-linux-x64@npm:7.0.0-dev.20260417.1":
+  version: 7.0.0-dev.20260417.1
+  resolution: "@typescript/native-preview-linux-x64@npm:7.0.0-dev.20260417.1"
+  conditions: os=linux & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@typescript/native-preview-win32-arm64@npm:7.0.0-dev.20260417.1":
+  version: 7.0.0-dev.20260417.1
+  resolution: "@typescript/native-preview-win32-arm64@npm:7.0.0-dev.20260417.1"
+  conditions: os=win32 & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@typescript/native-preview-win32-x64@npm:7.0.0-dev.20260417.1":
+  version: 7.0.0-dev.20260417.1
+  resolution: "@typescript/native-preview-win32-x64@npm:7.0.0-dev.20260417.1"
+  conditions: os=win32 & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@typescript/native-preview@npm:^7.0.0-dev.20260417.1":
+  version: 7.0.0-dev.20260417.1
+  resolution: "@typescript/native-preview@npm:7.0.0-dev.20260417.1"
+  dependencies:
+    "@typescript/native-preview-darwin-arm64": "npm:7.0.0-dev.20260417.1"
+    "@typescript/native-preview-darwin-x64": "npm:7.0.0-dev.20260417.1"
+    "@typescript/native-preview-linux-arm": "npm:7.0.0-dev.20260417.1"
+    "@typescript/native-preview-linux-arm64": "npm:7.0.0-dev.20260417.1"
+    "@typescript/native-preview-linux-x64": "npm:7.0.0-dev.20260417.1"
+    "@typescript/native-preview-win32-arm64": "npm:7.0.0-dev.20260417.1"
+    "@typescript/native-preview-win32-x64": "npm:7.0.0-dev.20260417.1"
+  dependenciesMeta:
+    "@typescript/native-preview-darwin-arm64":
+      optional: true
+    "@typescript/native-preview-darwin-x64":
+      optional: true
+    "@typescript/native-preview-linux-arm":
+      optional: true
+    "@typescript/native-preview-linux-arm64":
+      optional: true
+    "@typescript/native-preview-linux-x64":
+      optional: true
+    "@typescript/native-preview-win32-arm64":
+      optional: true
+    "@typescript/native-preview-win32-x64":
+      optional: true
+  bin:
+    tsgo: bin/tsgo.js
+  checksum: 10c0/a6ab152d4aa5ac2033e053240658d15da1bda2acb9ef87f0250b5c78526a1e7ce59449c80ba46fed62382aed13b30ae0cc892bcf7ccaf7115321131e34e4cc82
+  languageName: node
+  linkType: hard
+
 "@vitest/coverage-v8@npm:^4.0.18":
   version: 4.0.18
   resolution: "@vitest/coverage-v8@npm:4.0.18"
@@ -2317,26 +2398,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^6.0.2":
-  version: 6.0.2
-  resolution: "typescript@npm:6.0.2"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 10c0/4b860b0bf87cc0fee0f66d8ef2640b5a8a8a8c74d1129adb82e389e5f97124383823c47946bef8a73ede371461143a3aa8544399d2133c7b2e4f07e81860af7f
-  languageName: node
-  linkType: hard
-
-"typescript@patch:typescript@npm%3A^6.0.2#optional!builtin<compat/typescript>":
-  version: 6.0.2
-  resolution: "typescript@patch:typescript@npm%3A6.0.2#optional!builtin<compat/typescript>::version=6.0.2&hash=5786d5"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 10c0/49f0b84fc6ca55653e77752b8a61beabc09ee3dae5d965c31596225aa6ef213c5727b1d2e895b900416dc603854ba0872ac4a812c2a4ed6793a601f9c675de02
-  languageName: node
-  linkType: hard
-
 "undici-types@npm:~7.13.0":
   version: 7.13.0
   resolution: "undici-types@npm:7.13.0"
@@ -2354,6 +2415,7 @@ __metadata:
     "@types/node": "npm:^24.6.2"
     "@types/request-ip": "npm:^0.0.41"
     "@types/semver": "npm:^7.7.1"
+    "@typescript/native-preview": "npm:^7.0.0-dev.20260417.1"
     "@vitest/coverage-v8": "npm:^4.0.18"
     "@vitest/ui": "npm:^4.0.18"
     cross-env: "npm:^7.0.3"
@@ -2370,7 +2432,6 @@ __metadata:
     redis: "npm:^5.8.3"
     request-ip: "npm:^3.3.0"
     semver: "npm:^7.5.2"
-    typescript: "npm:^6.0.2"
     vitest: "npm:^4.0.18"
   languageName: unknown
   linkType: soft

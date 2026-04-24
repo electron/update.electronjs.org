@@ -78,7 +78,7 @@ export default class Updates {
 
     const server = http.createServer((req, res) => {
       const start = new Date();
-      this.handle(req, res)
+      void this.handle(req, res)
         .catch((err: any) => {
           log.error(err);
           res.statusCode = err.statusCode || 500;
