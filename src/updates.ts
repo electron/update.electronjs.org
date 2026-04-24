@@ -6,7 +6,17 @@ import { pino } from 'pino';
 import requestIp from 'request-ip';
 
 import { assetPlatform } from './asset-platform.js';
-import { PLATFORM, PLATFORM_ARCH, PLATFORM_ARCHS, ENV, type PlatformArch } from './constants.js';
+import {
+  PLATFORM,
+  PLATFORM_ARCH,
+  PLATFORM_ARCHS,
+  UPDATE_FORMAT,
+  UPDATE_FORMATS,
+  SQUIRREL_TO_MSIX,
+  ENV,
+  type PlatformArch,
+  type UpdateFormat,
+} from './constants.js';
 
 const log = pino({
   level: process.env.NODE_ENV === 'test' ? 'error' : 'info',
@@ -94,25 +104,69 @@ export default class Updates {
 
   async handle(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
     const segs = (req.url || '').split(/[/?]/).filter(Boolean);
-    const [account, repository, , version, file] = segs;
+    const [account, repository] = segs;
     let platform = segs[2];
 
     if (platform === PLATFORM.WIN32) platform = PLATFORM_ARCH.WIN_X64;
     if (platform === PLATFORM.DARWIN) platform = PLATFORM_ARCH.DARWIN_X64;
 
-    if (!account || !repository || !platform || !version) {
+    // Validate platform before parsing format
+    if (!account || !repository || !platform) {
       redirect(res, 'https://github.com/electron/update.electronjs.org');
+      return;
     } else if (!PLATFORM_ARCHS.includes(platform as PlatformArch)) {
       const message = `Unsupported platform: "${platform}". Supported: ${PLATFORM_ARCHS.join(
         ', ',
       )}.`;
       notFound(res, message);
+      return;
+    }
+
+    // Detect optional format segment: /:platform/:format/:version
+    // If segs[3] is a known update format, it's the format param;
+    // otherwise it's the version (existing behavior).
+    let format: UpdateFormat | undefined;
+    let version: string | undefined;
+    let file: string | undefined;
+
+    if (segs[3] && UPDATE_FORMATS.includes(segs[3] as UpdateFormat)) {
+      format = segs[3] as UpdateFormat;
+      version = segs[4];
+      file = segs[5];
+    } else {
+      version = segs[3];
+      file = segs[4];
+    }
+
+    // Map win32 platform to MSIX variant when format is "msix"
+    if (format === UPDATE_FORMAT.MSIX) {
+      const msixPlatform = SQUIRREL_TO_MSIX[platform as keyof typeof SQUIRREL_TO_MSIX];
+      if (msixPlatform) {
+        platform = msixPlatform;
+      } else {
+        badRequest(
+          res,
+          `MSIX format is not supported for platform "${platform}". MSIX is available for: win32-x64, win32-arm64.`,
+        );
+        return;
+      }
+    }
+
+    if (!version) {
+      redirect(res, 'https://github.com/electron/update.electronjs.org');
     } else if (version && !semver.valid(version)) {
       badRequest(res, `Invalid SemVer: "${version}"`);
     } else if (file === 'RELEASES') {
+      if (format === UPDATE_FORMAT.MSIX) {
+        notFound(
+          res,
+          'The RELEASES endpoint is not available for MSIX updates. MSIX uses JSON responses from the base update URL.',
+        );
+        return;
+      }
       await this.handleReleases(res, account, repository, platform as PlatformArch, version);
     } else {
-      await this.handleUpdate(res, account, repository, platform as PlatformArch, version);
+      await this.handleUpdate(res, account, repository, platform as PlatformArch, version, format);
     }
   }
 
@@ -134,6 +188,7 @@ export default class Updates {
     repository: string,
     platform: PlatformArch,
     version: string,
+    format?: UpdateFormat,
   ): Promise<void> {
     let latest = await this.cachedGetLatest(account, repository, platform, version);
 
@@ -153,9 +208,17 @@ export default class Updates {
     }
 
     if (!latest) {
-      const message = platform.includes(PLATFORM.DARWIN)
-        ? 'No updates found (needs asset matching .*-(mac|darwin|osx).*.zip in public repository)'
-        : 'No updates found (needs asset containing .*-win32-(x64|ia32|arm64) or .exe in public repository)';
+      let message: string;
+      if (platform.includes(PLATFORM.DARWIN)) {
+        message =
+          'No updates found (needs asset matching .*-(mac|darwin|osx).*.zip in public repository)';
+      } else if (format === UPDATE_FORMAT.MSIX) {
+        message =
+          'No updates found (needs asset matching .*-win32-(x64|arm64).*.msix in public repository)';
+      } else {
+        message =
+          'No updates found (needs asset containing .*-win32-(x64|ia32|arm64) or .exe in public repository)';
+      }
       notFound(res, message);
     } else if (semver.lte(latest.version, version)) {
       log.debug({ account, repository, platform, version }, 'up to date');
@@ -283,13 +346,6 @@ export default class Updates {
             notes: release.body,
           };
         }
-        if (hasAllAssets(latest)) {
-          break;
-        }
-      }
-
-      if (hasAllAssets(latest)) {
-        break;
       }
     }
 
@@ -338,17 +394,6 @@ const needsSpecificReleaseTag = (
   return null;
 };
 
-const hasAllAssets = (latest: LatestReleases): boolean => {
-  return !!(
-    latest[PLATFORM_ARCH.DARWIN_X64] &&
-    latest[PLATFORM_ARCH.DARWIN_ARM64] &&
-    latest[PLATFORM_ARCH.DARWIN_UNIVERSAL] &&
-    latest[PLATFORM_ARCH.WIN_X64] &&
-    latest[PLATFORM_ARCH.WIN_IA32] &&
-    latest[PLATFORM_ARCH.WIN_ARM64]
-  );
-};
-
 const hasAnyAsset = (latest: LatestReleases): boolean => {
   return !!(
     latest[PLATFORM_ARCH.DARWIN_X64] ||
@@ -356,7 +401,9 @@ const hasAnyAsset = (latest: LatestReleases): boolean => {
     latest[PLATFORM_ARCH.DARWIN_UNIVERSAL] ||
     latest[PLATFORM_ARCH.WIN_X64] ||
     latest[PLATFORM_ARCH.WIN_IA32] ||
-    latest[PLATFORM_ARCH.WIN_ARM64]
+    latest[PLATFORM_ARCH.WIN_ARM64] ||
+    latest[PLATFORM_ARCH.WIN_X64_MSIX] ||
+    latest[PLATFORM_ARCH.WIN_ARM64_MSIX]
   );
 };
 

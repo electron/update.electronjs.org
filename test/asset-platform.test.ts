@@ -72,6 +72,42 @@ describe('assetPlatform()', () => {
         name: 'osx.zip',
         platform: false,
       },
+      {
+        name: 'app-1.0.0-win32-x64.msix',
+        platform: PLATFORM_ARCH.WIN_X64_MSIX,
+      },
+      {
+        name: 'app-1.0.0-win32-arm64.msix',
+        platform: PLATFORM_ARCH.WIN_ARM64_MSIX,
+      },
+      {
+        name: 'app-win32-x64-setup.msix',
+        platform: PLATFORM_ARCH.WIN_X64_MSIX,
+      },
+      {
+        name: 'app-win32-arm64.msix',
+        platform: PLATFORM_ARCH.WIN_ARM64_MSIX,
+      },
+      {
+        name: 'app-installer.msix',
+        platform: false,
+      },
+      {
+        name: 'win32.msix',
+        platform: false,
+      },
+      {
+        name: 'win32-arm64.msix',
+        platform: false,
+      },
+      {
+        name: 'app-win32-ia32.msix',
+        platform: false,
+      },
+      {
+        name: 'app-1.0.0-win32-ia32.msix',
+        platform: false,
+      },
     ];
 
     for (const release of releases) {
