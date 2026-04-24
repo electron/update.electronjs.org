@@ -833,10 +833,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tsconfig/node22@npm:^22.0.2":
-  version: 22.0.2
-  resolution: "@tsconfig/node22@npm:22.0.2"
-  checksum: 10c0/c75e6b9ea86ec2a384adefac0e2f16a6c08202ae5cf6c8c745944396a6931ffb38e742809491c1882d1868c2af1c33744193701779674bfb1e05f6a130045a18
+"@tsconfig/node24@npm:^24.0.4":
+  version: 24.0.4
+  resolution: "@tsconfig/node24@npm:24.0.4"
+  checksum: 10c0/9c5d4173204c6935c45d3ff0584fd423bd7d8bc3f6b246e646320ae584e4226b34ea1c66ec67cd16769c73e7e80f4cc562287b0acaa4ec81aa482463972ff83f
   languageName: node
   linkType: hard
 
@@ -2400,7 +2400,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "update.electronjs.org@workspace:."
   dependencies:
-    "@tsconfig/node22": "npm:^22.0.2"
+    "@tsconfig/node24": "npm:^24.0.4"
     "@types/dotenv-safe": "npm:^9.1.0"
     "@types/ms": "npm:^2.1.0"
     "@types/node": "npm:^24.6.2"

@@ -1,7 +1,7 @@
 import http from 'node:http';
 import nock from 'nock';
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
-import Updates from '../src/updates.js';
+import Updates from '../src/updates.ts';
 
 nock.disableNetConnect();
 nock.enableNetConnect('localhost');

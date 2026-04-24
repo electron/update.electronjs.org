@@ -3,9 +3,9 @@
 import { config } from 'dotenv-safe';
 import assert from 'node:assert';
 import redis from 'redis';
-import ms, { StringValue } from 'ms';
-import Redlock, { CompatibleRedisClient } from 'redlock';
-import Updates from '../src/updates.js';
+import ms from 'ms';
+import Redlock from 'redlock';
+import Updates from '../src/updates.ts';
 
 config();
 
@@ -41,7 +41,7 @@ async function getCache() {
 
   client.on('error', (err) => console.log('Redis Client Error', err));
 
-  const redlock = new Redlock([client.legacy() as CompatibleRedisClient], {
+  const redlock = new Redlock([client.legacy() as Redlock.CompatibleRedisClient], {
     retryDelay: ms('10s'),
   });
 
@@ -54,7 +54,7 @@ async function getCache() {
       const json = JSON.stringify(value);
 
       await client.set(key, json, {
-        EX: Math.floor(ms(cacheTTL as StringValue) / 1000),
+        EX: Math.floor(ms(cacheTTL as ms.StringValue) / 1000),
       });
     },
     async lock(resource: string) {

@@ -26,7 +26,7 @@
     "semver": "^7.5.2"
   },
   "devDependencies": {
-    "@tsconfig/node22": "^22.0.2",
+    "@tsconfig/node24": "^24.0.4",
     "@types/dotenv-safe": "^9.1.0",
     "@types/ms": "^2.1.0",
     "@types/node": "^24.6.2",

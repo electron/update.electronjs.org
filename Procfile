@@ -1,1 +1,1 @@
-web: node bin/update-server.js
+web: node bin/update-server.ts

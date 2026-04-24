@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import Updates from '../src/updates.js';
+import Updates from '../src/updates.ts';
 
 describe('IP Hashing', () => {
   let updates: Updates;

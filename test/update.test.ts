@@ -1,7 +1,7 @@
 import http from 'node:http';
 import nock from 'nock';
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { createServer } from './helpers/create-server.js';
+import { createServer } from './helpers/create-server.ts';
 
 nock.disableNetConnect();
 nock.enableNetConnect('localhost');

@@ -1,4 +1,4 @@
-import { PLATFORM_ARCH, type PlatformArch } from './constants.js';
+import { PLATFORM_ARCH, type PlatformArch } from './constants.ts';
 
 export const assetPlatform = (fileName: string): PlatformArch | false => {
   if (/.*-(mac|darwin|osx).*\.zip$/i.test(fileName)) {

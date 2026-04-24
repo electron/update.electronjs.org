@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { assetPlatform } from '../src/asset-platform.js';
-import { PLATFORM_ARCH, type PlatformArch } from '../src/constants.js';
+import { assetPlatform } from '../src/asset-platform.ts';
+import { PLATFORM_ARCH, type PlatformArch } from '../src/constants.ts';
 
 describe('assetPlatform()', () => {
   it('matches the right platform', () => {
