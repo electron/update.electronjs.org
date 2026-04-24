@@ -4,7 +4,6 @@ import { config } from 'dotenv-safe';
 import assert from 'node:assert';
 import redis from 'redis';
 import ms from 'ms';
-import Redlock from 'redlock';
 import Updates from '../src/updates.ts';
 
 config();
@@ -28,22 +27,17 @@ assert(token, 'GH_TOKEN required');
 //
 async function getCache() {
   const fixedRedisUrl = redisUrl.replace('redis://h:', 'redis://:');
+  // rediss:// provided by Heroku in production
+  const useTls = fixedRedisUrl.startsWith('rediss://');
   const client = redis.createClient({
     url: fixedRedisUrl,
-    socket: {
-      tls: true,
-      rejectUnauthorized: false,
-    },
+    socket: useTls ? { tls: true, rejectUnauthorized: false } : undefined,
   });
 
   await client.connect();
   await client.ping();
 
   client.on('error', (err) => console.log('Redis Client Error', err));
-
-  const redlock = new Redlock([client.legacy() as Redlock.CompatibleRedisClient], {
-    retryDelay: ms('10s'),
-  });
 
   const cache = {
     async get(key: string) {
@@ -58,10 +52,15 @@ async function getCache() {
       });
     },
     async lock(resource: string) {
-      const result = await redlock.lock([`locks:${resource}`], ms('1m'));
+      const lockKey = `locks:${resource}`;
+      const lockTTL = Math.floor(ms('1m') / 1000);
+      const acquired = await client.set(lockKey, '1', { NX: true, EX: lockTTL });
+      if (!acquired) {
+        throw new Error(`Could not acquire lock for ${resource}`);
+      }
       return {
         async unlock() {
-          await result.unlock();
+          await client.del(lockKey);
         },
       };
     },
