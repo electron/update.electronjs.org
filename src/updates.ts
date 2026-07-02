@@ -179,6 +179,8 @@ export default class Updates {
   ): Promise<void> {
     const latest = await this.cachedGetLatest(account, repository, platform, version);
     if (!latest || !latest.RELEASES) return notFound(res);
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
     res.end(latest.RELEASES);
   }
 
@@ -418,11 +420,15 @@ const hasAnyAsset = (latest: LatestReleases): boolean => {
 
 const notFound = (res: http.ServerResponse, message = 'Not found'): void => {
   res.statusCode = 404;
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
   res.end(message);
 };
 
 const badRequest = (res: http.ServerResponse, message: string): void => {
   res.statusCode = 400;
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
   res.end(message);
 };
 
