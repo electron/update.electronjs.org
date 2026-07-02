@@ -13,7 +13,6 @@ import {
   UPDATE_FORMAT,
   UPDATE_FORMATS,
   SQUIRREL_TO_MSIX,
-  ENV,
   type PlatformArch,
   type UpdateFormat,
 } from './constants.ts';
@@ -82,8 +81,9 @@ export default class Updates {
         .catch((err: any) => {
           log.error(err);
           res.statusCode = err.statusCode || 500;
-          const msg = ENV === 'production' ? 'Internal Server Error' : err.stack;
-          res.end(msg);
+          // Never expose stack traces or internal details to remote clients;
+          // detailed diagnostics are captured in the server-side log above.
+          res.end('Internal Server Error');
         })
         .then(() => {
           log.debug(
