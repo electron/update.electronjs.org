@@ -250,7 +250,16 @@ export default class Updates {
   ): Promise<LatestRelease | null> {
     const tag = needsSpecificReleaseTag(account, repository, platform, version);
 
-    const key = tag ? `${account}/${repository}-${tag}` : `${account}/${repository}`;
+    // Encode each user-controlled segment and use `/` (which cannot appear
+    // within a single URL path segment) as the tag delimiter, so that the tag
+    // namespace can never collide with a repository name. Without this, a
+    // request for repository `foo-<tag>` (no tag) would produce the same key
+    // as repository `foo` with tag `<tag>`, allowing cache poisoning.
+    const encodedAccount = encodeURIComponent(account);
+    const encodedRepository = encodeURIComponent(repository);
+    const key = tag
+      ? `${encodedAccount}/${encodedRepository}/${encodeURIComponent(tag)}`
+      : `${encodedAccount}/${encodedRepository}`;
     let latest = await this.cache.get(key);
 
     if (latest) {
