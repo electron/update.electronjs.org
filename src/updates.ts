@@ -271,28 +271,43 @@ export default class Updates {
       log.debug({ key }, 'lock acquiring');
       lock = await this.cache.lock(key);
       log.debug({ key }, 'lock acquired');
-      latest = await this.cache.get(key);
-      if (latest) {
-        log.debug({ key }, 'cache hit after lock');
-        return latest[platform] ? latest[platform]! : null;
+    }
+
+    try {
+      if (lock) {
+        latest = await this.cache.get(key);
+        if (latest) {
+          log.debug({ key }, 'cache hit after lock');
+          return latest[platform] ? latest[platform]! : null;
+        }
+      }
+
+      try {
+        latest = await this.getLatest(account, repository, platform, version);
+
+        if (latest) {
+          await this.cache.set(key, latest);
+        } else {
+          await this.cache.set(key, {});
+        }
+      } catch (err) {
+        // Record a negative cache entry on failure so a single failing release
+        // fetch cannot repeatedly deny updates for this repository while the
+        // error condition persists.
+        await this.cache.set(key, {});
+        throw err;
+      }
+
+      return latest && latest[platform] ? latest[platform]! : null;
+    } finally {
+      // Always release the lock, even when getLatest or cache.set throws, so a
+      // failing request never leaves the distributed lock held for its TTL.
+      if (lock) {
+        log.debug({ key }, 'lock releasing');
+        await lock.unlock();
+        log.debug({ key }, 'lock released');
       }
     }
-
-    latest = await this.getLatest(account, repository, platform, version);
-
-    if (latest) {
-      await this.cache.set(key, latest);
-    } else {
-      await this.cache.set(key, {});
-    }
-
-    if (lock) {
-      log.debug({ key }, 'lock releasing');
-      await lock.unlock();
-      log.debug({ key }, 'lock released');
-    }
-
-    return latest && latest[platform] ? latest[platform]! : null;
   }
 
   async getLatest(
