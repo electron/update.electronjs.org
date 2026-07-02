@@ -22,6 +22,61 @@ const log = pino({
   level: process.env.NODE_ENV === 'test' ? 'error' : 'info',
 });
 
+// Upper bound on the size of a RELEASES asset we are willing to read from an
+// untrusted, externally-hosted release. RELEASES files describe Squirrel.Windows
+// packages and are only ever a few lines long; this cap is far larger than any
+// legitimate file while preventing an attacker-controlled release from forcing
+// the server to buffer (and scan) unbounded content.
+const MAX_RELEASES_BYTES = 10 * 1024 * 1024;
+
+// Read the response body as UTF-8 text, stopping once maxBytes have been read.
+// fetch()'s Response.text() reads the entire body regardless of size, so we
+// consume the stream manually to enforce a hard limit on untrusted input.
+const readBoundedText = async (res: Response, maxBytes: number): Promise<string> => {
+  const reader = res.body?.getReader();
+  if (!reader) return '';
+
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  try {
+    while (total < maxBytes) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+      total += value.byteLength;
+    }
+  } finally {
+    await reader.cancel().catch(() => {});
+  }
+
+  let buf = Buffer.concat(chunks);
+  if (buf.byteLength > maxBytes) buf = buf.subarray(0, maxBytes);
+  return buf.toString('utf8');
+};
+
+// Locate the first whitespace-delimited (space-separated) token that references
+// a `.nupkg` package in a RELEASES file. This replaces a `/[^ ]*\.nupkg/` regex
+// whose greedy quantifier backtracked quadratically on long runs of non-space
+// characters that never matched. The scan below is strictly linear in the size
+// of the input so untrusted content cannot cause super-linear CPU consumption.
+const findNupkgName = (body: string): string | null => {
+  const marker = '.nupkg';
+  const idx = body.toLowerCase().indexOf(marker);
+  if (idx === -1) return null;
+
+  // Expand to the surrounding space-delimited run. `[^ ]` in the original regex
+  // excluded only the literal space character (0x20), so we match that exactly.
+  let start = idx;
+  while (start > 0 && body[start - 1] !== ' ') start--;
+  let runEnd = idx + marker.length;
+  while (runEnd < body.length && body[runEnd] !== ' ') runEnd++;
+
+  // The greedy quantifier consumed the whole run then backtracked to the last
+  // `.nupkg` within it; reproduce that by taking the final occurrence in the run.
+  const lastRel = body.slice(start, runEnd).toLowerCase().lastIndexOf(marker);
+  return body.slice(start, start + lastRel + marker.length);
+};
+
 interface Asset {
   name: string;
   browser_download_url: string;
@@ -355,11 +410,11 @@ export default class Updates {
         const rurl = `https://github.com/${account}/${repository}/releases/download/${releaseForKey.version}/RELEASES`;
         const rres = await fetch(rurl);
         if (rres.status < 400) {
-          const body = await rres.text();
-          const matches = body.match(/[^ ]*\.nupkg/gim);
-          assert(matches);
-          const nuPKG = rurl.replace('RELEASES', matches[0]!);
-          releaseForKey.RELEASES = body.replace(matches[0]!, nuPKG);
+          const body = await readBoundedText(rres, MAX_RELEASES_BYTES);
+          const nupkgName = findNupkgName(body);
+          assert(nupkgName);
+          const nuPKG = rurl.replace('RELEASES', nupkgName);
+          releaseForKey.RELEASES = body.replace(nupkgName, nuPKG);
         }
       }
     }
