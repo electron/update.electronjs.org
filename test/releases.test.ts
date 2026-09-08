@@ -38,6 +38,8 @@ describe('RELEASES File Edge Cases', () => {
       ]);
 
     nock('https://github.com')
+      .get('/owner/invalid-releases/releases/download/v1.0.0/x64.RELEASES')
+      .reply(404)
       .get('/owner/invalid-releases/releases/download/v1.0.0/RELEASES')
       .reply(200, 'INVALID FORMAT WITHOUT NUPKG');
 
@@ -64,6 +66,8 @@ describe('RELEASES File Edge Cases', () => {
       ]);
 
     nock('https://github.com')
+      .get('/owner/arm64-releases/releases/download/v1.0.0/arm64.RELEASES')
+      .reply(404)
       .get('/owner/arm64-releases/releases/download/v1.0.0/RELEASES')
       .reply(200, 'HASH arm64-package.nupkg NUMBER');
 
@@ -94,6 +98,8 @@ describe('RELEASES File Edge Cases', () => {
       ]);
 
     nock('https://github.com')
+      .get('/owner/multi-nupkg/releases/download/v2.0.0/x64.RELEASES')
+      .reply(404)
       .get('/owner/multi-nupkg/releases/download/v2.0.0/RELEASES')
       .reply(200, 'HASH1 first.nupkg SIZE1\nHASH2 second.nupkg SIZE2');
 
@@ -128,6 +134,8 @@ describe('RELEASES File Edge Cases', () => {
     // `.nupkg` substring. The previous `/[^ ]*\.nupkg/` regex backtracked
     // quadratically on this input; the linear scan must handle it quickly.
     nock('https://github.com')
+      .get('/owner/redos-releases/releases/download/v1.0.0/x64.RELEASES')
+      .reply(404)
       .get('/owner/redos-releases/releases/download/v1.0.0/RELEASES')
       .reply(200, 'a'.repeat(8 * 1024 * 1024));
 
@@ -158,6 +166,8 @@ describe('RELEASES File Edge Cases', () => {
       ]);
 
     nock('https://github.com')
+      .get('/owner/big-nupkg/releases/download/v1.0.0/x64.RELEASES')
+      .reply(404)
       .get('/owner/big-nupkg/releases/download/v1.0.0/RELEASES')
       .reply(200, `${'a'.repeat(4 * 1024 * 1024)} HASH real.nupkg SIZE`);
 
@@ -191,6 +201,8 @@ describe('RELEASES File Edge Cases', () => {
       ]);
 
     nock('https://github.com')
+      .get('/owner/empty-releases/releases/download/v1.0.0/ia32.RELEASES')
+      .reply(404)
       .get('/owner/empty-releases/releases/download/v1.0.0/RELEASES')
       .reply(200, '');
 

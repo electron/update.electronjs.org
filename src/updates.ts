@@ -76,6 +76,31 @@ const findNupkgName = (body: string): string | null => {
   return body.slice(start, start + lastRel + marker.length);
 };
 
+// Squirrel.Windows RELEASES files are looked up per architecture. A release that
+// ships several Windows architectures publishes an arch-prefixed `<arch>.RELEASES`
+// (for example `arm64.RELEASES`) alongside the bare `RELEASES`. The bare file is
+// the x64 default and the fallback for every architecture, so releases that only
+// publish `RELEASES` keep working exactly as before.
+const SQUIRREL_RELEASES_ARCHES = [
+  [PLATFORM_ARCH.WIN_X64, 'x64'],
+  [PLATFORM_ARCH.WIN_IA32, 'ia32'],
+  [PLATFORM_ARCH.WIN_ARM64, 'arm64'],
+] as const;
+
+// Fetch `${baseUrl}/${assetName}` and rewrite the nupkg reference it contains
+// into an absolute URL under baseUrl, so Squirrel downloads the package from
+// GitHub directly. Returns null when the asset does not exist (HTTP >= 400) so
+// the caller can fall back to another asset name.
+const fetchReleases = async (baseUrl: string, assetName: string): Promise<string | null> => {
+  const res = await fetch(`${baseUrl}/${assetName}`);
+  if (res.status >= 400) return null;
+
+  const body = await readBoundedText(res, MAX_RELEASES_BYTES);
+  const nupkgName = findNupkgName(body);
+  assert(nupkgName);
+  return body.replace(nupkgName, `${baseUrl}/${nupkgName}`);
+};
+
 interface Asset {
   name: string;
   browser_download_url: string;
@@ -430,17 +455,24 @@ export default class Updates {
       }
     }
 
-    for (const key of [PLATFORM_ARCH.WIN_X64, PLATFORM_ARCH.WIN_IA32, PLATFORM_ARCH.WIN_ARM64]) {
+    // Rewritten RELEASES bodies keyed by asset URL, so that architectures which
+    // resolve to the same release share a single fetch of the bare RELEASES file.
+    const releasesByUrl = new Map<string, string | null>();
+    for (const [key, arch] of SQUIRREL_RELEASES_ARCHES) {
       const releaseForKey = latest[key];
-      if (releaseForKey) {
-        const rurl = `https://github.com/${account}/${repository}/releases/download/${releaseForKey.version}/RELEASES`;
-        const rres = await fetch(rurl);
-        if (rres.status < 400) {
-          const body = await readBoundedText(rres, MAX_RELEASES_BYTES);
-          const nupkgName = findNupkgName(body);
-          assert(nupkgName);
-          const nuPKG = rurl.replace('RELEASES', nupkgName);
-          releaseForKey.RELEASES = body.replace(nupkgName, nuPKG);
+      if (!releaseForKey) continue;
+
+      const baseUrl = `https://github.com/${account}/${repository}/releases/download/${releaseForKey.version}`;
+      for (const assetName of [`${arch}.RELEASES`, 'RELEASES']) {
+        const rurl = `${baseUrl}/${assetName}`;
+        let body = releasesByUrl.get(rurl);
+        if (body === undefined) {
+          body = await fetchReleases(baseUrl, assetName);
+          releasesByUrl.set(rurl, body);
+        }
+        if (body !== null) {
+          releaseForKey.RELEASES = body;
+          break;
         }
       }
     }
