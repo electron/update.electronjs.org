@@ -87,18 +87,34 @@ const SQUIRREL_RELEASES_ARCHES = [
   [PLATFORM_ARCH.WIN_ARM64, 'arm64'],
 ] as const;
 
-// Fetch `${baseUrl}/${assetName}` and rewrite the nupkg reference it contains
-// into an absolute URL under baseUrl, so Squirrel downloads the package from
-// GitHub directly. Returns null when the asset does not exist (HTTP >= 400) so
-// the caller can fall back to another asset name.
+// Rewrite every nupkg reference in a RELEASES body into an absolute URL under
+// baseUrl, so Squirrel downloads the packages from GitHub directly. Each line
+// has the form `SHA1 <filename-or-URL> <size>[ # NN%]`; only the nupkg token is
+// replaced, so line endings and any trailing staging suffix are preserved, and
+// entries that already carry an absolute http(s) URL are left untouched. A body
+// that references no nupkg at all is unusable and fails the lookup.
+const rewriteNupkgReferences = (body: string, baseUrl: string): string => {
+  let found = false;
+  const lines = body.split('\n').map((line) => {
+    const nupkgName = findNupkgName(line);
+    if (!nupkgName) return line;
+    found = true;
+    if (/^https?:\/\//i.test(nupkgName)) return line;
+    return line.replace(nupkgName, `${baseUrl}/${nupkgName}`);
+  });
+  assert(found);
+  return lines.join('\n');
+};
+
+// Fetch `${baseUrl}/${assetName}` and rewrite the nupkg references it contains
+// into absolute URLs under baseUrl. Returns null when the asset does not exist
+// (HTTP >= 400) so the caller can fall back to another asset name.
 const fetchReleases = async (baseUrl: string, assetName: string): Promise<string | null> => {
   const res = await fetch(`${baseUrl}/${assetName}`);
   if (res.status >= 400) return null;
 
   const body = await readBoundedText(res, MAX_RELEASES_BYTES);
-  const nupkgName = findNupkgName(body);
-  assert(nupkgName);
-  return body.replace(nupkgName, `${baseUrl}/${nupkgName}`);
+  return rewriteNupkgReferences(body, baseUrl);
 };
 
 interface Asset {

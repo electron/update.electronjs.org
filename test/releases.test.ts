@@ -210,4 +210,84 @@ describe('RELEASES File Edge Cases', () => {
     // Empty RELEASES file won't match the regex, causing assertion to fail
     expect(res.status).toBe(500);
   });
+
+  describe('nupkg URL rewriting', () => {
+    // An x64-only release whose bare RELEASES file has the given body.
+    const mockReleases = (repo: string, body: string): void => {
+      nock('https://api.github.com')
+        .get(`/repos/owner/${repo}/releases?per_page=100`)
+        .reply(200, [
+          {
+            name: 'Release',
+            tag_name: 'v1.0.1',
+            body: 'notes',
+            assets: [
+              {
+                name: 'app-win32-x64-setup.exe',
+                browser_download_url: 'app-win32-x64-setup.exe',
+              },
+            ],
+          },
+        ]);
+
+      nock('https://github.com')
+        .get(`/owner/${repo}/releases/download/v1.0.1/x64.RELEASES`)
+        .reply(404)
+        .get(`/owner/${repo}/releases/download/v1.0.1/RELEASES`)
+        .reply(200, body);
+    };
+
+    const download = (repo: string): string =>
+      `https://github.com/owner/${repo}/releases/download/v1.0.1`;
+
+    it('produces the same output as before for a single-line RELEASES file', async () => {
+      mockReleases('single-line', 'HASH name.nupkg NUMBER');
+
+      const res = await fetch(`${address}/owner/single-line/win32-x64/0.0.0/RELEASES`);
+      expect(res.status).toBe(200);
+      expect(await res.text()).toBe(`HASH ${download('single-line')}/name.nupkg NUMBER`);
+    });
+
+    it('rewrites every line of a delta + full RELEASES file', async () => {
+      mockReleases(
+        'delta-full',
+        'D1HASH app-1.0.1-delta.nupkg 100\nF1HASH app-1.0.1-full.nupkg 2000 # 25%\n',
+      );
+
+      const res = await fetch(`${address}/owner/delta-full/win32-x64/0.0.0/RELEASES`);
+      expect(res.status).toBe(200);
+      expect(await res.text()).toBe(
+        `D1HASH ${download('delta-full')}/app-1.0.1-delta.nupkg 100\n` +
+          `F1HASH ${download('delta-full')}/app-1.0.1-full.nupkg 2000 # 25%\n`,
+      );
+    });
+
+    it('preserves CRLF line endings', async () => {
+      mockReleases(
+        'crlf',
+        'D1HASH app-1.0.1-delta.nupkg 100\r\nF1HASH app-1.0.1-full.nupkg 2000\r\n',
+      );
+
+      const res = await fetch(`${address}/owner/crlf/win32-x64/0.0.0/RELEASES`);
+      expect(res.status).toBe(200);
+      expect(await res.text()).toBe(
+        `D1HASH ${download('crlf')}/app-1.0.1-delta.nupkg 100\r\n` +
+          `F1HASH ${download('crlf')}/app-1.0.1-full.nupkg 2000\r\n`,
+      );
+    });
+
+    it('leaves entries that already use an absolute URL untouched', async () => {
+      mockReleases(
+        'absolute',
+        'D1HASH https://cdn.example.com/app-1.0.1-delta.nupkg 100\nF1HASH app-1.0.1-full.nupkg 2000',
+      );
+
+      const res = await fetch(`${address}/owner/absolute/win32-x64/0.0.0/RELEASES`);
+      expect(res.status).toBe(200);
+      expect(await res.text()).toBe(
+        'D1HASH https://cdn.example.com/app-1.0.1-delta.nupkg 100\n' +
+          `F1HASH ${download('absolute')}/app-1.0.1-full.nupkg 2000`,
+      );
+    });
+  });
 });
