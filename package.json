@@ -31,8 +31,8 @@
     "@types/request-ip": "^0.0.41",
     "@types/semver": "^7.7.1",
     "@typescript/native-preview": "^7.0.0-dev.20260417.1",
-    "@vitest/coverage-v8": "^4.0.18",
-    "@vitest/ui": "^4.0.18",
+    "@vitest/coverage-v8": "^5.0.1",
+    "@vitest/ui": "^5.0.1",
     "cross-env": "^7.0.3",
     "husky": "^9.1.7",
     "lint-staged": "^17.4.1",
@@ -40,7 +40,8 @@
     "oxfmt": "^0.44.0",
     "oxlint": "^1.59.0",
     "oxlint-tsgolint": "^0.20.0",
-    "vitest": "^4.1.11"
+    "vite": "^8.3.0",
+    "vitest": "^5.0.1"
   },
   "resolutions": {
     "fsevents": "npm:@electron/fsevents@2.3.3-fork"
