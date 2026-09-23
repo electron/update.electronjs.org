@@ -184,6 +184,8 @@ describe('Cache Lock Release on Failure', () => {
       ]);
 
     nock('https://github.com')
+      .get('/owner/broken-repo/releases/download/v1.0.0/x64.RELEASES')
+      .reply(404)
       .get('/owner/broken-repo/releases/download/v1.0.0/RELEASES')
       .reply(200, 'INVALID FORMAT WITHOUT NUPKG');
 
