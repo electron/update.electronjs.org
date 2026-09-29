@@ -58,6 +58,12 @@ nock('https://api.github.com')
   ]);
 
 nock('https://github.com')
+  .get('/owner/repo-msix/releases/download/1.0.0/x64.RELEASES')
+  .reply(404)
+  .get('/owner/repo-msix/releases/download/1.0.0/ia32.RELEASES')
+  .reply(404)
+  .get('/owner/repo-msix/releases/download/1.0.0/arm64.RELEASES')
+  .reply(404)
   .get('/owner/repo-msix/releases/download/1.0.0/RELEASES')
   .times(4)
   .reply(200, 'HASH name.nupkg NUMBER');
