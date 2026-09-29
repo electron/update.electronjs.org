@@ -26,7 +26,7 @@
   "devDependencies": {
     "@electron-forge/cli": "^8.0.0-alpha.6",
     "@electron-forge/maker-squirrel": "^8.0.0-alpha.6",
-    "electron": "^41.10.3"
+    "electron": "^41.10.6"
   },
   "dependenciesMeta": {
     "electron": {
