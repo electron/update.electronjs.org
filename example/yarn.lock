@@ -1059,9 +1059,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron@npm:^42.11.3":
-  version: 42.11.3
-  resolution: "electron@npm:42.11.3"
+"electron@npm:^42.11.16":
+  version: 42.11.16
+  resolution: "electron@npm:42.11.16"
   dependencies:
     "@electron-internal/extract-zip": "npm:^1.0.1"
     "@electron/get": "npm:^5.0.0"
@@ -1069,7 +1069,7 @@ __metadata:
   bin:
     electron: cli.js
     install-electron: install.js
-  checksum: 10c0/42ec2174199864f193e0bf74f7a35e040f51e2749482c6e1a6d0277deff19c423175063496938dcb8ab3e00b4e084105a4788dcb40ff863169c3b6f1f319404d
+  checksum: 10c0/461293d0115b223f86c04751edd95c956ee24b338b6216838e9dec4dd00e5de9da41d80176832b183872d9605b4dc09ea7dd4a4b09bdcd90b2337be1f43c0eeb
   languageName: node
   linkType: hard
 
@@ -3187,7 +3187,7 @@ __metadata:
   dependencies:
     "@electron-forge/cli": "npm:^8.0.0-alpha.6"
     "@electron-forge/maker-squirrel": "npm:^8.0.0-alpha.6"
-    electron: "npm:^42.11.3"
+    electron: "npm:^42.11.16"
   dependenciesMeta:
     electron:
       built: true
