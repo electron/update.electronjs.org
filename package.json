@@ -31,7 +31,7 @@
     "@types/request-ip": "^0.0.41",
     "@types/semver": "^7.7.1",
     "@typescript/native-preview": "^7.0.0-dev.20260417.1",
-    "@vitest/coverage-v8": "^5.0.1",
+    "@vitest/coverage-v8": "^5.0.5",
     "@vitest/ui": "^5.0.5",
     "cross-env": "^7.0.3",
     "husky": "^9.1.7",
@@ -41,7 +41,7 @@
     "oxlint": "^1.59.0",
     "oxlint-tsgolint": "^0.20.0",
     "vite": "^8.3.3",
-    "vitest": "^5.0.1"
+    "vitest": "^5.0.5"
   },
   "resolutions": {
     "fsevents": "npm:@electron/fsevents@2.3.3-fork"
