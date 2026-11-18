@@ -141,8 +141,27 @@ The following heuristics are used to identify update availability for a specific
 - `app-win32-arm64.zip`
 - `app-win32-arm64.exe`  
 - `app-win32-arm64-v1.2.3.exe`  
+- `arm64.MyApp-1.2.3 Setup.exe` (architecture given as a prefix - see below)
 - `app-win32.exe` (no architecture specified - treated as `-x64`)  
 - `app-installer.exe` (generic `.exe` file with no architecture or platform identifier specified - treated as `-x64`) 
+
+### Windows Squirrel RELEASES and nupkg
+
+Squirrel.Windows clients fetch a `RELEASES` file from the update feed and download the `.nupkg` packages it lists. A GitHub release has a single asset named `RELEASES`, so an app that ships more than one Windows architecture in one release publishes an architecture-prefixed copy for each additional architecture:
+
+- `RELEASES` and the `.nupkg` files it lists serve `-x64` and remain the fallback for every architecture (unchanged).
+- `arm64.RELEASES`, `arm64.<name>-<version>-full.nupkg` (and `arm64.<name>-<version>-delta.nupkg`) for ARM-based Windows.
+- `x64.RELEASES` and `ia32.RELEASES` (with their prefixed `.nupkg` files) are accepted the same way.
+- Optionally `arm64.<name> Setup.exe` for the installer; the existing `-win32-arm64` marker keeps working.
+
+For each architecture the server first fetches `<arch>.RELEASES` from the release and falls back to the bare `RELEASES` file when it does not exist. The server does not require any particular `.nupkg` name: it rewrites whatever file names the `RELEASES` file lists into absolute GitHub download URLs. `RELEASES` and `.nupkg` assets are never selected as the installer.
+
+The architecture is a prefix because Squirrel's client requires package file names to end in `-full.nupkg` or `-delta.nupkg` and parses the version from the end of the name. A suffix such as `<name>-1.0.1-full.nupkg.arm64` breaks that parsing, and `<name>-1.0.1-arm64-full.nupkg` is read as the prerelease version `1.0.1-arm64`, while a prefix is ignored. The prefix is always lowercase.
+
+**Example release assets:**
+
+- `RELEASES`, `MyApp-1.2.3-full.nupkg`, `MyApp-1.2.3 Setup.exe` (x64)
+- `arm64.RELEASES`, `arm64.MyApp-1.2.3-full.nupkg`, `arm64.MyApp-1.2.3 Setup.exe` (arm64)
 
 ### Windows Assets (MSIX)
 
